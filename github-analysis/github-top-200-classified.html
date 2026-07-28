@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Star 前 200 仓库分类报告</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f6f8fa; color: #1f2328; line-height: 1.6; padding: 24px;
+  }
+  h1 { font-size: 26px; margin-bottom: 6px; }
+  .meta { color: #656d76; font-size: 14px; margin-bottom: 24px; }
+  .stats-overview {
+    display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .stat-card {
+    background: #fff; border: 1px solid #d0d7de; border-radius: 8px;
+    padding: 16px 24px; min-width: 160px;
+  }
+  .stat-card .num { font-size: 30px; font-weight: 700; color: #0969da; }
+  .stat-card .label { font-size: 13px; color: #656d76; margin-top: 4px; }
+  
+  .layout { display: flex; gap: 24px; }
+  .sidebar {
+    width: 240px; flex-shrink: 0; position: sticky; top: 24px;
+    align-self: flex-start; max-height: calc(100vh - 48px); overflow-y: auto;
+  }
+  .sidebar h3 { font-size: 14px; color: #656d76; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .nav-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px; margin-bottom: 4px; border-radius: 6px;
+    text-decoration: none; color: #1f2328; font-size: 13px;
+    transition: background 0.15s;
+  }
+  .nav-item:hover { background: #eaeef2; }
+  .nav-cat { font-weight: 500; }
+  .nav-count {
+    background: #eaeef2; border-radius: 10px; padding: 1px 8px;
+    font-size: 12px; color: #656d76;
+  }
+  
+  .main-content { flex: 1; min-width: 0; }
+  
+  .category-section { margin-bottom: 36px; }
+  .cat-header {
+    padding: 14px 18px; border-radius: 8px 8px 0 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cat-header h2 { font-size: 18px; }
+  .cat-stats { display: flex; gap: 12px; }
+  .cat-stat { font-size: 13px; color: #656d76; }
+  
+  table {
+    width: 100%; border-collapse: collapse; background: #fff;
+    border: 1px solid #d0d7de; border-top: none; border-radius: 0 0 8px 8px;
+    overflow: hidden; font-size: 13px;
+  }
+  th {
+    background: #f6f8fa; text-align: left; padding: 8px 12px;
+    font-weight: 600; border-bottom: 1px solid #d0d7de;
+  }
+  td { padding: 7px 12px; border-bottom: 1px solid #eaecef; }
+  tr:hover { background: #f6f8fa; }
+  tr:last-child td { border-bottom: none; }
+  
+  .rank { text-align: center; font-weight: 700; color: #656d76; width: 70px; }
+  .top3 .rank { color: #d4a017; font-size: 14px; }
+  .repo a { color: #0969da; text-decoration: none; font-weight: 600; }
+  .repo a:hover { text-decoration: underline; }
+  .stars { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: #d4a017; width: 100px; }
+  .lang { width: 110px; }
+  .lang-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: 11px; font-weight: 500;
+  }
+  .desc { color: #656d76; max-width: 350px; }
+  
+  .search-box {
+    margin-bottom: 20px; padding: 10px 16px; width: 100%;
+    font-size: 14px; border: 1px solid #d0d7de; border-radius: 6px; outline: none;
+  }
+  .search-box:focus { border-color: #0969da; box-shadow: 0 0 0 3px rgba(9,105,218,0.1); }
+  
+  @media (max-width: 900px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; position: static; }
+  }
+</style>
+</head>
+<body>
+
+<h1>GitHub Star 前 200 仓库分类报告</h1>
+<div class="meta">数据来源：GitHub Search API · 抓取时间：2026-07-28 09:27 · 共 200 个仓库，12 个分类</div>
+
+<div class="stats-overview">
+  <div class="stat-card"><div class="num">200</div><div class="label">仓库总数</div></div>
+  <div class="stat-card"><div class="num">12</div><div class="label">分类数量</div></div>
+  <div class="stat-card"><div class="num">27,557,720</div><div class="label">总 Stars</div></div>
+  <div class="stat-card"><div class="num">532,193</div><div class="label">最高（build-your-own-x）</div></div>
+</div>
+
+<input type="text" class="search-box" id="search" placeholder="搜索仓库名、语言或描述..." onkeyup="filterTable()">
+
+<div class="layout">
+  <div class="sidebar">
+    <h3>分类导航</h3>
+    <a href="#学习资源___面试___算法" class="nav-item" style="border-left: 4px solid #0969da;"><span class="nav-cat">学习资源 / 面试 / 算法</span><span class="nav-count">45</span></a>
+<a href="#AI___LLM___Agent" class="nav-item" style="border-left: 4px solid #8b5cf6;"><span class="nav-cat">AI / LLM / Agent</span><span class="nav-count">60</span></a>
+<a href="#开发工具___IDE___CLI" class="nav-item" style="border-left: 4px solid #1a7f37;"><span class="nav-cat">开发工具 / IDE / CLI</span><span class="nav-count">25</span></a>
+<a href="#前端___UI_框架" class="nav-item" style="border-left: 4px solid #bf8700;"><span class="nav-cat">前端 / UI 框架</span><span class="nav-count">25</span></a>
+<a href="#其他___工具" class="nav-item" style="border-left: 4px solid #5c6bc0;"><span class="nav-cat">其他 / 工具</span><span class="nav-count">11</span></a>
+<a href="#后端___框架___运行时" class="nav-item" style="border-left: 4px solid #cf222e;"><span class="nav-cat">后端 / 框架 / 运行时</span><span class="nav-count">17</span></a>
+<a href="#基础设施___云原生___DevOps" class="nav-item" style="border-left: 4px solid #0550ae;"><span class="nav-cat">基础设施 / 云原生 / DevOps</span><span class="nav-count">7</span></a>
+<a href="#系统___编程语言___底层" class="nav-item" style="border-left: 4px solid #8250df;"><span class="nav-cat">系统 / 编程语言 / 底层</span><span class="nav-count">5</span></a>
+<a href="#社区___其他" class="nav-item" style="border-left: 4px solid #757575;"><span class="nav-cat">社区 / 其他</span><span class="nav-count">1</span></a>
+<a href="#文档___书籍___知识库" class="nav-item" style="border-left: 4px solid #455a64;"><span class="nav-cat">文档 / 书籍 / 知识库</span><span class="nav-count">1</span></a>
+<a href="#安全___隐私___网络工具" class="nav-item" style="border-left: 4px solid #6d4c41;"><span class="nav-cat">安全 / 隐私 / 网络工具</span><span class="nav-count">2</span></a>
+<a href="#媒体___下载___爬虫" class="nav-item" style="border-left: 4px solid #00838f;"><span class="nav-cat">媒体 / 下载 / 爬虫</span><span class="nav-count">1</span></a>
+
+  </div>
+  <div class="main-content">
+    
+    <div class="category-section" id="学习资源___面试___算法">
+      <div class="cat-header" style="background:#ddf4ff;border-left:5px solid #0969da;">
+        <h2 style="color:#0969da;">学习资源 / 面试 / 算法</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">45 个仓库</span>
+          <span class="cat-stat">8,294,222 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="top3">
+          <td class="rank">#1</td>
+          <td class="repo"><a href="https://github.com/codecrafters-io/build-your-own-x" target="_blank">codecrafters-io/build-your-own-x</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Markdown</span></td>
+          <td class="stars">532,193</td>
+          <td class="desc">Master programming by recreating your favorite technologies from scratch.</td>
+        </tr>
+<tr class="top3">
+          <td class="rank">#2</td>
+          <td class="repo"><a href="https://github.com/sindresorhus/awesome" target="_blank">sindresorhus/awesome</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">489,707</td>
+          <td class="desc">😎 Awesome lists about all kinds of interesting topics</td>
+        </tr>
+<tr class="top3">
+          <td class="rank">#3</td>
+          <td class="repo"><a href="https://github.com/freeCodeCamp/freeCodeCamp" target="_blank">freeCodeCamp/freeCodeCamp</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">TypeScript</span></td>
+          <td class="stars">452,981</td>
+          <td class="desc">freeCodeCamp.org's open-source codebase and curriculum. Learn math, programming, and computer scienc</td>
+        </tr>
+<tr class="">
+          <td class="rank">#5</td>
+          <td class="repo"><a href="https://github.com/EbookFoundation/free-programming-books" target="_blank">EbookFoundation/free-programming-books</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">393,155</td>
+          <td class="desc">:books: Freely available programming books</td>
+        </tr>
+<tr class="">
+          <td class="rank">#7</td>
+          <td class="repo"><a href="https://github.com/nilbuild/developer-roadmap" target="_blank">nilbuild/developer-roadmap</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">TypeScript</span></td>
+          <td class="stars">362,897</td>
+          <td class="desc">Interactive roadmaps, guides and other educational content to help developers grow in their careers.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#8</td>
+          <td class="repo"><a href="https://github.com/donnemartin/system-design-primer" target="_blank">donnemartin/system-design-primer</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">359,427</td>
+          <td class="desc">Learn how to design large-scale systems. Prep for the system design interview.  Includes Anki flashc</td>
+        </tr>
+<tr class="">
+          <td class="rank">#9</td>
+          <td class="repo"><a href="https://github.com/jwasham/coding-interview-university" target="_blank">jwasham/coding-interview-university</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">357,267</td>
+          <td class="desc">A complete computer science study plan to become a software engineer.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#10</td>
+          <td class="repo"><a href="https://github.com/vinta/awesome-python" target="_blank">vinta/awesome-python</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">310,703</td>
+          <td class="desc">An opinionated list of Python frameworks, libraries, tools, and resources</td>
+        </tr>
+<tr class="">
+          <td class="rank">#11</td>
+          <td class="repo"><a href="https://github.com/awesome-selfhosted/awesome-selfhosted" target="_blank">awesome-selfhosted/awesome-selfhosted</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">308,713</td>
+          <td class="desc">A list of Free Software network services and web applications which can be hosted on your own server</td>
+        </tr>
+<tr class="">
+          <td class="rank">#13</td>
+          <td class="repo"><a href="https://github.com/practical-tutorials/project-based-learning" target="_blank">practical-tutorials/project-based-learning</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">275,499</td>
+          <td class="desc">Curated list of project-based tutorials</td>
+        </tr>
+<tr class="">
+          <td class="rank">#17</td>
+          <td class="repo"><a href="https://github.com/trimstray/the-book-of-secret-knowledge" target="_blank">trimstray/the-book-of-secret-knowledge</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">235,470</td>
+          <td class="desc">A collection of inspiring lists, manuals, cheatsheets, blogs, hacks, one-liners, cli/web tools and m</td>
+        </tr>
+<tr class="">
+          <td class="rank">#19</td>
+          <td class="repo"><a href="https://github.com/TheAlgorithms/Python" target="_blank">TheAlgorithms/Python</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">223,221</td>
+          <td class="desc">All Algorithms implemented in Python</td>
+        </tr>
+<tr class="">
+          <td class="rank">#22</td>
+          <td class="repo"><a href="https://github.com/ossu/computer-science" target="_blank">ossu/computer-science</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">HTML</span></td>
+          <td class="stars">207,343</td>
+          <td class="desc">🎓 Path to a free self-taught education in Computer Science!</td>
+        </tr>
+<tr class="">
+          <td class="rank">#25</td>
+          <td class="repo"><a href="https://github.com/tensorflow/tensorflow" target="_blank">tensorflow/tensorflow</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">C++</span></td>
+          <td class="stars">196,577</td>
+          <td class="desc">An Open Source Machine Learning Framework for Everyone</td>
+        </tr>
+<tr class="">
+          <td class="rank">#26</td>
+          <td class="repo"><a href="https://github.com/trekhleb/javascript-algorithms" target="_blank">trekhleb/javascript-algorithms</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">JavaScript</span></td>
+          <td class="stars">196,341</td>
+          <td class="desc">📝 Algorithms and data structures implemented in JavaScript with explanations and links to further re</td>
+        </tr>
+<tr class="">
+          <td class="rank">#34</td>
+          <td class="repo"><a href="https://github.com/CyC2018/CS-Notes" target="_blank">CyC2018/CS-Notes</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">184,897</td>
+          <td class="desc">:books: 技术面试必备基础知识、Leetcode、计算机操作系统、计算机网络、系统设计</td>
+        </tr>
+<tr class="">
+          <td class="rank">#36</td>
+          <td class="repo"><a href="https://github.com/jackfrued/Python-100-Days" target="_blank">jackfrued/Python-100-Days</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Jupyter Notebook</span></td>
+          <td class="stars">184,638</td>
+          <td class="desc">Python - 100天从新手到大师</td>
+        </tr>
+<tr class="">
+          <td class="rank">#37</td>
+          <td class="repo"><a href="https://github.com/getify/You-Dont-Know-JS" target="_blank">getify/You-Dont-Know-JS</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">184,627</td>
+          <td class="desc">A book series (2 published editions) on the JS language.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#39</td>
+          <td class="repo"><a href="https://github.com/avelino/awesome-go" target="_blank">avelino/awesome-go</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Go</span></td>
+          <td class="stars">179,418</td>
+          <td class="desc">A curated list of awesome Go frameworks, libraries and software</td>
+        </tr>
+<tr class="">
+          <td class="rank">#45</td>
+          <td class="repo"><a href="https://github.com/521xueweihan/HelloGitHub" target="_blank">521xueweihan/HelloGitHub</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">167,629</td>
+          <td class="desc">:octocat: 分享 GitHub 上有趣、入门级的开源项目。Share interesting, entry-level open source projects on GitHub.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#60</td>
+          <td class="repo"><a href="https://github.com/yangshun/tech-interview-handbook" target="_blank">yangshun/tech-interview-handbook</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">TypeScript</span></td>
+          <td class="stars">141,289</td>
+          <td class="desc">Curated coding interview preparation materials for busy software engineers</td>
+        </tr>
+<tr class="">
+          <td class="rank">#67</td>
+          <td class="repo"><a href="https://github.com/labuladong/fucking-algorithm" target="_blank">labuladong/fucking-algorithm</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Markdown</span></td>
+          <td class="stars">134,996</td>
+          <td class="desc">Crack LeetCode, not only how, but also why. </td>
+        </tr>
+<tr class="">
+          <td class="rank">#70</td>
+          <td class="repo"><a href="https://github.com/ripienaar/free-for-dev" target="_blank">ripienaar/free-for-dev</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">HTML</span></td>
+          <td class="stars">130,589</td>
+          <td class="desc">A list of SaaS, PaaS and IaaS offerings that have free tiers of interest to devops and infradev</td>
+        </tr>
+<tr class="">
+          <td class="rank">#71</td>
+          <td class="repo"><a href="https://github.com/krahets/hello-algo" target="_blank">krahets/hello-algo</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Java</span></td>
+          <td class="stars">128,889</td>
+          <td class="desc">《Hello 算法》：动画图解、一键运行的数据结构与算法教程。支持简中、繁中、English、日本語，提供 Python, Java, C++, C, C#, JS, Go, Swift, Rust,</td>
+        </tr>
+<tr class="">
+          <td class="rank">#86</td>
+          <td class="repo"><a href="https://github.com/justjavac/free-programming-books-zh_CN" target="_blank">justjavac/free-programming-books-zh_CN</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">117,848</td>
+          <td class="desc">:books: 免费的计算机编程类中文书籍，欢迎投稿</td>
+        </tr>
+<tr class="">
+          <td class="rank">#87</td>
+          <td class="repo"><a href="https://github.com/Hack-with-Github/Awesome-Hacking" target="_blank">Hack-with-Github/Awesome-Hacking</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">117,051</td>
+          <td class="desc">A collection of various awesome lists for hackers, pentesters and security researchers</td>
+        </tr>
+<tr class="">
+          <td class="rank">#99</td>
+          <td class="repo"><a href="https://github.com/jaywcjlove/awesome-mac" target="_blank">jaywcjlove/awesome-mac</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Swift</span></td>
+          <td class="stars">108,777</td>
+          <td class="desc"> This project is dedicated to collecting high-quality macOS software and organizing them systematic</td>
+        </tr>
+<tr class="">
+          <td class="rank">#101</td>
+          <td class="repo"><a href="https://github.com/papers-we-love/papers-we-love" target="_blank">papers-we-love/papers-we-love</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Shell</span></td>
+          <td class="stars">108,185</td>
+          <td class="desc">Papers from the computer science community to read and discuss.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#112</td>
+          <td class="repo"><a href="https://github.com/pytorch/pytorch" target="_blank">pytorch/pytorch</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">102,023</td>
+          <td class="desc">Tensors and Dynamic neural networks in Python with strong GPU acceleration</td>
+        </tr>
+<tr class="">
+          <td class="rank">#116</td>
+          <td class="repo"><a href="https://github.com/fastapi/fastapi" target="_blank">fastapi/fastapi</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">100,953</td>
+          <td class="desc">FastAPI framework, high performance, easy to learn, fast to code, ready for production</td>
+        </tr>
+<tr class="">
+          <td class="rank">#118</td>
+          <td class="repo"><a href="https://github.com/mtdvio/every-programmer-should-know" target="_blank">mtdvio/every-programmer-should-know</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">100,180</td>
+          <td class="desc">A collection of (mostly) technical things every software developer should know about</td>
+        </tr>
+<tr class="">
+          <td class="rank">#128</td>
+          <td class="repo"><a href="https://github.com/microsoft/Web-Dev-For-Beginners" target="_blank">microsoft/Web-Dev-For-Beginners</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">JavaScript</span></td>
+          <td class="stars">96,069</td>
+          <td class="desc">24 Lessons, 12 Weeks, Get Started as a Web Developer</td>
+        </tr>
+<tr class="">
+          <td class="rank">#135</td>
+          <td class="repo"><a href="https://github.com/iluwatar/java-design-patterns" target="_blank">iluwatar/java-design-patterns</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Java</span></td>
+          <td class="stars">94,251</td>
+          <td class="desc">Design patterns implemented in Java</td>
+        </tr>
+<tr class="">
+          <td class="rank">#140</td>
+          <td class="repo"><a href="https://github.com/punkpeye/awesome-mcp-servers" target="_blank">punkpeye/awesome-mcp-servers</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">91,463</td>
+          <td class="desc">A collection of MCP servers.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#144</td>
+          <td class="repo"><a href="https://github.com/opencv/opencv" target="_blank">opencv/opencv</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">C++</span></td>
+          <td class="stars">90,168</td>
+          <td class="desc">Open Source Computer Vision Library</td>
+        </tr>
+<tr class="">
+          <td class="rank">#154</td>
+          <td class="repo"><a href="https://github.com/microsoft/ML-For-Beginners" target="_blank">microsoft/ML-For-Beginners</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Jupyter Notebook</span></td>
+          <td class="stars">88,662</td>
+          <td class="desc">12 weeks, 26 lessons, 52 quizzes, classic Machine Learning for all</td>
+        </tr>
+<tr class="">
+          <td class="rank">#159</td>
+          <td class="repo"><a href="https://github.com/MunGell/awesome-for-beginners" target="_blank">MunGell/awesome-for-beginners</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">87,791</td>
+          <td class="desc">A list of awesome beginners-friendly projects.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#166</td>
+          <td class="repo"><a href="https://github.com/ByteByteGoHq/system-design-101" target="_blank">ByteByteGoHq/system-design-101</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">86,488</td>
+          <td class="desc">Explain complex systems using visuals and simple terms. Help you prepare for system design interview</td>
+        </tr>
+<tr class="">
+          <td class="rank">#173</td>
+          <td class="repo"><a href="https://github.com/DopplerHQ/awesome-interview-questions" target="_blank">DopplerHQ/awesome-interview-questions</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">83,804</td>
+          <td class="desc">:octocat: A curated awesome list of lists of interview questions. Feel free to contribute! :mortar_b</td>
+        </tr>
+<tr class="">
+          <td class="rank">#174</td>
+          <td class="repo"><a href="https://github.com/bregman-arie/devops-exercises" target="_blank">bregman-arie/devops-exercises</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">83,411</td>
+          <td class="desc">Linux, Jenkins, AWS, SRE, Prometheus, Docker, Python, Ansible, Git, Kubernetes, Terraform, OpenStack</td>
+        </tr>
+<tr class="">
+          <td class="rank">#175</td>
+          <td class="repo"><a href="https://github.com/Developer-Y/cs-video-courses" target="_blank">Developer-Y/cs-video-courses</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">82,729</td>
+          <td class="desc">List of Computer Science courses with video lectures.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#189</td>
+          <td class="repo"><a href="https://github.com/netdata/netdata" target="_blank">netdata/netdata</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Go</span></td>
+          <td class="stars">79,881</td>
+          <td class="desc">The fastest path to AI-powered full stack observability, even for lean teams.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#193</td>
+          <td class="repo"><a href="https://github.com/d2l-ai/d2l-zh" target="_blank">d2l-ai/d2l-zh</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Python</span></td>
+          <td class="stars">79,237</td>
+          <td class="desc">《动手学深度学习》：面向中文读者、能运行、可讨论。中英文版被70多个国家的500多所大学用于教学。</td>
+        </tr>
+<tr class="">
+          <td class="rank">#194</td>
+          <td class="repo"><a href="https://github.com/doocs/advanced-java" target="_blank">doocs/advanced-java</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">Java</span></td>
+          <td class="stars">79,014</td>
+          <td class="desc">😮 Core Interview Questions & Answers For Experienced Java(Backend) Developers | 互联网 Java 工程师进阶知识完全扫盲</td>
+        </tr>
+<tr class="">
+          <td class="rank">#200</td>
+          <td class="repo"><a href="https://github.com/awesomedata/awesome-public-datasets" target="_blank">awesomedata/awesome-public-datasets</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0969da;">—</span></td>
+          <td class="stars">77,771</td>
+          <td class="desc">A topic-centric list of HQ open datasets.</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="AI___LLM___Agent">
+      <div class="cat-header" style="background:#ede9fe;border-left:5px solid #8b5cf6;">
+        <h2 style="color:#8b5cf6;">AI / LLM / Agent</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">60 个仓库</span>
+          <span class="cat-stat">7,643,568 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#14</td>
+          <td class="repo"><a href="https://github.com/obra/superpowers" target="_blank">obra/superpowers</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Shell</span></td>
+          <td class="stars">262,141</td>
+          <td class="desc">An agentic skills framework & software development methodology that works.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#18</td>
+          <td class="repo"><a href="https://github.com/affaan-m/ECC" target="_blank">affaan-m/ECC</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">JavaScript</span></td>
+          <td class="stars">234,192</td>
+          <td class="desc">The agent harness performance optimization system. Skills, instincts, memory, security, and research</td>
+        </tr>
+<tr class="">
+          <td class="rank">#20</td>
+          <td class="repo"><a href="https://github.com/NousResearch/hermes-agent" target="_blank">NousResearch/hermes-agent</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">221,432</td>
+          <td class="desc">The agent that grows with you</td>
+        </tr>
+<tr class="">
+          <td class="rank">#24</td>
+          <td class="repo"><a href="https://github.com/multica-ai/andrej-karpathy-skills" target="_blank">multica-ai/andrej-karpathy-skills</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">—</span></td>
+          <td class="stars">196,870</td>
+          <td class="desc">A single CLAUDE.md file to improve Claude Code behavior, derived from Andrej Karpathy's observations</td>
+        </tr>
+<tr class="">
+          <td class="rank">#27</td>
+          <td class="repo"><a href="https://github.com/ultraworkers/claw-code" target="_blank">ultraworkers/claw-code</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Rust</span></td>
+          <td class="stars">194,925</td>
+          <td class="desc">An agent-managed museum exhibit, built in Rust with Gajae-Code / LazyCodex — developed and maintaine</td>
+        </tr>
+<tr class="">
+          <td class="rank">#28</td>
+          <td class="repo"><a href="https://github.com/mattpocock/skills" target="_blank">mattpocock/skills</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Shell</span></td>
+          <td class="stars">191,400</td>
+          <td class="desc">Skills for Real Engineers. Straight from my .agents directory.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#29</td>
+          <td class="repo"><a href="https://github.com/anomalyco/opencode" target="_blank">anomalyco/opencode</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">190,253</td>
+          <td class="desc">The open source coding agent.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#33</td>
+          <td class="repo"><a href="https://github.com/Significant-Gravitas/AutoGPT" target="_blank">Significant-Gravitas/AutoGPT</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">185,718</td>
+          <td class="desc">AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provi</td>
+        </tr>
+<tr class="">
+          <td class="rank">#41</td>
+          <td class="repo"><a href="https://github.com/ollama/ollama" target="_blank">ollama/ollama</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Go</span></td>
+          <td class="stars">177,032</td>
+          <td class="desc">Get up and running with Kimi-K2.6, GLM-5.2, MiniMax, DeepSeek, gpt-oss, Qwen, Gemma and other models</td>
+        </tr>
+<tr class="">
+          <td class="rank">#44</td>
+          <td class="repo"><a href="https://github.com/microsoft/markitdown" target="_blank">microsoft/markitdown</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">169,514</td>
+          <td class="desc">Python tool for converting files and office documents to Markdown.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#46</td>
+          <td class="repo"><a href="https://github.com/f/prompts.chat" target="_blank">f/prompts.chat</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">HTML</span></td>
+          <td class="stars">166,439</td>
+          <td class="desc">f.k.a. Awesome ChatGPT Prompts. Share, discover, and collect prompts from the community. Free and op</td>
+        </tr>
+<tr class="">
+          <td class="rank">#47</td>
+          <td class="repo"><a href="https://github.com/anthropics/skills" target="_blank">anthropics/skills</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">164,596</td>
+          <td class="desc">Public repository for Agent Skills</td>
+        </tr>
+<tr class="">
+          <td class="rank">#48</td>
+          <td class="repo"><a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui" target="_blank">AUTOMATIC1111/stable-diffusion-webui</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">164,292</td>
+          <td class="desc">Stable Diffusion web UI</td>
+        </tr>
+<tr class="">
+          <td class="rank">#49</td>
+          <td class="repo"><a href="https://github.com/huggingface/transformers" target="_blank">huggingface/transformers</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">163,046</td>
+          <td class="desc">🤗 Transformers: the model-definition framework for state-of-the-art machine learning models in text,</td>
+        </tr>
+<tr class="">
+          <td class="rank">#51</td>
+          <td class="repo"><a href="https://github.com/Snailclimb/JavaGuide" target="_blank">Snailclimb/JavaGuide</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">JavaScript</span></td>
+          <td class="stars">157,342</td>
+          <td class="desc">Java 面试 & 后端通用面试指南，覆盖计算机基础、数据库、分布式、高并发、系统设计与 AI 应用开发</td>
+        </tr>
+<tr class="">
+          <td class="rank">#52</td>
+          <td class="repo"><a href="https://github.com/firecrawl/firecrawl" target="_blank">firecrawl/firecrawl</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">157,038</td>
+          <td class="desc">The API to search, scrape, and interact with the web at scale. 🔥</td>
+        </tr>
+<tr class="">
+          <td class="rank">#53</td>
+          <td class="repo"><a href="https://github.com/langflow-ai/langflow" target="_blank">langflow-ai/langflow</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">152,507</td>
+          <td class="desc">Langflow is a powerful tool for building and deploying AI-powered agents and workflows.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#54</td>
+          <td class="repo"><a href="https://github.com/langgenius/dify" target="_blank">langgenius/dify</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">150,460</td>
+          <td class="desc">Build Agentic workflows, RAG pipelines, with rich AI model and tool support on one collaborative wor</td>
+        </tr>
+<tr class="">
+          <td class="rank">#56</td>
+          <td class="repo"><a href="https://github.com/open-webui/open-webui" target="_blank">open-webui/open-webui</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">146,981</td>
+          <td class="desc">User-friendly AI Interface (Supports Ollama, OpenAI API, ...)</td>
+        </tr>
+<tr class="">
+          <td class="rank">#58</td>
+          <td class="repo"><a href="https://github.com/langchain-ai/langchain" target="_blank">langchain-ai/langchain</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">142,715</td>
+          <td class="desc">The agent engineering platform.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#59</td>
+          <td class="repo"><a href="https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools" target="_blank">x1xhlol/system-prompts-and-models-of-ai-tools</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">—</span></td>
+          <td class="stars">142,359</td>
+          <td class="desc">FULL Augment Code, Claude Code, Cluely, CodeBuddy, Comet, Cursor, Devin AI, Junie, Kiro, Leap.new, L</td>
+        </tr>
+<tr class="">
+          <td class="rank">#63</td>
+          <td class="repo"><a href="https://github.com/anthropics/claude-code" target="_blank">anthropics/claude-code</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">139,329</td>
+          <td class="desc">Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and he</td>
+        </tr>
+<tr class="">
+          <td class="rank">#64</td>
+          <td class="repo"><a href="https://github.com/msitarzewski/agency-agents" target="_blank">msitarzewski/agency-agents</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Shell</span></td>
+          <td class="stars">137,098</td>
+          <td class="desc">A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whi</td>
+        </tr>
+<tr class="">
+          <td class="rank">#72</td>
+          <td class="repo"><a href="https://github.com/Chalarangelo/30-seconds-of-code" target="_blank">Chalarangelo/30-seconds-of-code</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">JavaScript</span></td>
+          <td class="stars">128,516</td>
+          <td class="desc">Coding articles to level up your development skills</td>
+        </tr>
+<tr class="">
+          <td class="rank">#74</td>
+          <td class="repo"><a href="https://github.com/Shubhamsaboo/awesome-llm-apps" target="_blank">Shubhamsaboo/awesome-llm-apps</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">128,122</td>
+          <td class="desc">100+ AI Agents, Agent Skills and RAG Apps - Free and Open Source.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#76</td>
+          <td class="repo"><a href="https://github.com/garrytan/gstack" target="_blank">garrytan/gstack</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">124,826</td>
+          <td class="desc">Use Garry Tan's exact Claude Code setup: 23 opinionated tools that serve as CEO, Designer, Eng Manag</td>
+        </tr>
+<tr class="">
+          <td class="rank">#77</td>
+          <td class="repo"><a href="https://github.com/github/spec-kit" target="_blank">github/spec-kit</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">124,144</td>
+          <td class="desc">💫 Toolkit to help you get started with Spec-Driven Development</td>
+        </tr>
+<tr class="">
+          <td class="rank">#79</td>
+          <td class="repo"><a href="https://github.com/Comfy-Org/ComfyUI" target="_blank">Comfy-Org/ComfyUI</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">122,512</td>
+          <td class="desc">The most powerful and modular diffusion model GUI, api and backend with a graph/nodes interface.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#81</td>
+          <td class="repo"><a href="https://github.com/ggml-org/llama.cpp" target="_blank">ggml-org/llama.cpp</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">C++</span></td>
+          <td class="stars">121,805</td>
+          <td class="desc">LLM inference in C/C++</td>
+        </tr>
+<tr class="">
+          <td class="rank">#82</td>
+          <td class="repo"><a href="https://github.com/farion1231/cc-switch" target="_blank">farion1231/cc-switch</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Rust</span></td>
+          <td class="stars">121,723</td>
+          <td class="desc">A cross-platform desktop All-in-One assistant for Claude Code, Codex, OpenCode, OpenClaw, Grok Build</td>
+        </tr>
+<tr class="">
+          <td class="rank">#91</td>
+          <td class="repo"><a href="https://github.com/microsoft/generative-ai-for-beginners" target="_blank">microsoft/generative-ai-for-beginners</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Jupyter Notebook</span></td>
+          <td class="stars">113,594</td>
+          <td class="desc">21 Lessons, Get Started Building with Generative AI </td>
+        </tr>
+<tr class="">
+          <td class="rank">#94</td>
+          <td class="repo"><a href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" target="_blank">nextlevelbuilder/ui-ux-pro-max-skill</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">110,791</td>
+          <td class="desc">An AI SKILL that provide design intelligence for building professional UI/UX multiple platforms</td>
+        </tr>
+<tr class="">
+          <td class="rank">#104</td>
+          <td class="repo"><a href="https://github.com/browser-use/browser-use" target="_blank">browser-use/browser-use</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">107,031</td>
+          <td class="desc">🌐 Make websites accessible for AI agents. Automate tasks online with ease.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#105</td>
+          <td class="repo"><a href="https://github.com/google-gemini/gemini-cli" target="_blank">google-gemini/gemini-cli</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">106,206</td>
+          <td class="desc">An open-source AI agent that brings the power of Gemini directly into your terminal.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#106</td>
+          <td class="repo"><a href="https://github.com/openai/whisper" target="_blank">openai/whisper</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">105,806</td>
+          <td class="desc">Robust Speech Recognition via Large-Scale Weak Supervision</td>
+        </tr>
+<tr class="">
+          <td class="rank">#108</td>
+          <td class="repo"><a href="https://github.com/VoltAgent/awesome-design-md" target="_blank">VoltAgent/awesome-design-md</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">—</span></td>
+          <td class="stars">104,925</td>
+          <td class="desc">A collection of DESIGN.md files analysis by popular brand design systems. Drop one into your project</td>
+        </tr>
+<tr class="">
+          <td class="rank">#113</td>
+          <td class="repo"><a href="https://github.com/openai/codex" target="_blank">openai/codex</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Rust</span></td>
+          <td class="stars">101,889</td>
+          <td class="desc">Lightweight coding agent that runs in your terminal</td>
+        </tr>
+<tr class="">
+          <td class="rank">#119</td>
+          <td class="repo"><a href="https://github.com/rasbt/LLMs-from-scratch" target="_blank">rasbt/LLMs-from-scratch</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Jupyter Notebook</span></td>
+          <td class="stars">99,984</td>
+          <td class="desc">Implement a ChatGPT-like LLM in PyTorch from scratch, step by step</td>
+        </tr>
+<tr class="">
+          <td class="rank">#120</td>
+          <td class="repo"><a href="https://github.com/harry0703/MoneyPrinterTurbo" target="_blank">harry0703/MoneyPrinterTurbo</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">99,566</td>
+          <td class="desc">利用 AI 大模型和自动化工作流，根据主题或关键词一键生成高清短视频。Generate HD short videos from a topic or keyword with an automate</td>
+        </tr>
+<tr class="">
+          <td class="rank">#125</td>
+          <td class="repo"><a href="https://github.com/Graphify-Labs/graphify" target="_blank">Graphify-Labs/graphify</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">97,173</td>
+          <td class="desc">Turn any codebase, with its docs, SQL schemas, configs, and PDFs, into a queryable knowledge graph. </td>
+        </tr>
+<tr class="">
+          <td class="rank">#126</td>
+          <td class="repo"><a href="https://github.com/florinpop17/app-ideas" target="_blank">florinpop17/app-ideas</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">—</span></td>
+          <td class="stars">96,231</td>
+          <td class="desc">A Collection of application ideas which can be used to improve your coding skills.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#132</td>
+          <td class="repo"><a href="https://github.com/TauricResearch/TradingAgents" target="_blank">TauricResearch/TradingAgents</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">94,761</td>
+          <td class="desc">TradingAgents: Multi-Agents LLM Financial Trading Framework</td>
+        </tr>
+<tr class="">
+          <td class="rank">#137</td>
+          <td class="repo"><a href="https://github.com/JuliusBrussee/caveman" target="_blank">JuliusBrussee/caveman</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">JavaScript</span></td>
+          <td class="stars">93,548</td>
+          <td class="desc">🪨 why use many token when few token do trick — Claude Code skill that cuts 65% of tokens by talking </td>
+        </tr>
+<tr class="">
+          <td class="rank">#138</td>
+          <td class="repo"><a href="https://github.com/karpathy/autoresearch" target="_blank">karpathy/autoresearch</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">92,176</td>
+          <td class="desc">AI agents running research on single-GPU nanochat training automatically</td>
+        </tr>
+<tr class="">
+          <td class="rank">#142</td>
+          <td class="repo"><a href="https://github.com/DietrichGebert/ponytail" target="_blank">DietrichGebert/ponytail</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">JavaScript</span></td>
+          <td class="stars">90,384</td>
+          <td class="desc">Makes your AI agent think like the laziest senior dev in the room. The best code is the code you nev</td>
+        </tr>
+<tr class="">
+          <td class="rank">#153</td>
+          <td class="repo"><a href="https://github.com/thedotmack/claude-mem" target="_blank">thedotmack/claude-mem</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">JavaScript</span></td>
+          <td class="stars">88,759</td>
+          <td class="desc">Persistent Context Across Sessions for Every Agent –  Captures everything your agent does during ses</td>
+        </tr>
+<tr class="">
+          <td class="rank">#155</td>
+          <td class="repo"><a href="https://github.com/ChatGPTNextWeb/NextChat" target="_blank">ChatGPTNextWeb/NextChat</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">88,563</td>
+          <td class="desc">✨ Light and Fast AI Assistant. Support: Web | iOS | MacOS | Android |  Linux | Windows</td>
+        </tr>
+<tr class="">
+          <td class="rank">#162</td>
+          <td class="repo"><a href="https://github.com/vllm-project/vllm" target="_blank">vllm-project/vllm</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">87,355</td>
+          <td class="desc">A high-throughput and memory-efficient inference and serving engine for LLMs</td>
+        </tr>
+<tr class="">
+          <td class="rank">#164</td>
+          <td class="repo"><a href="https://github.com/ruvnet/RuView" target="_blank">ruvnet/RuView</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Rust</span></td>
+          <td class="stars">86,968</td>
+          <td class="desc">π RuView turns commodity WiFi signals into real-time spatial intelligence, vital sign monitoring, an</td>
+        </tr>
+<tr class="">
+          <td class="rank">#167</td>
+          <td class="repo"><a href="https://github.com/PaddlePaddle/PaddleOCR" target="_blank">PaddlePaddle/PaddleOCR</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">86,365</td>
+          <td class="desc">Turn any PDF or image document into structured data for your AI. A powerful, lightweight OCR toolkit</td>
+        </tr>
+<tr class="">
+          <td class="rank">#169</td>
+          <td class="repo"><a href="https://github.com/infiniflow/ragflow" target="_blank">infiniflow/ragflow</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Go</span></td>
+          <td class="stars">86,169</td>
+          <td class="desc">RAGFlow is a leading open-source Retrieval-Augmented Generation (RAG) engine that fuses cutting-edge</td>
+        </tr>
+<tr class="">
+          <td class="rank">#177</td>
+          <td class="repo"><a href="https://github.com/OpenHands/OpenHands" target="_blank">OpenHands/OpenHands</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">82,329</td>
+          <td class="desc">🙌 OpenHands: AI-Driven Development</td>
+        </tr>
+<tr class="">
+          <td class="rank">#179</td>
+          <td class="repo"><a href="https://github.com/fighting41love/funNLP" target="_blank">fighting41love/funNLP</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">82,085</td>
+          <td class="desc">中英文敏感词、语言检测、中外手机/电话归属地/运营商查询、名字推断性别、手机号抽取、身份证抽取、邮箱抽取、中日文人名库、中文缩写库、拆字词典、词汇情感值、停用词、反动词表、暴恐词表、繁简体转换、英文模</td>
+        </tr>
+<tr class="">
+          <td class="rank">#181</td>
+          <td class="repo"><a href="https://github.com/nexu-io/open-design" target="_blank">nexu-io/open-design</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">81,974</td>
+          <td class="desc">🎨 The open-source Claude Design alternative. 🖥️ Local-first desktop app. 🖼️ Your coding agent become</td>
+        </tr>
+<tr class="">
+          <td class="rank">#183</td>
+          <td class="repo"><a href="https://github.com/mlabonne/llm-course" target="_blank">mlabonne/llm-course</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">—</span></td>
+          <td class="stars">81,279</td>
+          <td class="desc">Course to get into Large Language Models (LLMs) with roadmaps and Colab notebooks.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#185</td>
+          <td class="repo"><a href="https://github.com/lobehub/lobehub" target="_blank">lobehub/lobehub</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">80,888</td>
+          <td class="desc">🤯 LobeHub is your Chief Agent Operator, organizing your agents into 7×24 operations by hiring, sched</td>
+        </tr>
+<tr class="">
+          <td class="rank">#187</td>
+          <td class="repo"><a href="https://github.com/addyosmani/agent-skills" target="_blank">addyosmani/agent-skills</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">JavaScript</span></td>
+          <td class="stars">80,652</td>
+          <td class="desc">Production-grade engineering skills for AI coding agents.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#190</td>
+          <td class="repo"><a href="https://github.com/anuraghazra/github-readme-stats" target="_blank">anuraghazra/github-readme-stats</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">JavaScript</span></td>
+          <td class="stars">79,804</td>
+          <td class="desc">:zap: Dynamically generated stats for your github readmes</td>
+        </tr>
+<tr class="">
+          <td class="rank">#195</td>
+          <td class="repo"><a href="https://github.com/earendil-works/pi" target="_blank">earendil-works/pi</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">TypeScript</span></td>
+          <td class="stars">79,004</td>
+          <td class="desc">AI agent toolkit: unified LLM API, agent loop, TUI, coding agent CLI</td>
+        </tr>
+<tr class="">
+          <td class="rank">#199</td>
+          <td class="repo"><a href="https://github.com/bytedance/deer-flow" target="_blank">bytedance/deer-flow</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ede9fe;color:#8b5cf6;">Python</span></td>
+          <td class="stars">77,982</td>
+          <td class="desc">An open-source long-horizon SuperAgent harness that researches, codes, and creates. With the help of</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="开发工具___IDE___CLI">
+      <div class="cat-header" style="background:#dafbe1;border-left:5px solid #1a7f37;">
+        <h2 style="color:#1a7f37;">开发工具 / IDE / CLI</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">25 个仓库</span>
+          <span class="cat-stat">2,947,203 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#23</td>
+          <td class="repo"><a href="https://github.com/n8n-io/n8n" target="_blank">n8n-io/n8n</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">TypeScript</span></td>
+          <td class="stars">198,268</td>
+          <td class="desc">Fair-code workflow automation platform with native AI capabilities. Combine visual building with cus</td>
+        </tr>
+<tr class="">
+          <td class="rank">#32</td>
+          <td class="repo"><a href="https://github.com/microsoft/vscode" target="_blank">microsoft/vscode</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">TypeScript</span></td>
+          <td class="stars">187,971</td>
+          <td class="desc">Visual Studio Code</td>
+        </tr>
+<tr class="">
+          <td class="rank">#35</td>
+          <td class="repo"><a href="https://github.com/massgravel/Microsoft-Activation-Scripts" target="_blank">massgravel/Microsoft-Activation-Scripts</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Batchfile</span></td>
+          <td class="stars">184,731</td>
+          <td class="desc">Open-source Windows and Office activator featuring HWID, Ohook, TSforge, and Online KMS activation m</td>
+        </tr>
+<tr class="">
+          <td class="rank">#38</td>
+          <td class="repo"><a href="https://github.com/yt-dlp/yt-dlp" target="_blank">yt-dlp/yt-dlp</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Python</span></td>
+          <td class="stars">180,507</td>
+          <td class="desc">A feature-rich command-line audio/video downloader</td>
+        </tr>
+<tr class="">
+          <td class="rank">#50</td>
+          <td class="repo"><a href="https://github.com/jlevy/the-art-of-command-line" target="_blank">jlevy/the-art-of-command-line</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">—</span></td>
+          <td class="stars">161,936</td>
+          <td class="desc">Master the command line, in one page</td>
+        </tr>
+<tr class="">
+          <td class="rank">#55</td>
+          <td class="repo"><a href="https://github.com/airbnb/javascript" target="_blank">airbnb/javascript</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">JavaScript</span></td>
+          <td class="stars">148,087</td>
+          <td class="desc">JavaScript Style Guide</td>
+        </tr>
+<tr class="">
+          <td class="rank">#62</td>
+          <td class="repo"><a href="https://github.com/ytdl-org/youtube-dl" target="_blank">ytdl-org/youtube-dl</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Python</span></td>
+          <td class="stars">140,809</td>
+          <td class="desc">Command-line program to download videos from YouTube.com and other video sites</td>
+        </tr>
+<tr class="">
+          <td class="rank">#65</td>
+          <td class="repo"><a href="https://github.com/microsoft/PowerToys" target="_blank">microsoft/PowerToys</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">C</span></td>
+          <td class="stars">136,821</td>
+          <td class="desc">Microsoft PowerToys is a collection of utilities that supercharge productivity and customization on </td>
+        </tr>
+<tr class="">
+          <td class="rank">#69</td>
+          <td class="repo"><a href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank">clash-verge-rev/clash-verge-rev</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">TypeScript</span></td>
+          <td class="stars">134,093</td>
+          <td class="desc">A modern GUI client based on Tauri, designed to run in Windows, macOS and Linux for tailored proxy e</td>
+        </tr>
+<tr class="">
+          <td class="rank">#88</td>
+          <td class="repo"><a href="https://github.com/rust-lang/rust" target="_blank">rust-lang/rust</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Rust</span></td>
+          <td class="stars">114,903</td>
+          <td class="desc">Empowering everyone to build reliable and efficient software.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#93</td>
+          <td class="repo"><a href="https://github.com/2dust/v2rayN" target="_blank">2dust/v2rayN</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">C#</span></td>
+          <td class="stars">112,374</td>
+          <td class="desc">A GUI client for Windows, Linux and macOS, support Xray and sing-box and others</td>
+        </tr>
+<tr class="">
+          <td class="rank">#114</td>
+          <td class="repo"><a href="https://github.com/Anduin2017/HowToCook" target="_blank">Anduin2017/HowToCook</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">—</span></td>
+          <td class="stars">101,427</td>
+          <td class="desc">Programmer's guide about how to cook at home.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#115</td>
+          <td class="repo"><a href="https://github.com/neovim/neovim" target="_blank">neovim/neovim</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Vim Script</span></td>
+          <td class="stars">101,372</td>
+          <td class="desc">Vim-fork focused on extensibility and usability</td>
+        </tr>
+<tr class="">
+          <td class="rank">#124</td>
+          <td class="repo"><a href="https://github.com/nvbn/thefuck" target="_blank">nvbn/thefuck</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Python</span></td>
+          <td class="stars">97,570</td>
+          <td class="desc">Magnificent app which corrects your previous console command.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#129</td>
+          <td class="repo"><a href="https://github.com/puppeteer/puppeteer" target="_blank">puppeteer/puppeteer</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">TypeScript</span></td>
+          <td class="stars">95,369</td>
+          <td class="desc">JavaScript API for Chrome and Firefox</td>
+        </tr>
+<tr class="">
+          <td class="rank">#130</td>
+          <td class="repo"><a href="https://github.com/hacksider/Deep-Live-Cam" target="_blank">hacksider/Deep-Live-Cam</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Python</span></td>
+          <td class="stars">95,306</td>
+          <td class="desc">real time face swap and one-click video deepfake with only a single image</td>
+        </tr>
+<tr class="">
+          <td class="rank">#136</td>
+          <td class="repo"><a href="https://github.com/microsoft/playwright" target="_blank">microsoft/playwright</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">TypeScript</span></td>
+          <td class="stars">93,558</td>
+          <td class="desc">Playwright is a framework for Web Testing and Automation. It allows testing Chromium, Firefox and We</td>
+        </tr>
+<tr class="">
+          <td class="rank">#157</td>
+          <td class="repo"><a href="https://github.com/Stirling-Tools/Stirling-PDF" target="_blank">Stirling-Tools/Stirling-PDF</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Java</span></td>
+          <td class="stars">88,168</td>
+          <td class="desc">#1 PDF Application on GitHub that lets you edit PDFs on any device anywhere</td>
+        </tr>
+<tr class="">
+          <td class="rank">#161</td>
+          <td class="repo"><a href="https://github.com/zed-industries/zed" target="_blank">zed-industries/zed</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Rust</span></td>
+          <td class="stars">87,604</td>
+          <td class="desc">Code at the speed of thought – Zed is a high-performance, multiplayer code editor from the creators </td>
+        </tr>
+<tr class="">
+          <td class="rank">#163</td>
+          <td class="repo"><a href="https://github.com/sherlock-project/sherlock" target="_blank">sherlock-project/sherlock</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Python</span></td>
+          <td class="stars">87,191</td>
+          <td class="desc">Hunt down social media accounts by username across social networks</td>
+        </tr>
+<tr class="">
+          <td class="rank">#180</td>
+          <td class="repo"><a href="https://github.com/junegunn/fzf" target="_blank">junegunn/fzf</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Go</span></td>
+          <td class="stars">82,000</td>
+          <td class="desc">:cherry_blossom: A command-line fuzzy finder</td>
+        </tr>
+<tr class="">
+          <td class="rank">#186</td>
+          <td class="repo"><a href="https://github.com/jesseduffield/lazygit" target="_blank">jesseduffield/lazygit</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Go</span></td>
+          <td class="stars">80,791</td>
+          <td class="desc">simple terminal UI for git commands</td>
+        </tr>
+<tr class="">
+          <td class="rank">#192</td>
+          <td class="repo"><a href="https://github.com/OpenCut-app/OpenCut" target="_blank">OpenCut-app/OpenCut</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">TypeScript</span></td>
+          <td class="stars">79,287</td>
+          <td class="desc">The open-source CapCut alternative</td>
+        </tr>
+<tr class="">
+          <td class="rank">#196</td>
+          <td class="repo"><a href="https://github.com/coder/code-server" target="_blank">coder/code-server</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">TypeScript</span></td>
+          <td class="stars">78,540</td>
+          <td class="desc">VS Code in the browser</td>
+        </tr>
+<tr class="">
+          <td class="rank">#197</td>
+          <td class="repo"><a href="https://github.com/Z4nzu/hackingtool" target="_blank">Z4nzu/hackingtool</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#dafbe1;color:#1a7f37;">Python</span></td>
+          <td class="stars">78,520</td>
+          <td class="desc">ALL IN ONE Hacking Tool For Hackers</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="前端___UI_框架">
+      <div class="cat-header" style="background:#fff8c5;border-left:5px solid #bf8700;">
+        <h2 style="color:#bf8700;">前端 / UI 框架</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">25 个仓库</span>
+          <span class="cat-stat">2,905,093 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#15</td>
+          <td class="repo"><a href="https://github.com/react/react" target="_blank">react/react</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">JavaScript</span></td>
+          <td class="stars">246,750</td>
+          <td class="desc">The library for web and native user interfaces.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#21</td>
+          <td class="repo"><a href="https://github.com/vuejs/vue" target="_blank">vuejs/vue</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">210,135</td>
+          <td class="desc">This is the repo for Vue 2. For Vue 3, go to https://github.com/vuejs/core</td>
+        </tr>
+<tr class="">
+          <td class="rank">#43</td>
+          <td class="repo"><a href="https://github.com/twbs/bootstrap" target="_blank">twbs/bootstrap</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">MDX</span></td>
+          <td class="stars">174,533</td>
+          <td class="desc">The most popular HTML, CSS, and JavaScript framework for developing responsive, mobile first project</td>
+        </tr>
+<tr class="">
+          <td class="rank">#61</td>
+          <td class="repo"><a href="https://github.com/vercel/next.js" target="_blank">vercel/next.js</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">JavaScript</span></td>
+          <td class="stars">141,163</td>
+          <td class="desc">The React Framework</td>
+        </tr>
+<tr class="">
+          <td class="rank">#73</td>
+          <td class="repo"><a href="https://github.com/excalidraw/excalidraw" target="_blank">excalidraw/excalidraw</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">128,477</td>
+          <td class="desc">Virtual whiteboard for sketching hand-drawn like diagrams</td>
+        </tr>
+<tr class="">
+          <td class="rank">#75</td>
+          <td class="repo"><a href="https://github.com/react/react-native" target="_blank">react/react-native</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">C++</span></td>
+          <td class="stars">126,267</td>
+          <td class="desc">A framework for building native applications using React</td>
+        </tr>
+<tr class="">
+          <td class="rank">#80</td>
+          <td class="repo"><a href="https://github.com/electron/electron" target="_blank">electron/electron</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">C++</span></td>
+          <td class="stars">122,212</td>
+          <td class="desc">:electron: Build cross-platform desktop apps with JavaScript, HTML, and CSS</td>
+        </tr>
+<tr class="">
+          <td class="rank">#83</td>
+          <td class="repo"><a href="https://github.com/shadcn-ui/ui" target="_blank">shadcn-ui/ui</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">119,958</td>
+          <td class="desc">A set of beautifully-designed, accessible components and a code distribution platform. Works with yo</td>
+        </tr>
+<tr class="">
+          <td class="rank">#90</td>
+          <td class="repo"><a href="https://github.com/mrdoob/three.js" target="_blank">mrdoob/three.js</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">JavaScript</span></td>
+          <td class="stars">114,052</td>
+          <td class="desc">JavaScript 3D Library.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#92</td>
+          <td class="repo"><a href="https://github.com/d3/d3" target="_blank">d3/d3</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">Shell</span></td>
+          <td class="stars">113,300</td>
+          <td class="desc">Bring data to life with SVG, Canvas and HTML. :bar_chart::chart_with_upwards_trend::tada:</td>
+        </tr>
+<tr class="">
+          <td class="rank">#96</td>
+          <td class="repo"><a href="https://github.com/tauri-apps/tauri" target="_blank">tauri-apps/tauri</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">Rust</span></td>
+          <td class="stars">109,577</td>
+          <td class="desc">Build smaller, faster, and more secure desktop and mobile applications with a web frontend.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#103</td>
+          <td class="repo"><a href="https://github.com/supabase/supabase" target="_blank">supabase/supabase</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">107,119</td>
+          <td class="desc">The Postgres development platform. Supabase gives you a dedicated Postgres database to build your we</td>
+        </tr>
+<tr class="">
+          <td class="rank">#111</td>
+          <td class="repo"><a href="https://github.com/react/create-react-app" target="_blank">react/create-react-app</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">JavaScript</span></td>
+          <td class="stars">103,294</td>
+          <td class="desc">Set up a modern web app by running one command.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#117</td>
+          <td class="repo"><a href="https://github.com/angular/angular" target="_blank">angular/angular</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">100,621</td>
+          <td class="desc">Deliver web apps with confidence 🚀</td>
+        </tr>
+<tr class="">
+          <td class="rank">#121</td>
+          <td class="repo"><a href="https://github.com/ant-design/ant-design" target="_blank">ant-design/ant-design</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">98,834</td>
+          <td class="desc">An enterprise-class UI design language and React UI library</td>
+        </tr>
+<tr class="">
+          <td class="rank">#122</td>
+          <td class="repo"><a href="https://github.com/mui/material-ui" target="_blank">mui/material-ui</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">JavaScript</span></td>
+          <td class="stars">98,639</td>
+          <td class="desc">Material UI: Comprehensive React component library that implements Google's Material Design. Free fo</td>
+        </tr>
+<tr class="">
+          <td class="rank">#127</td>
+          <td class="repo"><a href="https://github.com/tailwindlabs/tailwindcss" target="_blank">tailwindlabs/tailwindcss</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">96,089</td>
+          <td class="desc">A utility-first CSS framework for rapid UI development.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#131</td>
+          <td class="repo"><a href="https://github.com/oven-sh/bun" target="_blank">oven-sh/bun</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">Rust</span></td>
+          <td class="stars">95,045</td>
+          <td class="desc">Incredibly fast JavaScript runtime, bundler, test runner, and package manager – all in one</td>
+        </tr>
+<tr class="">
+          <td class="rank">#141</td>
+          <td class="repo"><a href="https://github.com/storybookjs/storybook" target="_blank">storybookjs/storybook</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">90,688</td>
+          <td class="desc">Storybook is the industry standard workshop for building, documenting, and testing UI components in </td>
+        </tr>
+<tr class="">
+          <td class="rank">#143</td>
+          <td class="repo"><a href="https://github.com/PanJiaChen/vue-element-admin" target="_blank">PanJiaChen/vue-element-admin</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">Vue</span></td>
+          <td class="stars">90,245</td>
+          <td class="desc">:tada: A magical vue admin                                                                https://pa</td>
+        </tr>
+<tr class="">
+          <td class="rank">#148</td>
+          <td class="repo"><a href="https://github.com/mermaid-js/mermaid" target="_blank">mermaid-js/mermaid</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">89,443</td>
+          <td class="desc">Generation of diagrams like flowcharts or sequence diagrams from text in a similar manner as markdow</td>
+        </tr>
+<tr class="">
+          <td class="rank">#172</td>
+          <td class="repo"><a href="https://github.com/realworld-apps/realworld" target="_blank">realworld-apps/realworld</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">83,923</td>
+          <td class="desc">"The mother of all demo apps" — Exemplary fullstack Medium.com clone powered by React, Angular, Node</td>
+        </tr>
+<tr class="">
+          <td class="rank">#176</td>
+          <td class="repo"><a href="https://github.com/animate-css/animate.css" target="_blank">animate-css/animate.css</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">CSS</span></td>
+          <td class="stars">82,713</td>
+          <td class="desc">🍿 A cross-browser library of CSS animations. As easy to use as an easy thing.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#178</td>
+          <td class="repo"><a href="https://github.com/vitejs/vite" target="_blank">vitejs/vite</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">82,111</td>
+          <td class="desc">Next generation frontend tooling. It's fast!</td>
+        </tr>
+<tr class="">
+          <td class="rank">#188</td>
+          <td class="repo"><a href="https://github.com/hoppscotch/hoppscotch" target="_blank">hoppscotch/hoppscotch</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fff8c5;color:#bf8700;">TypeScript</span></td>
+          <td class="stars">79,905</td>
+          <td class="desc">Open-Source API Development Ecosystem • https://hoppscotch.io • Offline, On-Prem & Cloud • Web, Desk</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="其他___工具">
+      <div class="cat-header" style="background:#e8eaf6;border-left:5px solid #5c6bc0;">
+        <h2 style="color:#5c6bc0;">其他 / 工具</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">11 个仓库</span>
+          <span class="cat-stat">1,804,039 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#4</td>
+          <td class="repo"><a href="https://github.com/public-apis/public-apis" target="_blank">public-apis/public-apis</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">Python</span></td>
+          <td class="stars">452,921</td>
+          <td class="desc">A collective list of free APIs</td>
+        </tr>
+<tr class="">
+          <td class="rank">#6</td>
+          <td class="repo"><a href="https://github.com/openclaw/openclaw" target="_blank">openclaw/openclaw</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">TypeScript</span></td>
+          <td class="stars">384,353</td>
+          <td class="desc">Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 </td>
+        </tr>
+<tr class="">
+          <td class="rank">#30</td>
+          <td class="repo"><a href="https://github.com/DigitalPlatDev/FreeDomain" target="_blank">DigitalPlatDev/FreeDomain</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">—</span></td>
+          <td class="stars">189,026</td>
+          <td class="desc">DigitalPlat FreeDomain: Free Domain For Everyone</td>
+        </tr>
+<tr class="">
+          <td class="rank">#95</td>
+          <td class="repo"><a href="https://github.com/microsoft/TypeScript" target="_blank">microsoft/TypeScript</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">TypeScript</span></td>
+          <td class="stars">109,975</td>
+          <td class="desc">TypeScript is a superset of JavaScript that compiles to clean JavaScript output.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#102</td>
+          <td class="repo"><a href="https://github.com/denoland/deno" target="_blank">denoland/deno</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">Rust</span></td>
+          <td class="stars">107,829</td>
+          <td class="desc">A modern runtime for JavaScript and TypeScript.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#110</td>
+          <td class="repo"><a href="https://github.com/deepseek-ai/DeepSeek-V3" target="_blank">deepseek-ai/DeepSeek-V3</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">Python</span></td>
+          <td class="stars">104,017</td>
+          <td class="desc"></td>
+        </tr>
+<tr class="">
+          <td class="rank">#123</td>
+          <td class="repo"><a href="https://github.com/ruanyf/weekly" target="_blank">ruanyf/weekly</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">—</span></td>
+          <td class="stars">98,369</td>
+          <td class="desc">科技爱好者周刊，每周五发布</td>
+        </tr>
+<tr class="">
+          <td class="rank">#133</td>
+          <td class="repo"><a href="https://github.com/ryanmcdermott/clean-code-javascript" target="_blank">ryanmcdermott/clean-code-javascript</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">JavaScript</span></td>
+          <td class="stars">94,752</td>
+          <td class="desc">Clean Code concepts adapted for JavaScript</td>
+        </tr>
+<tr class="">
+          <td class="rank">#139</td>
+          <td class="repo"><a href="https://github.com/deepseek-ai/DeepSeek-R1" target="_blank">deepseek-ai/DeepSeek-R1</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">—</span></td>
+          <td class="stars">91,972</td>
+          <td class="desc"></td>
+        </tr>
+<tr class="">
+          <td class="rank">#151</td>
+          <td class="repo"><a href="https://github.com/modelcontextprotocol/servers" target="_blank">modelcontextprotocol/servers</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">TypeScript</span></td>
+          <td class="stars">88,961</td>
+          <td class="desc">Model Context Protocol Servers</td>
+        </tr>
+<tr class="">
+          <td class="rank">#182</td>
+          <td class="repo"><a href="https://github.com/tonsky/FiraCode" target="_blank">tonsky/FiraCode</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e8eaf6;color:#5c6bc0;">Clojure</span></td>
+          <td class="stars">81,864</td>
+          <td class="desc">Free monospaced font with programming ligatures</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="后端___框架___运行时">
+      <div class="cat-header" style="background:#ffebe9;border-left:5px solid #cf222e;">
+        <h2 style="color:#cf222e;">后端 / 框架 / 运行时</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">17 个仓库</span>
+          <span class="cat-stat">1,727,695 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#31</td>
+          <td class="repo"><a href="https://github.com/ohmyzsh/ohmyzsh" target="_blank">ohmyzsh/ohmyzsh</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Shell</span></td>
+          <td class="stars">188,867</td>
+          <td class="desc">🙃   A delightful community-driven (with 2,500+ contributors) framework for managing your zsh configu</td>
+        </tr>
+<tr class="">
+          <td class="rank">#85</td>
+          <td class="repo"><a href="https://github.com/nodejs/node" target="_blank">nodejs/node</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">JavaScript</span></td>
+          <td class="stars">118,547</td>
+          <td class="desc">Node.js JavaScript runtime ✨🐢🚀✨</td>
+        </tr>
+<tr class="">
+          <td class="rank">#89</td>
+          <td class="repo"><a href="https://github.com/godotengine/godot" target="_blank">godotengine/godot</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">C++</span></td>
+          <td class="stars">114,695</td>
+          <td class="desc">Godot Engine – Multi-platform 2D and 3D game engine</td>
+        </tr>
+<tr class="">
+          <td class="rank">#97</td>
+          <td class="repo"><a href="https://github.com/axios/axios" target="_blank">axios/axios</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">JavaScript</span></td>
+          <td class="stars">109,165</td>
+          <td class="desc">Promise based HTTP client for the browser and node.js</td>
+        </tr>
+<tr class="">
+          <td class="rank">#98</td>
+          <td class="repo"><a href="https://github.com/immich-app/immich" target="_blank">immich-app/immich</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">TypeScript</span></td>
+          <td class="stars">108,995</td>
+          <td class="desc">High performance self-hosted photo and video management solution.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#107</td>
+          <td class="repo"><a href="https://github.com/goldbergyoni/nodebestpractices" target="_blank">goldbergyoni/nodebestpractices</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Dockerfile</span></td>
+          <td class="stars">105,458</td>
+          <td class="desc">✅ The Node.js best practices list (July 2026)</td>
+        </tr>
+<tr class="">
+          <td class="rank">#109</td>
+          <td class="repo"><a href="https://github.com/microsoft/terminal" target="_blank">microsoft/terminal</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">C++</span></td>
+          <td class="stars">104,376</td>
+          <td class="desc">The new Windows Terminal and the original Windows console host, all in the same place!</td>
+        </tr>
+<tr class="">
+          <td class="rank">#134</td>
+          <td class="repo"><a href="https://github.com/nvm-sh/nvm" target="_blank">nvm-sh/nvm</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Shell</span></td>
+          <td class="stars">94,270</td>
+          <td class="desc">Node Version Manager - POSIX-compliant bash script to manage multiple active node.js versions</td>
+        </tr>
+<tr class="">
+          <td class="rank">#145</td>
+          <td class="repo"><a href="https://github.com/bitcoin/bitcoin" target="_blank">bitcoin/bitcoin</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">C++</span></td>
+          <td class="stars">89,712</td>
+          <td class="desc">Bitcoin Core integration/staging tree</td>
+        </tr>
+<tr class="">
+          <td class="rank">#149</td>
+          <td class="repo"><a href="https://github.com/gohugoio/hugo" target="_blank">gohugoio/hugo</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Go</span></td>
+          <td class="stars">89,214</td>
+          <td class="desc">The world’s fastest framework for building websites.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#150</td>
+          <td class="repo"><a href="https://github.com/gin-gonic/gin" target="_blank">gin-gonic/gin</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Go</span></td>
+          <td class="stars">88,978</td>
+          <td class="desc">Gin is a high-performance HTTP web framework written in Go. It provides a Martini-like API but with </td>
+        </tr>
+<tr class="">
+          <td class="rank">#152</td>
+          <td class="repo"><a href="https://github.com/3b1b/manim" target="_blank">3b1b/manim</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Python</span></td>
+          <td class="stars">88,917</td>
+          <td class="desc">Animation engine for explanatory math videos</td>
+        </tr>
+<tr class="">
+          <td class="rank">#156</td>
+          <td class="repo"><a href="https://github.com/django/django" target="_blank">django/django</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Python</span></td>
+          <td class="stars">88,234</td>
+          <td class="desc">The Web framework for perfectionists with deadlines.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#158</td>
+          <td class="repo"><a href="https://github.com/astral-sh/uv" target="_blank">astral-sh/uv</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Rust</span></td>
+          <td class="stars">87,968</td>
+          <td class="desc">An extremely fast Python package and project manager, written in Rust.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#170</td>
+          <td class="repo"><a href="https://github.com/laravel/laravel" target="_blank">laravel/laravel</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Blade</span></td>
+          <td class="stars">84,693</td>
+          <td class="desc">Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the found</td>
+        </tr>
+<tr class="">
+          <td class="rank">#171</td>
+          <td class="repo"><a href="https://github.com/macrozheng/mall" target="_blank">macrozheng/mall</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Java</span></td>
+          <td class="stars">84,439</td>
+          <td class="desc">mall项目是一套电商系统，包括前台商城系统及后台管理系统，基于Spring Boot+MyBatis实现，采用Docker容器化部署。 前台商城系统包含首页门户、商品推荐、商品搜索、商品展示、购物车</td>
+        </tr>
+<tr class="">
+          <td class="rank">#184</td>
+          <td class="repo"><a href="https://github.com/spring-projects/spring-boot" target="_blank">spring-projects/spring-boot</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ffebe9;color:#cf222e;">Java</span></td>
+          <td class="stars">81,167</td>
+          <td class="desc">Spring Boot helps you to create Spring-powered, production-grade applications and services with abso</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="基础设施___云原生___DevOps">
+      <div class="cat-header" style="background:#ddf4ff;border-left:5px solid #0550ae;">
+        <h2 style="color:#0550ae;">基础设施 / 云原生 / DevOps</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">7 个仓库</span>
+          <span class="cat-stat">751,965 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#57</td>
+          <td class="repo"><a href="https://github.com/Genymobile/scrcpy" target="_blank">Genymobile/scrcpy</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0550ae;">C</span></td>
+          <td class="stars">146,502</td>
+          <td class="desc">Display and control your Android device</td>
+        </tr>
+<tr class="">
+          <td class="rank">#78</td>
+          <td class="repo"><a href="https://github.com/kubernetes/kubernetes" target="_blank">kubernetes/kubernetes</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0550ae;">Go</span></td>
+          <td class="stars">124,015</td>
+          <td class="desc">Production-Grade Container Scheduling and Management</td>
+        </tr>
+<tr class="">
+          <td class="rank">#84</td>
+          <td class="repo"><a href="https://github.com/rustdesk/rustdesk" target="_blank">rustdesk/rustdesk</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0550ae;">Rust</span></td>
+          <td class="stars">119,026</td>
+          <td class="desc">An open-source remote desktop application designed for self-hosting, as an alternative to TeamViewer</td>
+        </tr>
+<tr class="">
+          <td class="rank">#100</td>
+          <td class="repo"><a href="https://github.com/fatedier/frp" target="_blank">fatedier/frp</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0550ae;">Go</span></td>
+          <td class="stars">108,390</td>
+          <td class="desc">A fast reverse proxy to help you expose a local server behind a NAT or firewall to the internet.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#146</td>
+          <td class="repo"><a href="https://github.com/louislam/uptime-kuma" target="_blank">louislam/uptime-kuma</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0550ae;">JavaScript</span></td>
+          <td class="stars">89,545</td>
+          <td class="desc">A fancy self-hosted monitoring tool</td>
+        </tr>
+<tr class="">
+          <td class="rank">#168</td>
+          <td class="repo"><a href="https://github.com/localsend/localsend" target="_blank">localsend/localsend</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0550ae;">Dart</span></td>
+          <td class="stars">86,201</td>
+          <td class="desc">An open-source cross-platform alternative to AirDrop</td>
+        </tr>
+<tr class="">
+          <td class="rank">#198</td>
+          <td class="repo"><a href="https://github.com/ventoy/Ventoy" target="_blank">ventoy/Ventoy</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#ddf4ff;color:#0550ae;">C</span></td>
+          <td class="stars">78,286</td>
+          <td class="desc">A new bootable USB solution.</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="系统___编程语言___底层">
+      <div class="cat-header" style="background:#fbefff;border-left:5px solid #8250df;">
+        <h2 style="color:#8250df;">系统 / 编程语言 / 底层</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">5 个仓库</span>
+          <span class="cat-stat">728,824 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#16</td>
+          <td class="repo"><a href="https://github.com/torvalds/linux" target="_blank">torvalds/linux</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fbefff;color:#8250df;">C</span></td>
+          <td class="stars">240,790</td>
+          <td class="desc">Linux kernel source tree</td>
+        </tr>
+<tr class="">
+          <td class="rank">#40</td>
+          <td class="repo"><a href="https://github.com/flutter/flutter" target="_blank">flutter/flutter</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fbefff;color:#8250df;">Dart</span></td>
+          <td class="stars">177,962</td>
+          <td class="desc">Flutter makes it easy and fast to build beautiful apps for mobile and beyond</td>
+        </tr>
+<tr class="">
+          <td class="rank">#66</td>
+          <td class="repo"><a href="https://github.com/golang/go" target="_blank">golang/go</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fbefff;color:#8250df;">Go</span></td>
+          <td class="stars">135,409</td>
+          <td class="desc">The Go programming language</td>
+        </tr>
+<tr class="">
+          <td class="rank">#160</td>
+          <td class="repo"><a href="https://github.com/sveltejs/svelte" target="_blank">sveltejs/svelte</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fbefff;color:#8250df;">JavaScript</span></td>
+          <td class="stars">87,696</td>
+          <td class="desc">web development for the rest of us</td>
+        </tr>
+<tr class="">
+          <td class="rank">#165</td>
+          <td class="repo"><a href="https://github.com/syncthing/syncthing" target="_blank">syncthing/syncthing</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#fbefff;color:#8250df;">Go</span></td>
+          <td class="stars">86,967</td>
+          <td class="desc">Open Source Continuous File Synchronization</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="社区___其他">
+      <div class="cat-header" style="background:#f0f0f0;border-left:5px solid #757575;">
+        <h2 style="color:#757575;">社区 / 其他</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">1 个仓库</span>
+          <span class="cat-stat">276,499 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#12</td>
+          <td class="repo"><a href="https://github.com/996icu/996.ICU" target="_blank">996icu/996.ICU</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#f0f0f0;color:#757575;">—</span></td>
+          <td class="stars">276,499</td>
+          <td class="desc">Repo for counting stars and contributing. Press F to pay respect to glorious developers.</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="文档___书籍___知识库">
+      <div class="cat-header" style="background:#e0e7ea;border-left:5px solid #455a64;">
+        <h2 style="color:#455a64;">文档 / 书籍 / 知识库</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">1 个仓库</span>
+          <span class="cat-stat">175,046 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#42</td>
+          <td class="repo"><a href="https://github.com/github/gitignore" target="_blank">github/gitignore</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#e0e7ea;color:#455a64;">—</span></td>
+          <td class="stars">175,046</td>
+          <td class="desc">A collection of useful .gitignore templates</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="安全___隐私___网络工具">
+      <div class="cat-header" style="background:#f3e5d8;border-left:5px solid #6d4c41;">
+        <h2 style="color:#6d4c41;">安全 / 隐私 / 网络工具</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">2 个仓库</span>
+          <span class="cat-stat">169,010 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#147</td>
+          <td class="repo"><a href="https://github.com/home-assistant/core" target="_blank">home-assistant/core</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#f3e5d8;color:#6d4c41;">Python</span></td>
+          <td class="stars">89,525</td>
+          <td class="desc">:house_with_garden: Open source home automation that puts local control and privacy first.</td>
+        </tr>
+<tr class="">
+          <td class="rank">#191</td>
+          <td class="repo"><a href="https://github.com/swisskyrepo/PayloadsAllTheThings" target="_blank">swisskyrepo/PayloadsAllTheThings</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#f3e5d8;color:#6d4c41;">Python</span></td>
+          <td class="stars">79,485</td>
+          <td class="desc">A list of useful payloads and bypass for Web Application Security and Pentest/CTF</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="category-section" id="媒体___下载___爬虫">
+      <div class="cat-header" style="background:#d4f7f9;border-left:5px solid #00838f;">
+        <h2 style="color:#00838f;">媒体 / 下载 / 爬虫</h2>
+        <div class="cat-stats">
+          <span class="cat-stat">1 个仓库</span>
+          <span class="cat-stat">134,556 总 Stars</span>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th class="rank">全球排名</th><th>仓库</th><th class="lang">语言</th><th class="stars">Stars</th><th>简介</th></tr>
+        </thead>
+        <tbody>
+          <tr class="">
+          <td class="rank">#68</td>
+          <td class="repo"><a href="https://github.com/iptv-org/iptv" target="_blank">iptv-org/iptv</a></td>
+          <td class="lang"><span class="lang-badge" style="background:#d4f7f9;color:#00838f;">TypeScript</span></td>
+          <td class="stars">134,556</td>
+          <td class="desc">Collection of publicly available IPTV channels from all over the world</td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+</div>
+
+<script>
+function filterTable() {
+  const input = document.getElementById('search').value.toLowerCase();
+  const sections = document.querySelectorAll('.category-section');
+  sections.forEach(section => {
+    let visibleRows = 0;
+    const rows = section.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      if (text.includes(input)) {
+        row.style.display = '';
+        visibleRows++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    section.style.display = visibleRows > 0 || input === '' ? '' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>

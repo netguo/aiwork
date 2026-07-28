@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 框架选型分析报告</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f6f8fa; color: #1f2328; line-height: 1.7; padding: 32px;
+  }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  h2 { font-size: 22px; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #d0d7de; }
+  h3 { font-size: 17px; margin: 20px 0 12px; }
+  .meta { color: #656d76; font-size: 14px; margin-bottom: 32px; }
+  .recommendation-box {
+    background: linear-gradient(135deg, #1a7f37 0%, #2da44e 100%);
+    color: #fff; border-radius: 12px; padding: 24px 32px; margin: 24px 0 32px;
+  }
+  .recommendation-box h2 { border: none; color: #fff; margin-top: 0; }
+  .recommendation-box .badge {
+    display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 4px 16px; font-size: 13px; margin-right: 8px; margin-bottom: 4px;
+  }
+  
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #d0d7de; border-radius: 8px; overflow: hidden; font-size: 13px; margin: 16px 0; }
+  th { background: #f6f8fa; text-align: left; padding: 10px 14px; font-weight: 600; border-bottom: 2px solid #d0d7de; white-space: nowrap; }
+  td { padding: 8px 14px; border-bottom: 1px solid #eaecef; vertical-align: top; }
+  tr:hover { background: #f6f8fa; }
+  tr:last-child td { border-bottom: none; }
+  .center { text-align: center; }
+  .right { text-align: right; }
+  .green { color: #1a7f37; font-weight: 600; }
+  .red { color: #cf222e; font-weight: 600; }
+  .yellow { color: #bf8700; font-weight: 600; }
+  .gray { color: #656d76; }
+  
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .card { background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 20px; }
+  .card h3 { margin-top: 0; }
+  .card.recommended { border: 2px solid #2da44e; }
+  .card.recommended h3 { color: #1a7f37; }
+  .card .pros { color: #1a7f37; }
+  .card .cons { color: #cf222e; }
+  .card ul { padding-left: 18px; font-size: 13px; }
+  .card li { margin-bottom: 4px; }
+  
+  .arch-diagram {
+    background: #fff; border: 1px solid #d0d7de; border-radius: 8px;
+    padding: 24px; margin: 16px 0; font-family: "SF Mono", "Fira Code", monospace; font-size: 12px; line-height: 1.8;
+    white-space: pre; overflow-x: auto;
+  }
+  
+  .verdict {
+    background: #fff; border-left: 4px solid #1a7f37; border-radius: 0 8px 8px 0;
+    padding: 16px 20px; margin: 16px 0; font-size: 14px;
+  }
+  .verdict strong { color: #1a7f37; }
+  
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin: 2px; }
+  .tag-engine { background: #dafbe1; color: #1a7f37; }
+  .tag-component { background: #ddf4ff; color: #0969da; }
+  .tag-platform { background: #fff8c5; color: #bf8700; }
+  .tag-tool { background: #fbefff; color: #8250df; }
+  
+  .scenario-box {
+    background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px 20px; margin: 12px 0;
+  }
+  .scenario-box h3 { margin-top: 0; font-size: 15px; }
+  .scenario-box .when { font-weight: 600; color: #0969da; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<h1>RAG 框架选型分析报告</h1>
+<div class="meta">分析范围：GitHub Star 前 200 仓库中的 RAG 相关项目 · 分析时间：2026-07-28 · 前提：已选定 LangChain + LangGraph 作为 Agent 基座</div>
+
+<!-- 推荐结论 -->
+<div class="recommendation-box">
+  <h2>推荐结论：RAGFlow + LangChain 内置 RAG（分层互补）</h2>
+  <div style="margin-top: 12px;">
+    <span class="badge">RAGFlow #169 · 86K Stars</span>
+    <span class="badge">Apache-2.0 协议</span>
+    <span class="badge">Go + Python</span>
+    <span class="badge">LangChain RAG 组件层</span>
+  </div>
+  <p style="margin-top: 16px; font-size: 15px; line-height: 1.8;">
+    <strong>策略：</strong>不选「一个」RAG 框架，而是<strong>分层互补</strong>——
+    轻量级 RAG 场景直接用 LangChain 内置组件（向量存储 + 检索器 + 嵌入），
+    生产级 RAG 场景用 RAGFlow 作为专用 RAG 引擎。
+    RAGFlow 负责文档摄入 → 解析 → 分块 → 索引 → 混合检索 → 重排序，
+    LangChain 负责 Agent 编排和工具调用，通过 API 调用 RAGFlow 的检索能力。
+  </p>
+</div>
+
+<!-- 第一部分：候选项目筛选 -->
+<h2>一、前 200 名中 RAG 相关项目筛选</h2>
+<p>从前 200 名中筛选出所有具备 RAG / 检索 / 知识库能力的项目：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>项目</th>
+      <th>Stars</th>
+      <th>定位类型</th>
+      <th>语言</th>
+      <th>协议</th>
+      <th>RAG 角色适合度</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="center">169</td>
+      <td><strong>infiniflow/ragflow</strong></td>
+      <td class="right">86,169</td>
+      <td><span class="tag tag-engine">专用 RAG 引擎</span></td>
+      <td>Go + Python</td>
+      <td>Apache-2.0</td>
+      <td class="green">★★★★★ 最佳</td>
+    </tr>
+    <tr>
+      <td class="center">58</td>
+      <td><strong>langchain-ai/langchain</strong></td>
+      <td class="right">142,715</td>
+      <td><span class="tag tag-component">RAG 组件层</span></td>
+      <td>Python</td>
+      <td>MIT</td>
+      <td class="green">★★★★★ 已选（内置 RAG）</td>
+    </tr>
+    <tr>
+      <td class="center">125</td>
+      <td>Graphify-Labs/graphify</td>
+      <td class="right">97,173</td>
+      <td><span class="tag tag-tool">知识图谱 RAG</span></td>
+      <td>Python</td>
+      <td>Apache-2.0</td>
+      <td class="yellow">★★★☆☆ 专用场景</td>
+    </tr>
+    <tr>
+      <td class="center">54</td>
+      <td>langgenius/dify</td>
+      <td class="right">150,460</td>
+      <td><span class="tag tag-platform">平台（含 RAG）</span></td>
+      <td>TS + Python</td>
+      <td>NOASSERTION</td>
+      <td class="yellow">★★★☆☆ 平台级 RAG</td>
+    </tr>
+    <tr>
+      <td class="center">56</td>
+      <td>open-webui/open-webui</td>
+      <td class="right">146,981</td>
+      <td><span class="tag tag-platform">UI（含 RAG）</span></td>
+      <td>Python</td>
+      <td>NOASSERTION</td>
+      <td class="red">★★☆☆☆ UI 产品，非框架</td>
+    </tr>
+    <tr>
+      <td class="center">153</td>
+      <td>thedotmack/claude-mem</td>
+      <td class="right">88,759</td>
+      <td><span class="tag tag-tool">Agent 记忆</span></td>
+      <td>JavaScript</td>
+      <td>Apache-2.0</td>
+      <td class="red">★★☆☆☆ Agent 记忆专用</td>
+    </tr>
+    <tr>
+      <td class="center">167</td>
+      <td>PaddlePaddle/PaddleOCR</td>
+      <td class="right">86,365</td>
+      <td><span class="tag tag-tool">OCR 工具</span></td>
+      <td>Python</td>
+      <td>Apache-2.0</td>
+      <td class="red">★☆☆☆☆ 文档解析工具</td>
+    </tr>
+    <tr>
+      <td class="center">103</td>
+      <td>supabase/supabase</td>
+      <td class="right">107,119</td>
+      <td><span class="tag tag-component">向量数据库</span></td>
+      <td>TypeScript</td>
+      <td>Apache-2.0</td>
+      <td class="red">★☆☆☆☆ 基础设施层</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="verdict">
+  <strong>筛选结论：</strong>真正适合作为「RAG 框架」的候选只有两个：<strong>RAGFlow</strong>（专用 RAG 引擎）和 <strong>LangChain 内置 RAG</strong>（已选定 Agent 框架的 RAG 组件层）。Graphify 在知识图谱场景有特殊价值，可作为进阶补充。
+</div>
+
+<!-- 第二部分：LangChain 内置 RAG vs RAGFlow -->
+<h2>二、LangChain 内置 RAG vs RAGFlow 能力对比</h2>
+
+<p>关键问题：<strong>既然已经选了 LangChain，它自带的 RAG 组件够用吗？是否还需要 RAGFlow？</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:180px;">能力维度</th>
+      <th>LangChain 内置 RAG</th>
+      <th>RAGFlow</th>
+      <th>差距判断</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>文档解析</strong></td>
+      <td class="yellow">基础 Document Loader（PDF/HTML/Markdown 等），无 OCR</td>
+      <td class="green">DeepDoc 深度解析 + Mistral OCR + ONNX 模型，支持表格/图片/公式</td>
+      <td class="red">LangChain 严重不足</td>
+    </tr>
+    <tr>
+      <td><strong>分块策略</strong></td>
+      <td class="yellow">RecursiveCharacterTextSplitter、TokenTextSplitter 等通用分块</td>
+      <td class="green">模板化分块：论文/书籍/法律/手册/演示文稿/通用，针对不同文档类型优化</td>
+      <td class="red">RAGFlow 显著领先</td>
+    </tr>
+    <tr>
+      <td><strong>检索策略</strong></td>
+      <td class="yellow">向量检索 + MMR + 压缩检索，无内置 BM25 混合检索</td>
+      <td class="green">向量检索 + BM25 + 自定义评分 + 高级重排序，高精度混合搜索</td>
+      <td class="red">RAGFlow 显著领先</td>
+    </tr>
+    <tr>
+      <td><strong>重排序</strong></td>
+      <td class="yellow">需自行集成 Cohere Reranker 等</td>
+      <td class="green">内置重排序能力</td>
+      <td class="yellow">RAGFlow 更完整</td>
+    </tr>
+    <tr>
+      <td><strong>向量数据库</strong></td>
+      <td class="green">60+ 向量存储集成（Pinecone/Chroma/Weaviate/Qdrant/Milvus/PGVector 等）</td>
+      <td class="yellow">内置 Infinity 引擎，支持 Elasticsearch 切换</td>
+      <td class="green">LangChain 生态更广</td>
+    </tr>
+    <tr>
+      <td><strong>嵌入模型</strong></td>
+      <td class="green">14+ 合作伙伴，OpenAI/Cohere/HuggingFace 等</td>
+      <td class="yellow">支持主流嵌入模型，可配置</td>
+      <td class="green">LangChain 更灵活</td>
+    </tr>
+    <tr>
+      <td><strong>知识图谱</strong></td>
+      <td class="red">无内置支持</td>
+      <td class="green">知识库级图谱节点搜索</td>
+      <td class="red">RAGFlow 独有</td>
+    </tr>
+    <tr>
+      <td><strong>ETL 管线</strong></td>
+      <td class="red">无，需自行搭建</td>
+      <td class="green">内置数据清洗和多格式处理管线</td>
+      <td class="red">RAGFlow 独有</td>
+    </tr>
+    <tr>
+      <td><strong>MCP 支持</strong></td>
+      <td class="green">原生支持</td>
+      <td class="green">原生支持</td>
+      <td>持平</td>
+    </tr>
+    <tr>
+      <td><strong>Agent 编排</strong></td>
+      <td class="green">LangGraph 有状态多 Agent 编排（已选）</td>
+      <td class="yellow">内置可视化 Agent 工作流</td>
+      <td class="green">LangChain 更强</td>
+    </tr>
+    <tr>
+      <td><strong>可观测性</strong></td>
+      <td class="green">LangSmith 一体化</td>
+      <td class="yellow">内置日志监控</td>
+      <td class="green">LangChain 更强</td>
+    </tr>
+    <tr>
+      <td><strong>部署复杂度</strong></td>
+      <td class="green">pip install，轻量</td>
+      <td class="yellow">Docker Compose，中等</td>
+      <td class="yellow">LangChain 更轻</td>
+    </tr>
+    <tr>
+      <td><strong>协议</strong></td>
+      <td class="green">MIT</td>
+      <td class="green">Apache-2.0</td>
+      <td>均为宽松协议</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="verdict">
+  <strong>核心判断：</strong>LangChain 的 RAG 组件在<strong>向量存储生态</strong>和<strong>嵌入模型灵活性</strong>上有优势，但在<strong>文档解析、分块策略、混合检索、重排序、ETL 管线</strong>等 RAG 核心能力上明显弱于 RAGFlow。对于生产级 RAG 场景（复杂文档、高精度检索），LangChain 内置 RAG 不够用，需要 RAGFlow 补齐。
+</div>
+
+<!-- 第三部分：推荐架构 -->
+<h2>三、推荐架构：分层互补</h2>
+
+<div class="arch-diagram">┌─────────────────────────────────────────────────────────────────────┐
+│                     团队 AI Agent 技术栈架构                        │
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │              应用层：Agent 业务逻辑                           │ │
+│  │     量化分析 / 报告生成 / 系统运维 / 知识问答                 │ │
+│  └───────────────────────────┬───────────────────────────────────┘ │
+│                              │                                      │
+│  ┌───────────────────────────┴───────────────────────────────────┐ │
+│  │           Agent 编排层：LangChain + LangGraph                 │ │
+│  │     多角色协作 / 状态管理 / 工具调用 / 规划与子代理           │ │
+│  └──────────┬──────────────────────────────┬─────────────────────┘ │
+│             │                              │                       │
+│             │ 轻量 RAG                     │ 生产级 RAG            │
+│             │ (简单文档/小规模)            │ (复杂文档/大规模)     │
+│             ▼                              ▼                       │
+│  ┌──────────────────────┐    ┌──────────────────────────────────┐ │
+│  │  LangChain 内置 RAG   │    │        RAGFlow 引擎              │ │
+│  │                      │    │                                  │ │
+│  │  · 向量存储 (60+)    │    │  · 文档解析 (DeepDoc/OCR)        │ │
+│  │  · 嵌入模型 (14+)    │    │  · 模板化分块 (6种模板)         │ │
+│  │  · 基础检索 (MMR)    │    │  · 混合检索 (向量+BM25+重排)    │ │
+│  │  · 简单分块          │    │  · ETL 管线                     │ │
+│  │  · 检索链            │    │  · 知识图谱                     │ │
+│  └──────────┬───────────┘    └──────────────┬───────────────────┘ │
+│             │                               │                     │
+│             ▼                               ▼                     │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │              基础设施层                                       │ │
+│  │  向量数据库 (Chroma/Milvus/Infinity) · LLM API · 对象存储   │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │              可观测性层：LangSmith                            │ │
+│  │     Agent 评估 + 检索追踪 + 调试 + 监控                      │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────┘
+
+集成方式：LangChain Agent 通过 RAGFlow REST API 调用检索能力
+         RAGFlow 作为独立服务部署，Agent 通过 Tool 方式调用
+         轻量场景直接用 LangChain 内置 RAG，无需经过 RAGFlow</div>
+
+<!-- 第四部分：场景决策 -->
+<h2>四、场景决策矩阵</h2>
+
+<div class="scenario-box">
+  <div class="when">场景 A：轻量 RAG → 只用 LangChain 内置 RAG</div>
+  <p>适用条件：文档格式简单（纯文本/Markdown/基础 PDF）、数据量小（&lt;1000 文档）、检索精度要求中等、无需 OCR、无需知识图谱。</p>
+  <p><strong>典型用例：</strong>团队内部 Wiki 问答、代码库检索、FAQ 机器人</p>
+</div>
+
+<div class="scenario-box">
+  <div class="when">场景 B：生产级 RAG → RAGFlow + LangChain</div>
+  <p>适用条件：复杂文档（PDF 含表格/图片/公式、扫描件、多格式混合）、数据量大（&gt;1000 文档）、检索精度要求高、需要混合检索和重排序、需要知识图谱。</p>
+  <p><strong>典型用例：</strong>金融研报检索、法律文书分析、技术文档库、政策文件问答</p>
+</div>
+
+<div class="scenario-box">
+  <div class="when">场景 C：知识图谱 RAG → Graphify 补充</div>
+  <p>适用条件：需要将代码库/文档/SQL/配置转为可查询的知识图谱，用于代码理解和深度分析。</p>
+  <p><strong>典型用例：</strong>代码库智能问答、跨文档关联分析、技术资产盘点</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:120px;">场景</th>
+      <th>文档复杂度</th>
+      <th>数据量</th>
+      <th>精度要求</th>
+      <th>推荐方案</th>
+      <th>部署复杂度</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>轻量问答</strong></td>
+      <td class="green">低（文本/MD）</td>
+      <td class="green">&lt;1K 文档</td>
+      <td class="yellow">中等</td>
+      <td>LangChain 内置 RAG</td>
+      <td class="green">低（pip install）</td>
+    </tr>
+    <tr>
+      <td><strong>生产检索</strong></td>
+      <td class="yellow">高（PDF/表格/图片）</td>
+      <td class="yellow">1K-100K 文档</td>
+      <td class="green">高</td>
+      <td><strong>RAGFlow + LangChain</strong></td>
+      <td class="yellow">中（Docker Compose）</td>
+    </tr>
+    <tr>
+      <td><strong>企业知识库</strong></td>
+      <td class="red">极高（多格式混合）</td>
+      <td class="red">&gt;100K 文档</td>
+      <td class="green">极高</td>
+      <td>RAGFlow + LangChain + 向量库集群</td>
+      <td class="red">高（K8s 部署）</td>
+    </tr>
+    <tr>
+      <td><strong>代码理解</strong></td>
+      <td class="yellow">代码/配置/SQL</td>
+      <td class="yellow">中大型代码库</td>
+      <td class="green">高</td>
+      <td>Graphify + LangChain</td>
+      <td class="yellow">中</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 第五部分：RAGFlow 详细评估 -->
+<h2>五、RAGFlow 详细评估</h2>
+
+<div class="card-grid">
+  <div class="card recommended">
+    <h3>RAGFlow 核心优势</h3>
+    <ul class="pros">
+      <li><strong>专用 RAG 引擎</strong>：不是组件库，是完整的 RAG 服务，开箱即用</li>
+      <li><strong>DeepDoc 文档解析</strong>：支持 PDF 表格/图片/公式提取，Mistral OCR 集成</li>
+      <li><strong>模板化分块</strong>：6 种文档模板（论文/书籍/法律/手册/演示/通用），针对不同文档类型优化分块策略</li>
+      <li><strong>高精度混合检索</strong>：向量 + BM25 + 自定义评分 + 重排序，检索精度行业领先</li>
+      <li><strong>ETL 管线</strong>：内置数据清洗和多格式处理，"Quality in, quality out"</li>
+      <li><strong>知识图谱</strong>：知识库级图谱节点搜索，支持关联检索</li>
+      <li><strong>Apache-2.0 协议</strong>：商用友好，无限制</li>
+      <li><strong>MCP 支持</strong>：原生 MCP Server，与 Agent 生态对接</li>
+      <li><strong>REST API</strong>：标准 HTTP 接口，LangChain 可直接调用</li>
+      <li><strong>Helm Chart</strong>：支持 K8s 生产部署</li>
+      <li><strong>行业方案</strong>：内置金融投研、法律判例、制造维护等行业工作流模板</li>
+    </ul>
+  </div>
+  
+  <div class="card">
+    <h3>RAGFlow 需关注点</h3>
+    <ul class="cons">
+      <li><strong>Issue/Fork 比偏高</strong>：2047 issues / 10,104 forks = 1:5，需关注稳定性</li>
+      <li><strong>Go + Python 混合栈</strong>：部分组件用 Go 重写，团队需具备 Go 运维能力</li>
+      <li><strong>部署较重</strong>：需 Docker Compose + 向量数据库 + Elasticsearch/Infinity</li>
+      <li><strong>向量数据库绑定</strong>：主要使用 Infinity（自有产品），对外部向量库支持不如 LangChain</li>
+      <li><strong>学习曲线</strong>：完整的 RAG 引擎，配置项较多</li>
+      <li><strong>与 LangChain 集成</strong>：需通过 REST API 调用，非原生 Python 集成</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 第六部分：集成方案 -->
+<h2>六、LangChain + RAGFlow 集成方案</h2>
+
+<h3>6.1 集成架构</h3>
+<div class="arch-diagram"># LangChain Agent 调用 RAGFlow 的集成方式
+
+from langchain.tools import Tool
+import requests
+
+# 将 RAGFlow 检索封装为 LangChain Tool
+def ragflow_search(query: str) -> str:
+    """调用 RAGFlow API 进行高精度混合检索"""
+    response = requests.post(
+        "http://ragflow:9380/api/v1/retrieval",
+        json={
+            "question": query,
+            "dataset_ids": ["your_dataset_id"],
+            "top_k": 10,
+        },
+        headers={"Authorization": "Bearer your_api_key"}
+    )
+    return response.json()
+
+# 注册为 LangChain Tool
+ragflow_tool = Tool(
+    name="RAGFlow_Search",
+    description="搜索企业知识库，返回高精度检索结果",
+    func=ragflow_search,
+)
+
+# 在 LangGraph Agent 中使用
+from langgraph.prebuilt import create_react_agent
+agent = create_react_agent(model, tools=[ragflow_tool, ...])</div>
+
+<h3>6.2 落地路线</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width:120px;">阶段</th>
+      <th style="width:100px;">周期</th>
+      <th>目标</th>
+      <th>关键产出</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>阶段一</strong></td>
+      <td>1 周</td>
+      <td>用 LangChain 内置 RAG 快速验证 Agent + RAG 基础链路</td>
+      <td>单 Agent + Chroma 向量库 + 基础文档检索</td>
+    </tr>
+    <tr>
+      <td><strong>阶段二</strong></td>
+      <td>1-2 周</td>
+      <td>Docker 部署 RAGFlow，导入测试文档，验证检索精度</td>
+      <td>RAGFlow 服务 + 文档解析 + 混合检索 API 验证</td>
+    </tr>
+    <tr>
+      <td><strong>阶段三</strong></td>
+      <td>1-2 周</td>
+      <td>将 RAGFlow 检索封装为 LangChain Tool，集成到 Agent 工作流</td>
+      <td>RAGFlow Tool + LangGraph Agent 联调</td>
+    </tr>
+    <tr>
+      <td><strong>阶段四</strong></td>
+      <td>持续</td>
+      <td>按场景分层：轻量用 LangChain RAG，生产用 RAGFlow</td>
+      <td>双轨 RAG 策略 + 知识图谱（Graphify）补充</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>6.3 与其他项目的配合</h3>
+<table>
+  <thead>
+    <tr>
+      <th>项目</th>
+      <th>角色</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>RAGFlow</strong></td>
+      <td class="green">生产级 RAG 引擎</td>
+      <td>复杂文档解析 + 混合检索 + 重排序</td>
+    </tr>
+    <tr>
+      <td><strong>LangChain 内置 RAG</strong></td>
+      <td class="green">轻量 RAG 组件</td>
+      <td>简单文档/小规模场景的快速检索</td>
+    </tr>
+    <tr>
+      <td><strong>Graphify</strong></td>
+      <td class="yellow">知识图谱补充</td>
+      <td>代码库/文档结构化为知识图谱，用于深度关联分析</td>
+    </tr>
+    <tr>
+      <td><strong>PaddleOCR</strong></td>
+      <td class="yellow">OCR 工具</td>
+      <td>中文文档 OCR 场景的补充（RAGFlow 已集成 Mistral OCR）</td>
+    </tr>
+    <tr>
+      <td><strong>Supabase (pgvector)</strong></td>
+      <td class="yellow">向量存储选项</td>
+      <td>LangChain 内置 RAG 的轻量级向量存储</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 总结 -->
+<h2>七、总结</h2>
+
+<div class="verdict">
+  <strong>一句话总结：</strong>不选「一个」RAG 框架，而是<strong>分层互补</strong>——LangChain 内置 RAG 覆盖轻量场景，RAGFlow 覆盖生产级场景。
+  RAGFlow 是前 200 名中唯一一个「专用 RAG 引擎」，在文档解析、分块策略、混合检索、重排序上显著优于 LangChain 内置 RAG。
+  两者通过 REST API 集成，RAGFlow 作为 LangChain Agent 的一个 Tool，形成「Agent 编排 + RAG 引擎」的完整技术栈。
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:140px;">维度</th>
+      <th>LangChain 内置 RAG</th>
+      <th>RAGFlow</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>定位</strong></td>
+      <td>RAG 组件库（向量存储 + 检索器 + 嵌入）</td>
+      <td>完整 RAG 引擎（ETL + 解析 + 检索 + 重排）</td>
+    </tr>
+    <tr>
+      <td><strong>适用场景</strong></td>
+      <td>轻量/快速原型/简单文档</td>
+      <td>生产级/复杂文档/高精度检索</td>
+    </tr>
+    <tr>
+      <td><strong>部署方式</strong></td>
+      <td>pip install</td>
+      <td>Docker Compose / Helm</td>
+    </tr>
+    <tr>
+      <td><strong>协议</strong></td>
+      <td>MIT</td>
+      <td>Apache-2.0</td>
+    </tr>
+    <tr>
+      <td><strong>与 Agent 集成</strong></td>
+      <td>原生 Python 集成</td>
+      <td>REST API（封装为 LangChain Tool）</td>
+    </tr>
+    <tr>
+      <td><strong>核心优势</strong></td>
+      <td>向量库生态最广（60+）、嵌入模型最灵活</td>
+      <td>文档解析最强、混合检索最精准、ETL 最完整</td>
+    </tr>
+    <tr>
+      <td><strong>在技术栈中的角色</strong></td>
+      <td class="green">Agent 基座（已选）+ 轻量 RAG</td>
+      <td class="green">生产级 RAG 引擎</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开源 Agent 框架选型分析报告</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f6f8fa; color: #1f2328; line-height: 1.7; padding: 32px;
+  }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  h2 { font-size: 22px; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #d0d7de; }
+  h3 { font-size: 17px; margin: 20px 0 12px; }
+  .meta { color: #656d76; font-size: 14px; margin-bottom: 32px; }
+  .recommendation-box {
+    background: linear-gradient(135deg, #0969da 0%, #218bff 100%);
+    color: #fff; border-radius: 12px; padding: 24px 32px; margin: 24px 0 32px;
+  }
+  .recommendation-box h2 { border: none; color: #fff; margin-top: 0; }
+  .recommendation-box .badge {
+    display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 4px 16px; font-size: 13px; margin-right: 8px; margin-bottom: 4px;
+  }
+  
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #d0d7de; border-radius: 8px; overflow: hidden; font-size: 13px; margin: 16px 0; }
+  th { background: #f6f8fa; text-align: left; padding: 10px 14px; font-weight: 600; border-bottom: 2px solid #d0d7de; white-space: nowrap; }
+  td { padding: 8px 14px; border-bottom: 1px solid #eaecef; vertical-align: top; }
+  tr:hover { background: #f6f8fa; }
+  tr:last-child td { border-bottom: none; }
+  .center { text-align: center; }
+  .right { text-align: right; }
+  .green { color: #1a7f37; font-weight: 600; }
+  .red { color: #cf222e; font-weight: 600; }
+  .yellow { color: #bf8700; font-weight: 600; }
+  .gray { color: #656d76; }
+  
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0; }
+  .card { background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 20px; }
+  .card h3 { margin-top: 0; color: #0969da; }
+  .card .pros { color: #1a7f37; }
+  .card .cons { color: #cf222e; }
+  .card ul { padding-left: 18px; font-size: 13px; }
+  .card li { margin-bottom: 4px; }
+  
+  .arch-diagram {
+    background: #fff; border: 1px solid #d0d7de; border-radius: 8px;
+    padding: 24px; margin: 16px 0; font-family: "SF Mono", "Fira Code", monospace; font-size: 13px; line-height: 1.8;
+    white-space: pre; overflow-x: auto;
+  }
+  
+  .verdict {
+    background: #fff; border-left: 4px solid #0969da; border-radius: 0 8px 8px 0;
+    padding: 16px 20px; margin: 16px 0; font-size: 14px;
+  }
+  .verdict strong { color: #0969da; }
+  
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin: 2px; }
+  .tag-framework { background: #ddf4ff; color: #0969da; }
+  .tag-platform { background: #fff8c5; color: #bf8700; }
+  .tag-product { background: #ffebe9; color: #cf222e; }
+  .tag-protocol { background: #fbefff; color: #8250df; }
+  
+  .score-bar { display: inline-block; width: 60px; height: 8px; background: #eaecef; border-radius: 4px; overflow: hidden; vertical-align: middle; margin-right: 6px; }
+  .score-fill { height: 100%; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<h1>开源 Agent 框架选型分析报告</h1>
+<div class="meta">分析范围：GitHub Star 前 200 仓库中的 Agent 相关项目 · 分析时间：2026-07-28 · 目标：为团队 Agent 开发选择基座框架</div>
+
+<!-- 推荐结论 -->
+<div class="recommendation-box">
+  <h2>推荐结论：LangChain + LangGraph</h2>
+  <div style="margin-top: 12px;">
+    <span class="badge">#58 全球排名</span>
+    <span class="badge">142,715 Stars</span>
+    <span class="badge">MIT 协议</span>
+    <span class="badge">Python + TypeScript</span>
+    <span class="badge">23,756 Forks</span>
+    <span class="badge">446 Open Issues</span>
+  </div>
+  <p style="margin-top: 16px; font-size: 15px; line-height: 1.8;">
+    <strong>核心理由：</strong>LangChain 是前 200 名中唯一一个「纯框架」定位的 Agent 基座——它不是产品、不是平台，而是专为构建 Agent 而生的工程框架。
+    其分层架构（LangChain 基础层 → LangGraph 编排层 → Deep Agents 高层模式）既能满足快速原型开发，又能支撑生产级多 Agent 系统。
+    其他上榜项目（deer-flow、Langflow）均构建于其之上，进一步验证了其作为基座的行业地位。
+  </p>
+</div>
+
+<!-- 第一部分：候选项目筛选 -->
+<h2>一、候选项目筛选</h2>
+<p>从前 200 名中筛选出所有具备 Agent 构建能力的项目，按定位类型分类：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>项目</th>
+      <th>Stars</th>
+      <th>定位类型</th>
+      <th>语言</th>
+      <th>协议</th>
+      <th>作为基座的适合度</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="center">58</td>
+      <td><strong>langchain-ai/langchain</strong></td>
+      <td class="right">142,715</td>
+      <td><span class="tag tag-framework">框架</span></td>
+      <td>Python</td>
+      <td>MIT</td>
+      <td class="green">★★★★★ 最佳</td>
+    </tr>
+    <tr>
+      <td class="center">54</td>
+      <td><strong>langgenius/dify</strong></td>
+      <td class="right">150,460</td>
+      <td><span class="tag tag-platform">平台</span></td>
+      <td>TS + Python</td>
+      <td>NOASSERTION</td>
+      <td class="yellow">★★★★☆ 适合平台路线</td>
+    </tr>
+    <tr>
+      <td class="center">199</td>
+      <td><strong>bytedance/deer-flow</strong></td>
+      <td class="right">77,982</td>
+      <td><span class="tag tag-framework">框架</span> <span class="tag tag-platform">基于LC</span></td>
+      <td>Python</td>
+      <td>MIT</td>
+      <td class="yellow">★★★☆☆ 基于 LangChain</td>
+    </tr>
+    <tr>
+      <td class="center">23</td>
+      <td>n8n-io/n8n</td>
+      <td class="right">198,268</td>
+      <td><span class="tag tag-platform">平台</span></td>
+      <td>TypeScript</td>
+      <td>NOASSERTION</td>
+      <td class="yellow">★★★☆☆ 偏工作流自动化</td>
+    </tr>
+    <tr>
+      <td class="center">53</td>
+      <td>langflow-ai/langflow</td>
+      <td class="right">152,507</td>
+      <td><span class="tag tag-platform">可视化</span></td>
+      <td>Python</td>
+      <td>MIT</td>
+      <td class="yellow">★★★☆☆ 基于 LangChain</td>
+    </tr>
+    <tr>
+      <td class="center">169</td>
+      <td>infiniflow/ragflow</td>
+      <td class="right">86,169</td>
+      <td><span class="tag tag-framework">引擎</span></td>
+      <td>Go</td>
+      <td>Apache-2.0</td>
+      <td class="yellow">★★☆☆☆ 偏 RAG</td>
+    </tr>
+    <tr>
+      <td class="center">177</td>
+      <td>OpenHands/OpenHands</td>
+      <td class="right">82,329</td>
+      <td><span class="tag tag-product">产品</span></td>
+      <td>TypeScript</td>
+      <td>MIT</td>
+      <td class="red">★★☆☆☆ 编码 Agent 产品</td>
+    </tr>
+    <tr>
+      <td class="center">33</td>
+      <td>Significant-Gravitas/AutoGPT</td>
+      <td class="right">185,718</td>
+      <td><span class="tag tag-product">产品</span></td>
+      <td>Python</td>
+      <td>NOASSERTION</td>
+      <td class="red">★★☆☆☆ 自主 Agent 产品</td>
+    </tr>
+    <tr>
+      <td class="center">104</td>
+      <td>browser-use/browser-use</td>
+      <td class="right">107,031</td>
+      <td><span class="tag tag-product">产品</span></td>
+      <td>Python</td>
+      <td>MIT</td>
+      <td class="red">★☆☆☆☆ 浏览器专用</td>
+    </tr>
+    <tr>
+      <td class="center">151</td>
+      <td>modelcontextprotocol/servers</td>
+      <td class="right">88,961</td>
+      <td><span class="tag tag-protocol">协议</span></td>
+      <td>TypeScript</td>
+      <td>NOASSERTION</td>
+      <td class="red">★☆☆☆☆ 协议规范，非框架</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="verdict">
+  <strong>筛选结论：</strong>真正适合作为「基座框架」的候选仅有 3 个：<strong>LangChain</strong>（纯框架）、<strong>Dify</strong>（平台型）、<strong>deer-flow</strong>（基于 LangChain 的 SuperAgent 框架）。其余项目要么是产品/平台，要么是专用工具，不适合作为团队 Agent 开发的底层基座。
+</div>
+
+<!-- 第二部分：三大候选深度对比 -->
+<h2>二、三大候选深度对比</h2>
+
+<h3>2.1 核心指标对比</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width:140px;">维度</th>
+      <th>LangChain + LangGraph</th>
+      <th>Dify</th>
+      <th>deer-flow</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>全球排名</strong></td>
+      <td class="center">#58</td>
+      <td class="center">#54</td>
+      <td class="center">#199</td>
+    </tr>
+    <tr>
+      <td><strong>Stars</strong></td>
+      <td class="right">142,715</td>
+      <td class="right">150,460</td>
+      <td class="right">77,982</td>
+    </tr>
+    <tr>
+      <td><strong>Forks</strong></td>
+      <td class="right">23,756</td>
+      <td class="right">23,704</td>
+      <td class="right">10,638</td>
+    </tr>
+    <tr>
+      <td><strong>Open Issues</strong></td>
+      <td class="right green">446</td>
+      <td class="right yellow">982</td>
+      <td class="right red">982</td>
+    </tr>
+    <tr>
+      <td><strong>Issue/Fork 比</strong></td>
+      <td class="green">1:53（健康）</td>
+      <td class="yellow">1:24（中等）</td>
+      <td class="red">1:11（偏高）</td>
+    </tr>
+    <tr>
+      <td><strong>主语言</strong></td>
+      <td>Python + TypeScript</td>
+      <td>TypeScript + Python + Go</td>
+      <td>Python</td>
+    </tr>
+    <tr>
+      <td><strong>开源协议</strong></td>
+      <td class="green">MIT（最宽松）</td>
+      <td class="yellow">NOASSERTION（需审查）</td>
+      <td class="green">MIT</td>
+    </tr>
+    <tr>
+      <td><strong>最近推送</strong></td>
+      <td>2026-07-27</td>
+      <td>2026-07-28</td>
+      <td>2026-07-27</td>
+    </tr>
+    <tr>
+      <td><strong>定位</strong></td>
+      <td>Agent 工程框架</td>
+      <td>AI 应用开发平台</td>
+      <td>SuperAgent 编排框架</td>
+    </tr>
+    <tr>
+      <td><strong>底层依赖</strong></td>
+      <td class="green">无（自有底层）</td>
+      <td>无（自有底层）</td>
+      <td class="yellow">基于 LangChain + LangGraph</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>2.2 框架能力对比</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width:160px;">能力维度</th>
+      <th>LangChain + LangGraph</th>
+      <th>Dify</th>
+      <th>deer-flow</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Agent 编排</strong></td>
+      <td class="green">LangGraph：有状态、多角色、循环工作流</td>
+      <td class="yellow">Agentic Workflow：可视化编排 + 代码</td>
+      <td class="green">SuperAgent：子代理 + 消息网关 + 沙箱</td>
+    </tr>
+    <tr>
+      <td><strong>多 Agent 协作</strong></td>
+      <td class="green">LangGraph 原生支持多角色 + 状态共享</td>
+      <td class="yellow">Agent 节点 + 工作流串联</td>
+      <td class="green">子代理并行 + 跨代理通信</td>
+    </tr>
+    <tr>
+      <td><strong>模型互操作</strong></td>
+      <td class="green">init_chat_model() 一行切换，14+ 合作伙伴</td>
+      <td class="yellow">插件化模型接入，租户级缓存</td>
+      <td class="yellow">基于 LangChain 模型层 + 自定义 Provider</td>
+    </tr>
+    <tr>
+      <td><strong>RAG 支持</strong></td>
+      <td class="green">完整 RAG 组件链（向量存储 + 检索器 + 嵌入）</td>
+      <td class="green">内置 RAG 管线，开箱即用</td>
+      <td class="yellow">通过工具集成实现</td>
+    </tr>
+    <tr>
+      <td><strong>MCP 支持</strong></td>
+      <td class="green">原生集成 MCP</td>
+      <td class="green">原生集成 MCP</td>
+      <td class="green">支持 MCP Server</td>
+    </tr>
+    <tr>
+      <td><strong>可观测性</strong></td>
+      <td class="green">LangSmith：评估 + 追踪 + 调试一体化</td>
+      <td class="yellow">内置日志 + 监控</td>
+      <td class="green">LangSmith + Langfuse + Monocle 多后端</td>
+    </tr>
+    <tr>
+      <td><strong>沙箱/代码执行</strong></td>
+      <td class="yellow">需自行集成</td>
+      <td class="yellow">Agent Runtime（Go 重写）</td>
+      <td class="green">Docker / K8s / E2B 多沙箱</td>
+    </tr>
+    <tr>
+      <td><strong>记忆系统</strong></td>
+      <td class="green">LangGraph Checkpointer + Store</td>
+      <td class="yellow">会话级记忆</td>
+      <td class="green">长期记忆 + 跨会话上下文</td>
+    </tr>
+    <tr>
+      <td><strong>部署方式</strong></td>
+      <td>LangSmith 平台 / 自托管</td>
+      <td>Cloud / VPC / 自托管</td>
+      <td>Docker Compose / Helm / 多 Worker</td>
+    </tr>
+    <tr>
+      <td><strong>Web UI</strong></td>
+      <td class="red">无（纯框架）</td>
+      <td class="green">完整 Web UI + 协作空间</td>
+      <td class="yellow">TUI 终端界面 + 前端</td>
+    </tr>
+    <tr>
+      <td><strong>高层封装</strong></td>
+      <td class="green">Deep Agents：规划 + 子代理 + 文件系统</td>
+      <td class="yellow">.agents/skills 配置</td>
+      <td class="green">技能系统 + 中间件链（26 步）</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>2.3 各项目优劣势</h3>
+<div class="card-grid">
+  <div class="card">
+    <h3>LangChain + LangGraph</h3>
+    <p class="pros"><strong>优势：</strong></p>
+    <ul class="pros">
+      <li>纯框架定位，最大自由度和可控性</li>
+      <li>分层架构：基础层 → 编排层 → 高层模式</li>
+      <li>MIT 协议，无商用限制</li>
+      <li>Python + TypeScript 双语言支持</li>
+      <li>14+ 模型合作伙伴，一行切换模型</li>
+      <li>LangSmith 评估/追踪/调试一体化</li>
+      <li>生态最大，社区最活跃</li>
+      <li>其他框架（deer-flow、Langflow）的底层</li>
+      <li>Issue/Fork 比最健康（1:53）</li>
+    </ul>
+    <p class="cons" style="margin-top:12px;"><strong>劣势：</strong></p>
+    <ul class="cons">
+      <li>无开箱即用的 Web UI</li>
+      <li>学习曲线相对陡峭</li>
+      <li>沙箱/代码执行需自行集成</li>
+      <li>生产部署需自行搭建基础设施</li>
+    </ul>
+  </div>
+  
+  <div class="card">
+    <h3>Dify</h3>
+    <p class="pros"><strong>优势：</strong></p>
+    <ul class="pros">
+      <li>平台+框架双重属性，开箱即用</li>
+      <li>完整 Web UI + 协作工作空间</li>
+      <li>支持 Cloud / VPC / 自托管三种部署</li>
+      <li>内置 RAG 管线，低门槛上手</li>
+      <li>Agent Runtime 用 Go 重写，性能好</li>
+      <li>插件化模型接入架构</li>
+    </ul>
+    <p class="cons" style="margin-top:12px;"><strong>劣势：</strong></p>
+    <ul class="cons">
+      <li>协议为 NOASSERTION，需法务审查</li>
+      <li>平台优先，深度定制受限</li>
+      <li>前后端分离架构较重，二次开发成本高</li>
+      <li>Agent 编排能力不如 LangGraph 灵活</li>
+      <li>Issue/Fork 比偏高（1:24）</li>
+    </ul>
+  </div>
+  
+  <div class="card">
+    <h3>deer-flow</h3>
+    <p class="pros"><strong>优势：</strong></p>
+    <ul class="pros">
+      <li>SuperAgent 架构，开箱即用高级能力</li>
+      <li>沙箱 + 记忆 + 技能 + 子代理完整体系</li>
+      <li>中间件链 26 步，高度可定制</li>
+      <li>字节跳动出品，工程化程度高</li>
+      <li>多 Tracing 后端支持</li>
+      <li>MIT 协议</li>
+    </ul>
+    <p class="cons" style="margin-top:12px;"><strong>劣势：</strong></p>
+    <ul class="cons">
+      <li>基于 LangChain，不如直接用底层灵活</li>
+      <li>增加了一层抽象，排查问题更复杂</li>
+      <li>Issue/Fork 比最高（1:11），稳定性存疑</li>
+      <li>v2 完全重写，与 v1 不兼容</li>
+      <li>社区和生态远小于 LangChain</li>
+      <li>过度封装可能成为技术债</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 第三部分：架构对比图 -->
+<h2>三、架构层级对比</h2>
+<div class="arch-diagram">┌─────────────────────────────────────────────────────────────────────────┐
+│                        LangChain 生态系统架构                            │
+│                                                                         │
+│  ┌─────────────────┐  ┌──────────────────┐  ┌────────────────────────┐ │
+│  │   Deep Agents   │  │     Langflow     │  │      deer-flow         │ │
+│  │  (高层模式封装)  │  │  (可视化构建层)   │  │  (SuperAgent 封装层)   │ │
+│  │  规划/子代理/FS  │  │  拖拽式 Agent    │  │  沙箱/记忆/技能/网关   │ │
+│  └────────┬────────┘  └────────┬─────────┘  └──────────┬─────────────┘ │
+│           │                    │                       │               │
+│  ┌────────┴────────────────────┴───────────────────────┴─────────────┐ │
+│  │                      LangGraph                                     │ │
+│  │              (Agent 编排层：有状态工作流)                          │ │
+│  │         多角色 / 循环 / Checkpointer / Store                      │ │
+│  └────────────────────────────┬──────────────────────────────────────┘ │
+│                               │                                         │
+│  ┌────────────────────────────┴──────────────────────────────────────┐ │
+│  │                      LangChain                                     │ │
+│  │              (基础框架：组件 + 标准接口)                           │ │
+│  │    Models / Embeddings / Vector Stores / Retrievers / Tools       │ │
+│  └────────────────────────────┬──────────────────────────────────────┘ │
+│                               │                                         │
+│  ┌────────────────────────────┴──────────────────────────────────────┐ │
+│  │              Integrations (14+ 合作伙伴包)                         │ │
+│  │   OpenAI / Anthropic / Fireworks / HuggingFace / xAI / ...        │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐ │
+│  │                      LangSmith                                     │ │
+│  │         (评估 + 可观测性 + 部署平台)                               │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           Dify 架构                                     │
+│                                                                         │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐  ┌─────────────┐ │
+│  │   Web UI    │  │  CLI 工具    │  │  SDK (多语言) │  │  API 层    │ │
+│  └──────┬──────┘  └──────┬───────┘  └──────┬───────┘  └──────┬──────┘ │
+│         └────────────────┴─────────────────┴─────────────────┘        │
+│                              │                                          │
+│  ┌───────────────────────────┴──────────────────────────────────────┐ │
+│  │                    Dify Platform Core                             │ │
+│  │     工作流引擎 / RAG 管线 / Agent 编排 / 插件系统                │ │
+│  └──────────┬──────────────────────────────┬────────────────────────┘ │
+│             │                              │                           │
+│  ┌──────────┴──────────┐     ┌─────────────┴──────────────┐          │
+│  │   API (Python)      │     │  Agent Runtime (Go 重写)   │          │
+│  └─────────────────────┘     └────────────────────────────┘          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+结论：LangChain 是底层基座，Dify 是独立平台，deer-flow 是 LangChain 上层封装。
+      选基座 = 选最大自由度 + 最大生态 = LangChain</div>
+
+<!-- 第四部分：评分矩阵 -->
+<h2>四、量化评分矩阵</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:160px;">评估维度</th>
+      <th style="width:60px;">权重</th>
+      <th>LangChain + LangGraph</th>
+      <th>Dify</th>
+      <th>deer-flow</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>框架灵活性</td>
+      <td class="center">20%</td>
+      <td class="green">10 / 10</td>
+      <td class="yellow">6 / 10</td>
+      <td class="yellow">7 / 10</td>
+    </tr>
+    <tr>
+      <td>生态与社区</td>
+      <td class="center">15%</td>
+      <td class="green">10 / 10</td>
+      <td class="green">8 / 10</td>
+      <td class="yellow">5 / 10</td>
+    </tr>
+    <tr>
+      <td>文档与上手</td>
+      <td class="center">10%</td>
+      <td class="green">8 / 10</td>
+      <td class="green">9 / 10</td>
+      <td class="yellow">6 / 10</td>
+    </tr>
+    <tr>
+      <td>多 Agent 编排</td>
+      <td class="center">15%</td>
+      <td class="green">9 / 10</td>
+      <td class="yellow">7 / 10</td>
+      <td class="green">9 / 10</td>
+    </tr>
+    <tr>
+      <td>模型互操作</td>
+      <td class="center">10%</td>
+      <td class="green">10 / 10</td>
+      <td class="green">8 / 10</td>
+      <td class="yellow">7 / 10</td>
+    </tr>
+    <tr>
+      <td>生产就绪度</td>
+      <td class="center">10%</td>
+      <td class="green">8 / 10</td>
+      <td class="green">9 / 10</td>
+      <td class="yellow">6 / 10</td>
+    </tr>
+    <tr>
+      <td>开源协议友好</td>
+      <td class="center">10%</td>
+      <td class="green">10 / 10</td>
+      <td class="red">5 / 10</td>
+      <td class="green">10 / 10</td>
+    </tr>
+    <tr>
+      <td>可观测性</td>
+      <td class="center">10%</td>
+      <td class="green">9 / 10</td>
+      <td class="yellow">7 / 10</td>
+      <td class="green">8 / 10</td>
+    </tr>
+    <tr style="background: #f6f8fa;">
+      <td><strong>加权总分</strong></td>
+      <td class="center"><strong>100%</strong></td>
+      <td class="green"><strong>9.35 / 10</strong></td>
+      <td class="yellow"><strong>7.40 / 10</strong></td>
+      <td class="yellow"><strong>6.90 / 10</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 第五部分：推荐方案 -->
+<h2>五、推荐方案与落地建议</h2>
+
+<div class="verdict">
+  <strong>最终推荐：LangChain + LangGraph 作为团队 Agent 开发基座</strong>
+</div>
+
+<h3>5.1 推荐理由总结</h3>
+<table>
+  <tbody>
+    <tr>
+      <td style="width:180px;"><strong>1. 纯框架定位</strong></td>
+      <td>不是产品、不是平台，专为构建 Agent 而生。团队拥有最大自由度，可从底层控制所有行为。</td>
+    </tr>
+    <tr>
+      <td><strong>2. 分层架构</strong></td>
+      <td>LangChain（基础组件）→ LangGraph（有状态编排）→ Deep Agents（高层模式）。可按需选择抽象层级，既能快速原型，又能深度定制。</td>
+    </tr>
+    <tr>
+      <td><strong>3. 行业事实标准</strong></td>
+      <td>deer-flow、Langflow 等上榜项目均构建于其上。选 LangChain = 选行业最大生态。</td>
+    </tr>
+    <tr>
+      <td><strong>4. MIT 协议</strong></td>
+      <td>最宽松的开源协议，无商用限制，法务零风险。Dify 的 NOASSERTION 协议需额外审查。</td>
+    </tr>
+    <tr>
+      <td><strong>5. Python 原生</strong></td>
+      <td>团队已具备 Python 能力（量化因子挖掘等），无缝衔接。</td>
+    </tr>
+    <tr>
+      <td><strong>6. 健康度最优</strong></td>
+      <td>Issue/Fork 比 1:53，远优于 Dify（1:24）和 deer-flow（1:11），代码质量和维护稳定性最好。</td>
+    </tr>
+    <tr>
+      <td><strong>7. MCP 原生支持</strong></td>
+      <td>已集成 Model Context Protocol，与 MCP 生态（#151，89K Stars）无缝对接。</td>
+    </tr>
+    <tr>
+      <td><strong>8. LangSmith 加持</strong></td>
+      <td>内置评估、追踪、调试、部署一体化平台，省去自建可观测性基础设施的成本。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5.2 落地路线建议</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width:120px;">阶段</th>
+      <th style="width:100px;">周期</th>
+      <th>目标</th>
+      <th>关键产出</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>阶段一：基础</strong></td>
+      <td>1-2 周</td>
+      <td>搭建 LangChain + LangGraph 开发环境，完成首个 Demo Agent</td>
+      <td>单 Agent 对话 + 工具调用 + 基础 RAG</td>
+    </tr>
+    <tr>
+      <td><strong>阶段二：编排</strong></td>
+      <td>2-3 周</td>
+      <td>基于 LangGraph 构建多 Agent 工作流，引入状态管理和检查点</td>
+      <td>多角色 Agent 协作 + 状态机 + Checkpointer</td>
+    </tr>
+    <tr>
+      <td><strong>阶段三：生产化</strong></td>
+      <td>2-4 周</td>
+      <td>接入 LangSmith 可观测性，部署到测试环境</td>
+      <td>评估管线 + 追踪 + 监控 + CI/CD</td>
+    </tr>
+    <tr>
+      <td><strong>阶段四：扩展</strong></td>
+      <td>持续</td>
+      <td>按需引入 Deep Agents 高层模式，或参考 deer-flow 的沙箱/技能架构</td>
+      <td>规划/子代理/文件系统 + 自定义技能</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5.3 与其他项目的配合策略</h3>
+<table>
+  <thead>
+    <tr>
+      <th>项目</th>
+      <th>角色</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>LangChain + LangGraph</strong></td>
+      <td class="green">核心基座</td>
+      <td>所有 Agent 逻辑的构建基础</td>
+    </tr>
+    <tr>
+      <td><strong>MCP Servers</strong></td>
+      <td class="green">工具协议层</td>
+      <td>通过 MCP 标准化 Agent 工具接口，实现工具复用</td>
+    </tr>
+    <tr>
+      <td><strong>deer-flow</strong></td>
+      <td class="yellow">架构参考</td>
+      <td>借鉴其沙箱、中间件链、技能系统设计，但不必直接依赖</td>
+    </tr>
+    <tr>
+      <td><strong>Dify</strong></td>
+      <td class="yellow">备选方案</td>
+      <td>若后续需要低代码/可视化场景，可作为面向非开发人员的补充平台</td>
+    </tr>
+    <tr>
+      <td><strong>browser-use</strong></td>
+      <td class="yellow">工具集成</td>
+      <td>作为 LangChain Tool 集成，处理浏览器自动化场景</td>
+    </tr>
+    <tr>
+      <td><strong>LangSmith</strong></td>
+      <td class="green">可观测性</td>
+      <td>Agent 评估、追踪、调试的统一平台</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="verdict" style="margin-top: 32px;">
+  <strong>一句话总结：</strong>选 LangChain 不是因为它 Stars 最多或最热门，而是因为它是前 200 名中唯一一个「为构建 Agent 而生」的纯框架——其他项目要么是平台（Dify）、要么是产品（AutoGPT/OpenHands）、要么是它的上层封装（deer-flow）。作为基座，底层优先。
+</div>
+
+</body>
+</html>

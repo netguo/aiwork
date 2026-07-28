@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Star 排名前 100 仓库</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f6f8fa;
+    color: #1f2328;
+    line-height: 1.6;
+    padding: 24px;
+  }
+  h1 { font-size: 24px; margin-bottom: 8px; }
+  .meta { color: #656d76; font-size: 14px; margin-bottom: 24px; }
+  .stats { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .stat-card {
+    background: #fff;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    padding: 16px 20px;
+    min-width: 140px;
+  }
+  .stat-card .num { font-size: 28px; font-weight: 700; color: #0969da; }
+  .stat-card .label { font-size: 13px; color: #656d76; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  th {
+    background: #f6f8fa;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    border-bottom: 1px solid #d0d7de;
+    position: sticky;
+    top: 0;
+  }
+  td { padding: 8px 14px; border-bottom: 1px solid #eaecef; }
+  tr:hover { background: #f6f8fa; }
+  .rank { text-align: center; font-weight: 700; color: #656d76; width: 50px; }
+  .top3 .rank { color: #d4a017; }
+  .repo a { color: #0969da; text-decoration: none; font-weight: 600; }
+  .repo a:hover { text-decoration: underline; }
+  .stars { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: #d4a017; width: 100px; }
+  .lang { width: 100px; }
+  .lang-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .desc { color: #656d76; max-width: 400px; }
+  .search-box {
+    margin-bottom: 16px;
+    padding: 8px 14px;
+    width: 100%;
+    font-size: 14px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    outline: none;
+  }
+  .search-box:focus { border-color: #0969da; }
+</style>
+</head>
+<body>
+
+<h1>GitHub Star 排名前 100 仓库</h1>
+<div class="meta">数据来源：GitHub Search API · 抓取时间：2026-07-28 09:22</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="num">100</div><div class="label">仓库总数</div></div>
+  <div class="stat-card"><div class="num">532K</div><div class="label">最高 Star（build-your-own-x）</div></div>
+  <div class="stat-card"><div class="num">108K</div><div class="label">第 100 名 Star</div></div>
+</div>
+
+<input type="text" class="search-box" id="search" placeholder="搜索仓库名、语言或描述..." onkeyup="filterTable()">
+
+<table id="table">
+  <thead>
+    <tr>
+      <th class="rank">#</th>
+      <th>仓库</th>
+      <th class="lang">语言</th>
+      <th class="stars">Stars</th>
+      <th>简介</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="top3"><td class="rank">1</td><td class="repo"><a href="https://github.com/codecrafters-io/build-your-own-x" target="_blank">codecrafters-io/build-your-own-x</a></td><td class="lang">Markdown</td><td class="stars">532,192</td><td class="desc">Master programming by recreating your favorite technologies from scratch.</td></tr>
+    <tr class="top3"><td class="rank">2</td><td class="repo"><a href="https://github.com/sindresorhus/awesome" target="_blank">sindresorhus/awesome</a></td><td class="lang">—</td><td class="stars">489,704</td><td class="desc">Awesome lists about all kinds of interesting topics</td></tr>
+    <tr class="top3"><td class="rank">3</td><td class="repo"><a href="https://github.com/freeCodeCamp/freeCodeCamp" target="_blank">freeCodeCamp/freeCodeCamp</a></td><td class="lang">TypeScript</td><td class="stars">452,981</td><td class="desc">freeCodeCamp.org's open-source codebase and curriculum.</td></tr>
+    <tr><td class="rank">4</td><td class="repo"><a href="https://github.com/public-apis/public-apis" target="_blank">public-apis/public-apis</a></td><td class="lang">Python</td><td class="stars">452,921</td><td class="desc">A collective list of free APIs</td></tr>
+    <tr><td class="rank">5</td><td class="repo"><a href="https://github.com/EbookFoundation/free-programming-books" target="_blank">EbookFoundation/free-programming-books</a></td><td class="lang">Python</td><td class="stars">393,155</td><td class="desc">Freely available programming books</td></tr>
+    <tr><td class="rank">6</td><td class="repo"><a href="https://github.com/openclaw/openclaw" target="_blank">openclaw/openclaw</a></td><td class="lang">TypeScript</td><td class="stars">384,353</td><td class="desc">Your own personal AI assistant. Any OS. Any Platform.</td></tr>
+    <tr><td class="rank">7</td><td class="repo"><a href="https://github.com/nilbuild/developer-roadmap" target="_blank">nilbuild/developer-roadmap</a></td><td class="lang">TypeScript</td><td class="stars">362,897</td><td class="desc">Interactive roadmaps, guides and other educational content for developers</td></tr>
+    <tr><td class="rank">8</td><td class="repo"><a href="https://github.com/donnemartin/system-design-primer" target="_blank">donnemartin/system-design-primer</a></td><td class="lang">Python</td><td class="stars">359,427</td><td class="desc">Learn how to design large-scale systems. Prep for the system design interview.</td></tr>
+    <tr><td class="rank">9</td><td class="repo"><a href="https://github.com/jwasham/coding-interview-university" target="_blank">jwasham/coding-interview-university</a></td><td class="lang">—</td><td class="stars">357,266</td><td class="desc">A complete computer science study plan to become a software engineer.</td></tr>
+    <tr><td class="rank">10</td><td class="repo"><a href="https://github.com/vinta/awesome-python" target="_blank">vinta/awesome-python</a></td><td class="lang">Python</td><td class="stars">310,703</td><td class="desc">An opinionated list of Python frameworks, libraries, tools, and resources</td></tr>
+    <tr><td class="rank">11</td><td class="repo"><a href="https://github.com/awesome-selfhosted/awesome-selfhosted" target="_blank">awesome-selfhosted/awesome-selfhosted</a></td><td class="lang">—</td><td class="stars">308,712</td><td class="desc">A list of Free Software network services and web applications with self-hosting</td></tr>
+    <tr><td class="rank">12</td><td class="repo"><a href="https://github.com/996icu/996.ICU" target="_blank">996icu/996.ICU</a></td><td class="lang">—</td><td class="stars">276,499</td><td class="desc">Repo for counting stars and contributing. Press F to pay respect to 996 developers</td></tr>
+    <tr><td class="rank">13</td><td class="repo"><a href="https://github.com/practical-tutorials/project-based-learning" target="_blank">practical-tutorials/project-based-learning</a></td><td class="lang">Python</td><td class="stars">275,499</td><td class="desc">Curated list of project-based tutorials</td></tr>
+    <tr><td class="rank">14</td><td class="repo"><a href="https://github.com/obra/superpowers" target="_blank">obra/superpowers</a></td><td class="lang">Shell</td><td class="stars">262,139</td><td class="desc">An agentic skills framework & software development methodology that works.</td></tr>
+    <tr><td class="rank">15</td><td class="repo"><a href="https://github.com/react/react" target="_blank">react/react</a></td><td class="lang">JavaScript</td><td class="stars">246,750</td><td class="desc">The library for web and native user interfaces.</td></tr>
+    <tr><td class="rank">16</td><td class="repo"><a href="https://github.com/torvalds/linux" target="_blank">torvalds/linux</a></td><td class="lang">C</td><td class="stars">240,790</td><td class="desc">Linux kernel source tree</td></tr>
+    <tr><td class="rank">17</td><td class="repo"><a href="https://github.com/trimstray/the-book-of-secret-knowledge" target="_blank">trimstray/the-book-of-secret-knowledge</a></td><td class="lang">—</td><td class="stars">235,470</td><td class="desc">A collection of inspiring lists, manuals, cheatsheets, blogs, hacks, one-liners</td></tr>
+    <tr><td class="rank">18</td><td class="repo"><a href="https://github.com/affaan-m/ECC" target="_blank">affaan-m/ECC</a></td><td class="lang">JavaScript</td><td class="stars">234,189</td><td class="desc">The agent harness performance optimization system. Skills, instincts, memory</td></tr>
+    <tr><td class="rank">19</td><td class="repo"><a href="https://github.com/TheAlgorithms/Python" target="_blank">TheAlgorithms/Python</a></td><td class="lang">Python</td><td class="stars">223,221</td><td class="desc">All Algorithms implemented in Python</td></tr>
+    <tr><td class="rank">20</td><td class="repo"><a href="https://github.com/NousResearch/hermes-agent" target="_blank">NousResearch/hermes-agent</a></td><td class="lang">Python</td><td class="stars">221,427</td><td class="desc">The agent that grows with you</td></tr>
+    <tr><td class="rank">21</td><td class="repo"><a href="https://github.com/vuejs/vue" target="_blank">vuejs/vue</a></td><td class="lang">TypeScript</td><td class="stars">210,135</td><td class="desc">This is the repo for Vue 2. For Vue 3, go to vuejs/core</td></tr>
+    <tr><td class="rank">22</td><td class="repo"><a href="https://github.com/ossu/computer-science" target="_blank">ossu/computer-science</a></td><td class="lang">HTML</td><td class="stars">207,343</td><td class="desc">Path to a free self-taught education in Computer Science!</td></tr>
+    <tr><td class="rank">23</td><td class="repo"><a href="https://github.com/n8n-io/n8n" target="_blank">n8n-io/n8n</a></td><td class="lang">TypeScript</td><td class="stars">198,268</td><td class="desc">Fair-code workflow automation platform with native AI capabilities</td></tr>
+    <tr><td class="rank">24</td><td class="repo"><a href="https://github.com/multica-ai/andrej-karpathy-skills" target="_blank">multica-ai/andrej-karpathy-skills</a></td><td class="lang">—</td><td class="stars">196,870</td><td class="desc">A single CLAUDE.md file to improve Claude Code behavior</td></tr>
+    <tr><td class="rank">25</td><td class="repo"><a href="https://github.com/tensorflow/tensorflow" target="_blank">tensorflow/tensorflow</a></td><td class="lang">C++</td><td class="stars">196,577</td><td class="desc">An Open Source Machine Learning Framework for Everyone</td></tr>
+    <tr><td class="rank">26</td><td class="repo"><a href="https://github.com/trekhleb/javascript-algorithms" target="_blank">trekhleb/javascript-algorithms</a></td><td class="lang">JavaScript</td><td class="stars">196,341</td><td class="desc">Algorithms and data structures implemented in JavaScript with explanations</td></tr>
+    <tr><td class="rank">27</td><td class="repo"><a href="https://github.com/ultraworkers/claw-code" target="_blank">ultraworkers/claw-code</a></td><td class="lang">Rust</td><td class="stars">194,925</td><td class="desc">An agent-managed museum exhibit, built in Rust with Gajae-Code / LazyCodex</td></tr>
+    <tr><td class="rank">28</td><td class="repo"><a href="https://github.com/mattpocock/skills" target="_blank">mattpocock/skills</a></td><td class="lang">Shell</td><td class="stars">191,395</td><td class="desc">Skills for Real Engineers. Straight from my .agents directory.</td></tr>
+    <tr><td class="rank">29</td><td class="repo"><a href="https://github.com/anomalyco/opencode" target="_blank">anomalyco/opencode</a></td><td class="lang">TypeScript</td><td class="stars">190,250</td><td class="desc">The open source coding agent.</td></tr>
+    <tr><td class="rank">30</td><td class="repo"><a href="https://github.com/DigitalPlatDev/FreeDomain" target="_blank">DigitalPlatDev/FreeDomain</a></td><td class="lang">—</td><td class="stars">189,025</td><td class="desc">DigitalPlat FreeDomain: Free Domain For Everyone</td></tr>
+    <tr><td class="rank">31</td><td class="repo"><a href="https://github.com/ohmyzsh/ohmyzsh" target="_blank">ohmyzsh/ohmyzsh</a></td><td class="lang">Shell</td><td class="stars">188,867</td><td class="desc">A delightful community-driven framework for managing your zsh configuration</td></tr>
+    <tr><td class="rank">32</td><td class="repo"><a href="https://github.com/microsoft/vscode" target="_blank">microsoft/vscode</a></td><td class="lang">TypeScript</td><td class="stars">187,971</td><td class="desc">Visual Studio Code</td></tr>
+    <tr><td class="rank">33</td><td class="repo"><a href="https://github.com/Significant-Gravitas/AutoGPT" target="_blank">Significant-Gravitas/AutoGPT</a></td><td class="lang">Python</td><td class="stars">185,718</td><td class="desc">AutoGPT is the vision of accessible AI for everyone, to use and to build on.</td></tr>
+    <tr><td class="rank">34</td><td class="repo"><a href="https://github.com/CyC2018/CS-Notes" target="_blank">CyC2018/CS-Notes</a></td><td class="lang">—</td><td class="stars">184,897</td><td class="desc">技术面试必备基础知识、Leetcode、计算机操作系统、计算机网络、系统设计</td></tr>
+    <tr><td class="rank">35</td><td class="repo"><a href="https://github.com/massgravel/Microsoft-Activation-Scripts" target="_blank">massgravel/Microsoft-Activation-Scripts</a></td><td class="lang">Batchfile</td><td class="stars">184,731</td><td class="desc">Open-source Windows and Office activator featuring HWID, Ohook, TSforge</td></tr>
+    <tr><td class="rank">36</td><td class="repo"><a href="https://github.com/jackfrued/Python-100-Days" target="_blank">jackfrued/Python-100-Days</a></td><td class="lang">Jupyter Notebook</td><td class="stars">184,638</td><td class="desc">Python - 100天从新手到大师</td></tr>
+    <tr><td class="rank">37</td><td class="repo"><a href="https://github.com/getify/You-Dont-Know-JS" target="_blank">getify/You-Dont-Know-JS</a></td><td class="lang">—</td><td class="stars">184,627</td><td class="desc">A book series (2 published editions) on the JS language.</td></tr>
+    <tr><td class="rank">38</td><td class="repo"><a href="https://github.com/yt-dlp/yt-dlp" target="_blank">yt-dlp/yt-dlp</a></td><td class="lang">Python</td><td class="stars">180,505</td><td class="desc">A feature-rich command-line audio/video downloader</td></tr>
+    <tr><td class="rank">39</td><td class="repo"><a href="https://github.com/avelino/awesome-go" target="_blank">avelino/awesome-go</a></td><td class="lang">Go</td><td class="stars">179,418</td><td class="desc">A curated list of awesome Go frameworks, libraries and software</td></tr>
+    <tr><td class="rank">40</td><td class="repo"><a href="https://github.com/flutter/flutter" target="_blank">flutter/flutter</a></td><td class="lang">Dart</td><td class="stars">177,962</td><td class="desc">Flutter makes it easy and fast to build beautiful apps for mobile and beyond</td></tr>
+    <tr><td class="rank">41</td><td class="repo"><a href="https://github.com/ollama/ollama" target="_blank">ollama/ollama</a></td><td class="lang">Go</td><td class="stars">177,031</td><td class="desc">Get up and running with LLMs locally</td></tr>
+    <tr><td class="rank">42</td><td class="repo"><a href="https://github.com/github/gitignore" target="_blank">github/gitignore</a></td><td class="lang">—</td><td class="stars">175,046</td><td class="desc">A collection of useful .gitignore templates</td></tr>
+    <tr><td class="rank">43</td><td class="repo"><a href="https://github.com/twbs/bootstrap" target="_blank">twbs/bootstrap</a></td><td class="lang">MDX</td><td class="stars">174,532</td><td class="desc">The most popular HTML, CSS, and JavaScript framework for responsive sites</td></tr>
+    <tr><td class="rank">44</td><td class="repo"><a href="https://github.com/microsoft/markitdown" target="_blank">microsoft/markitdown</a></td><td class="lang">Python</td><td class="stars">169,512</td><td class="desc">Python tool for converting files and office documents to Markdown.</td></tr>
+    <tr><td class="rank">45</td><td class="repo"><a href="https://github.com/521xueweihan/HelloGitHub" target="_blank">521xueweihan/HelloGitHub</a></td><td class="lang">Python</td><td class="stars">167,629</td><td class="desc">分享 GitHub 上有趣、入门级的开源项目</td></tr>
+    <tr><td class="rank">46</td><td class="repo"><a href="https://github.com/f/prompts.chat" target="_blank">f/prompts.chat</a></td><td class="lang">HTML</td><td class="stars">166,439</td><td class="desc">Awesome ChatGPT Prompts. Share, discover, and collect prompts</td></tr>
+    <tr><td class="rank">47</td><td class="repo"><a href="https://github.com/anthropics/skills" target="_blank">anthropics/skills</a></td><td class="lang">Python</td><td class="stars">164,596</td><td class="desc">Public repository for Agent Skills</td></tr>
+    <tr><td class="rank">48</td><td class="repo"><a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui" target="_blank">AUTOMATIC1111/stable-diffusion-webui</a></td><td class="lang">Python</td><td class="stars">164,292</td><td class="desc">Stable Diffusion web UI</td></tr>
+    <tr><td class="rank">49</td><td class="repo"><a href="https://github.com/huggingface/transformers" target="_blank">huggingface/transformers</a></td><td class="lang">Python</td><td class="stars">163,046</td><td class="desc">Transformers: the model-definition framework for state-of-the-art ML</td></tr>
+    <tr><td class="rank">50</td><td class="repo"><a href="https://github.com/jlevy/the-art-of-command-line" target="_blank">jlevy/the-art-of-command-line</a></td><td class="lang">—</td><td class="stars">161,936</td><td class="desc">Master the command line, in one page</td></tr>
+    <tr><td class="rank">51</td><td class="repo"><a href="https://github.com/Snailclimb/JavaGuide" target="_blank">Snailclimb/JavaGuide</a></td><td class="lang">JavaScript</td><td class="stars">157,342</td><td class="desc">Java 面试 & 后端通用面试指南</td></tr>
+    <tr><td class="rank">52</td><td class="repo"><a href="https://github.com/firecrawl/firecrawl" target="_blank">firecrawl/firecrawl</a></td><td class="lang">TypeScript</td><td class="stars">157,037</td><td class="desc">The API to search, scrape, and interact with the web at scale</td></tr>
+    <tr><td class="rank">53</td><td class="repo"><a href="https://github.com/langflow-ai/langflow" target="_blank">langflow-ai/langflow</a></td><td class="lang">Python</td><td class="stars">152,507</td><td class="desc">Langflow is a powerful tool for building AI-powered agents and workflows</td></tr>
+    <tr><td class="rank">54</td><td class="repo"><a href="https://github.com/langgenius/dify" target="_blank">langgenius/dify</a></td><td class="lang">TypeScript</td><td class="stars">150,460</td><td class="desc">Build Agentic workflows, RAG pipelines, with rich AI model and tool support</td></tr>
+    <tr><td class="rank">55</td><td class="repo"><a href="https://github.com/airbnb/javascript" target="_blank">airbnb/javascript</a></td><td class="lang">JavaScript</td><td class="stars">148,087</td><td class="desc">JavaScript Style Guide</td></tr>
+    <tr><td class="rank">56</td><td class="repo"><a href="https://github.com/open-webui/open-webui" target="_blank">open-webui/open-webui</a></td><td class="lang">Python</td><td class="stars">146,981</td><td class="desc">User-friendly AI Interface (Supports Ollama, OpenAI API, ...)</td></tr>
+    <tr><td class="rank">57</td><td class="repo"><a href="https://github.com/Genymobile/scrcpy" target="_blank">Genymobile/scrcpy</a></td><td class="lang">C</td><td class="stars">146,500</td><td class="desc">Display and control your Android device</td></tr>
+    <tr><td class="rank">58</td><td class="repo"><a href="https://github.com/langchain-ai/langchain" target="_blank">langchain-ai/langchain</a></td><td class="lang">Python</td><td class="stars">142,713</td><td class="desc">The agent engineering platform.</td></tr>
+    <tr><td class="rank">59</td><td class="repo"><a href="https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools" target="_blank">x1xhlol/system-prompts-and-models-of-ai-tools</a></td><td class="lang">—</td><td class="stars">142,359</td><td class="desc">FULL system prompts of AI tools (Augment, Claude, Cursor, Devin, etc.)</td></tr>
+    <tr><td class="rank">60</td><td class="repo"><a href="https://github.com/yangshun/tech-interview-handbook" target="_blank">yangshun/tech-interview-handbook</a></td><td class="lang">TypeScript</td><td class="stars">141,288</td><td class="desc">Curated coding interview preparation materials for busy engineers</td></tr>
+    <tr><td class="rank">61</td><td class="repo"><a href="https://github.com/vercel/next.js" target="_blank">vercel/next.js</a></td><td class="lang">JavaScript</td><td class="stars">141,163</td><td class="desc">The React Framework</td></tr>
+    <tr><td class="rank">62</td><td class="repo"><a href="https://github.com/ytdl-org/youtube-dl" target="_blank">ytdl-org/youtube-dl</a></td><td class="lang">Python</td><td class="stars">140,809</td><td class="desc">Command-line program to download videos from YouTube and other sites</td></tr>
+    <tr><td class="rank">63</td><td class="repo"><a href="https://github.com/anthropics/claude-code" target="_blank">anthropics/claude-code</a></td><td class="lang">Python</td><td class="stars">139,329</td><td class="desc">Claude Code is an agentic coding tool that lives in your terminal</td></tr>
+    <tr><td class="rank">64</td><td class="repo"><a href="https://github.com/msitarzewski/agency-agents" target="_blank">msitarzewski/agency-agents</a></td><td class="lang">Shell</td><td class="stars">137,098</td><td class="desc">A complete AI agency - From frontend wizards to Reddit community agents</td></tr>
+    <tr><td class="rank">65</td><td class="repo"><a href="https://github.com/microsoft/PowerToys" target="_blank">microsoft/PowerToys</a></td><td class="lang">C</td><td class="stars">136,821</td><td class="desc">Microsoft PowerToys is a collection of utilities for productivity</td></tr>
+    <tr><td class="rank">66</td><td class="repo"><a href="https://github.com/golang/go" target="_blank">golang/go</a></td><td class="lang">Go</td><td class="stars">135,409</td><td class="desc">The Go programming language</td></tr>
+    <tr><td class="rank">67</td><td class="repo"><a href="https://github.com/labuladong/fucking-algorithm" target="_blank">labuladong/fucking-algorithm</a></td><td class="lang">Markdown</td><td class="stars">134,995</td><td class="desc">Crack LeetCode, not only how, but also why.</td></tr>
+    <tr><td class="rank">68</td><td class="repo"><a href="https://github.com/iptv-org/iptv" target="_blank">iptv-org/iptv</a></td><td class="lang">TypeScript</td><td class="stars">134,556</td><td class="desc">Collection of publicly available IPTV channels from all over the world</td></tr>
+    <tr><td class="rank">69</td><td class="repo"><a href="https://github.com/clash-verge-rev/clash-verge-rev" target="_blank">clash-verge-rev/clash-verge-rev</a></td><td class="lang">TypeScript</td><td class="stars">134,092</td><td class="desc">A modern GUI client based on Tauri for Windows, macOS and Linux</td></tr>
+    <tr><td class="rank">70</td><td class="repo"><a href="https://github.com/ripienaar/free-for-dev" target="_blank">ripienaar/free-for-dev</a></td><td class="lang">HTML</td><td class="stars">130,588</td><td class="desc">A list of SaaS, PaaS and IaaS offerings with free tiers for developers</td></tr>
+    <tr><td class="rank">71</td><td class="repo"><a href="https://github.com/krahets/hello-algo" target="_blank">krahets/hello-algo</a></td><td class="lang">Java</td><td class="stars">128,888</td><td class="desc">《Hello 算法》：动画图解、一键运行的数据结构与算法教程</td></tr>
+    <tr><td class="rank">72</td><td class="repo"><a href="https://github.com/Chalarangelo/30-seconds-of-code" target="_blank">Chalarangelo/30-seconds-of-code</a></td><td class="lang">JavaScript</td><td class="stars">128,516</td><td class="desc">Coding articles to level up your development skills</td></tr>
+    <tr><td class="rank">73</td><td class="repo"><a href="https://github.com/excalidraw/excalidraw" target="_blank">excalidraw/excalidraw</a></td><td class="lang">TypeScript</td><td class="stars">128,477</td><td class="desc">Virtual whiteboard for sketching hand-drawn like diagrams</td></tr>
+    <tr><td class="rank">74</td><td class="repo"><a href="https://github.com/Shubhamsaboo/awesome-llm-apps" target="_blank">Shubhamsaboo/awesome-llm-apps</a></td><td class="lang">Python</td><td class="stars">128,120</td><td class="desc">100+ AI Agents, Agent Skills and RAG Apps - Free and Open Source.</td></tr>
+    <tr><td class="rank">75</td><td class="repo"><a href="https://github.com/react/react-native" target="_blank">react/react-native</a></td><td class="lang">C++</td><td class="stars">126,267</td><td class="desc">A framework for building native applications using React</td></tr>
+    <tr><td class="rank">76</td><td class="repo"><a href="https://github.com/garrytan/gstack" target="_blank">garrytan/gstack</a></td><td class="lang">TypeScript</td><td class="stars">124,825</td><td class="desc">Use Garry Tan's exact Claude Code setup: 23 opinionated tools</td></tr>
+    <tr><td class="rank">77</td><td class="repo"><a href="https://github.com/github/spec-kit" target="_blank">github/spec-kit</a></td><td class="lang">Python</td><td class="stars">124,143</td><td class="desc">Toolkit to help you get started with Spec-Driven Development</td></tr>
+    <tr><td class="rank">78</td><td class="repo"><a href="https://github.com/kubernetes/kubernetes" target="_blank">kubernetes/kubernetes</a></td><td class="lang">Go</td><td class="stars">124,015</td><td class="desc">Production-Grade Container Scheduling and Management</td></tr>
+    <tr><td class="rank">79</td><td class="repo"><a href="https://github.com/Comfy-Org/ComfyUI" target="_blank">Comfy-Org/ComfyUI</a></td><td class="lang">Python</td><td class="stars">122,511</td><td class="desc">The most powerful and modular diffusion model GUI and backend</td></tr>
+    <tr><td class="rank">80</td><td class="repo"><a href="https://github.com/electron/electron" target="_blank">electron/electron</a></td><td class="lang">C++</td><td class="stars">122,212</td><td class="desc">Build cross-platform desktop apps with JavaScript, HTML, and CSS</td></tr>
+    <tr><td class="rank">81</td><td class="repo"><a href="https://github.com/ggml-org/llama.cpp" target="_blank">ggml-org/llama.cpp</a></td><td class="lang">C++</td><td class="stars">121,805</td><td class="desc">LLM inference in C/C++</td></tr>
+    <tr><td class="rank">82</td><td class="repo"><a href="https://github.com/farion1231/cc-switch" target="_blank">farion1231/cc-switch</a></td><td class="lang">Rust</td><td class="stars">121,721</td><td class="desc">A cross-platform desktop All-in-One assistant for Claude Code, Codex</td></tr>
+    <tr><td class="rank">83</td><td class="repo"><a href="https://github.com/shadcn-ui/ui" target="_blank">shadcn-ui/ui</a></td><td class="lang">TypeScript</td><td class="stars">119,957</td><td class="desc">Beautifully-designed, accessible components and a code distribution platform</td></tr>
+    <tr><td class="rank">84</td><td class="repo"><a href="https://github.com/rustdesk/rustdesk" target="_blank">rustdesk/rustdesk</a></td><td class="lang">Rust</td><td class="stars">119,025</td><td class="desc">An open-source remote desktop application designed for self-hosting</td></tr>
+    <tr><td class="rank">85</td><td class="repo"><a href="https://github.com/nodejs/node" target="_blank">nodejs/node</a></td><td class="lang">JavaScript</td><td class="stars">118,547</td><td class="desc">Node.js JavaScript runtime</td></tr>
+    <tr><td class="rank">86</td><td class="repo"><a href="https://github.com/justjavac/free-programming-books-zh_CN" target="_blank">justjavac/free-programming-books-zh_CN</a></td><td class="lang">—</td><td class="stars">117,848</td><td class="desc">免费的计算机编程类中文书籍</td></tr>
+    <tr><td class="rank">87</td><td class="repo"><a href="https://github.com/Hack-with-Github/Awesome-Hacking" target="_blank">Hack-with-Github/Awesome-Hacking</a></td><td class="lang">—</td><td class="stars">117,051</td><td class="desc">A collection of various awesome lists for hackers and security researchers</td></tr>
+    <tr><td class="rank">88</td><td class="repo"><a href="https://github.com/rust-lang/rust" target="_blank">rust-lang/rust</a></td><td class="lang">Rust</td><td class="stars">114,902</td><td class="desc">Empowering everyone to build reliable and efficient software.</td></tr>
+    <tr><td class="rank">89</td><td class="repo"><a href="https://github.com/godotengine/godot" target="_blank">godotengine/godot</a></td><td class="lang">C++</td><td class="stars">114,695</td><td class="desc">Godot Engine – Multi-platform 2D and 3D game engine</td></tr>
+    <tr><td class="rank">90</td><td class="repo"><a href="https://github.com/mrdoob/three.js" target="_blank">mrdoob/three.js</a></td><td class="lang">JavaScript</td><td class="stars">114,052</td><td class="desc">JavaScript 3D Library.</td></tr>
+    <tr><td class="rank">91</td><td class="repo"><a href="https://github.com/microsoft/generative-ai-for-beginners" target="_blank">microsoft/generative-ai-for-beginners</a></td><td class="lang">Jupyter Notebook</td><td class="stars">113,594</td><td class="desc">21 Lessons, Get Started Building with Generative AI</td></tr>
+    <tr><td class="rank">92</td><td class="repo"><a href="https://github.com/d3/d3" target="_blank">d3/d3</a></td><td class="lang">Shell</td><td class="stars">113,300</td><td class="desc">Bring data to life with SVG, Canvas and HTML.</td></tr>
+    <tr><td class="rank">93</td><td class="repo"><a href="https://github.com/2dust/v2rayN" target="_blank">2dust/v2rayN</a></td><td class="lang">C#</td><td class="stars">112,374</td><td class="desc">A GUI client for Windows, Linux and macOS, support Xray and sing-box</td></tr>
+    <tr><td class="rank">94</td><td class="repo"><a href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" target="_blank">nextlevelbuilder/ui-ux-pro-max-skill</a></td><td class="lang">Python</td><td class="stars">110,789</td><td class="desc">An AI SKILL that provides design intelligence for professional UI/UX</td></tr>
+    <tr><td class="rank">95</td><td class="repo"><a href="https://github.com/microsoft/TypeScript" target="_blank">microsoft/TypeScript</a></td><td class="lang">TypeScript</td><td class="stars">109,975</td><td class="desc">TypeScript is a superset of JavaScript that compiles to clean JavaScript</td></tr>
+    <tr><td class="rank">96</td><td class="repo"><a href="https://github.com/tauri-apps/tauri" target="_blank">tauri-apps/tauri</a></td><td class="lang">Rust</td><td class="stars">109,577</td><td class="desc">Build smaller, faster, and more secure desktop and mobile applications</td></tr>
+    <tr><td class="rank">97</td><td class="repo"><a href="https://github.com/axios/axios" target="_blank">axios/axios</a></td><td class="lang">JavaScript</td><td class="stars">109,165</td><td class="desc">Promise based HTTP client for the browser and node.js</td></tr>
+    <tr><td class="rank">98</td><td class="repo"><a href="https://github.com/immich-app/immich" target="_blank">immich-app/immich</a></td><td class="lang">TypeScript</td><td class="stars">108,995</td><td class="desc">High performance self-hosted photo and video management solution.</td></tr>
+    <tr><td class="rank">99</td><td class="repo"><a href="https://github.com/jaywcjlove/awesome-mac" target="_blank">jaywcjlove/awesome-mac</a></td><td class="lang">Swift</td><td class="stars">108,777</td><td class="desc">This project is dedicated to collecting high-quality macOS software</td></tr>
+    <tr><td class="rank">100</td><td class="repo"><a href="https://github.com/fatedier/frp" target="_blank">fatedier/frp</a></td><td class="lang">Go</td><td class="stars">108,390</td><td class="desc">A fast reverse proxy to help expose a local server behind NAT or firewall</td></tr>
+  </tbody>
+</table>
+
+<script>
+function filterTable() {
+  const input = document.getElementById('search').value.toLowerCase();
+  const rows = document.querySelectorAll('#table tbody tr');
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(input) ? '' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>

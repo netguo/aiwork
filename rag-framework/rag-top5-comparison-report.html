@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 框架 Top5 选型对比报告</title>
+<style>
+:root {
+  --bg: #f0f6fc;
+  --card-bg: #ffffff;
+  --primary: #0969da;
+  --primary-light: #ddf4ff;
+  --text: #1f2328;
+  --text-secondary: #656d76;
+  --border: #d0d7de;
+  --green: #1a7f37;
+  --green-bg: #dafbe1;
+  --yellow: #9a6700;
+  --yellow-bg: #fff8c5;
+  --red: #cf222e;
+  --red-bg: #ffebe9;
+  --purple: #8250df;
+  --purple-bg: #fbefff;
+  --blue-bg: #ddf4ff;
+  --sidebar-w: 260px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+}
+/* Sidebar */
+#sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+  background: #fff; border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 0; z-index: 100;
+}
+#sidebar h2 { font-size: 16px; padding: 0 20px 12px; color: var(--primary); border-bottom: 1px solid var(--border); }
+#sidebar nav a {
+  display: block; padding: 8px 20px; font-size: 14px; color: var(--text-secondary);
+  text-decoration: none; transition: all 0.15s;
+}
+#sidebar nav a:hover { background: var(--primary-light); color: var(--primary); }
+#sidebar nav a.sub { padding-left: 36px; font-size: 13px; }
+/* Main */
+#main { margin-left: var(--sidebar-w); padding: 40px 48px; max-width: 1200px; }
+h1 { font-size: 30px; margin-bottom: 8px; }
+h1 .sub { font-size: 16px; color: var(--text-secondary); font-weight: normal; }
+h2 { font-size: 24px; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); }
+h3 { font-size: 18px; margin: 24px 0 12px; color: var(--primary); }
+h4 { font-size: 15px; margin: 16px 0 8px; }
+p { margin-bottom: 12px; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-blue { background: var(--blue-bg); color: var(--primary); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+
+/* Summary cards */
+.summary-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 20px 0; }
+.summary-card {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; text-align: center; transition: transform 0.15s, box-shadow 0.15s;
+}
+.summary-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.summary-card .rank { font-size: 12px; color: var(--text-secondary); }
+.summary-card .name { font-size: 16px; font-weight: 700; margin: 4px 0; }
+.summary-card .stars { font-size: 22px; color: var(--primary); font-weight: 700; }
+.summary-card .meta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+th { background: var(--primary); color: #fff; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 13px; white-space: nowrap; }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) td { background: #f8fbff; }
+tr:hover td { background: var(--primary-light); }
+td.framework { font-weight: 700; white-space: nowrap; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.highlight-row td { background: var(--green-bg) !important; font-weight: 600; }
+
+/* Comparison grid */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+.info-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.info-card h4 { color: var(--primary); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+.info-card ul { list-style: none; padding-left: 0; }
+.info-card li { padding: 3px 0; font-size: 13px; }
+.info-card li::before { content: "▸ "; color: var(--primary); }
+.pro-list li::before { content: "✅ "; color: var(--green); }
+.con-list li::before { content: "⚠️ "; }
+
+/* Score table */
+.score-table th { background: var(--purple); }
+.score-total { font-weight: 700; color: var(--purple); font-size: 15px; }
+.score-bar { display: inline-block; height: 20px; background: var(--purple); border-radius: 3px; vertical-align: middle; min-width: 3px; }
+
+/* Architecture diagram */
+.arch-diagram { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; overflow-x: auto; }
+.arch-diagram svg { display: block; margin: 0 auto; }
+
+/* Recommendation box */
+.recommend-box {
+  background: linear-gradient(135deg, var(--green-bg), var(--blue-bg));
+  border: 2px solid var(--green); border-radius: 12px; padding: 24px; margin: 24px 0;
+}
+.recommend-box h3 { color: var(--green); margin-top: 0; }
+.recommend-box .verdict { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+
+/* Code block */
+pre { background: #f6f8fa; border: 1px solid var(--border); border-radius: 6px; padding: 14px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+code { font-family: "SF Mono", Monaco, Consolas, monospace; }
+p code, li code { background: #eff1f3; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+/* Footer */
+.footer { margin-top: 48px; padding: 20px 0; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <h2>📑 报告导航</h2>
+  <nav>
+    <a href="#overview">1. 概述</a>
+    <a href="#github-data">2. GitHub 数据总览</a>
+    <a href="#ragflow">3. RAGFlow 深度解析</a>
+    <a href="#llamaindex">4. LlamaIndex 深度解析</a>
+    <a href="#lightrag">5. LightRAG 深度解析</a>
+    <a href="#graphrag">6. GraphRAG 深度解析</a>
+    <a href="#haystack">7. Haystack 深度解析</a>
+    <a href="#comparison">8. 多维度横向对比</a>
+    <a href="#scoring">9. 评分矩阵</a>
+    <a href="#architecture">10. 架构对比图</a>
+    <a href="#langchain">11. 与 LangChain 集成</a>
+    <a href="#recommendation">12. 选型建议</a>
+    <a href="#roadmap">13. 落地路线图</a>
+  </nav>
+</div>
+
+<div id="main">
+
+<h1>RAG 框架 Top5 选型对比报告
+  <span class="sub">— 基于 GitHub Star 排名（2026年7月）</span>
+</h1>
+<p style="color: var(--text-secondary);">数据来源：GitHub Search API · 生成时间：2026-07-28 · 团队 Agent 基座已选定 LangChain + LangGraph</p>
+
+<!-- ==================== 概述 ==================== -->
+<section id="overview">
+<h2>1. 概述</h2>
+<p>本报告从 GitHub 上检索 <code>rag framework</code>、<code>retrieval augmented generation</code>、<code>rag engine</code> 三个关键词，取 Star 数排名前 5 的专精 RAG 框架进行深度对比。分析维度涵盖架构设计、文档解析、分块策略、检索方式、向量库支持、LLM 适配、部署方式、社区健康度等，并结合团队已选定的 LangChain + LangGraph 基座给出集成建议与选型推荐。</p>
+
+<div class="summary-cards">
+  <div class="summary-card">
+    <div class="rank">🥇 #1</div>
+    <div class="name">RAGFlow</div>
+    <div class="stars">86.2K</div>
+    <div class="meta">Apache-2.0 · Go/Python</div>
+  </div>
+  <div class="summary-card">
+    <div class="rank">🥈 #2</div>
+    <div class="name">LlamaIndex</div>
+    <div class="stars">51.1K</div>
+    <div class="meta">MIT · Python</div>
+  </div>
+  <div class="summary-card">
+    <div class="rank">🥉 #3</div>
+    <div class="name">LightRAG</div>
+    <div class="stars">38.2K</div>
+    <div class="meta">MIT · Python</div>
+  </div>
+  <div class="summary-card">
+    <div class="rank">#4</div>
+    <div class="name">GraphRAG</div>
+    <div class="stars">34.9K</div>
+    <div class="meta">MIT · Python</div>
+  </div>
+  <div class="summary-card">
+    <div class="rank">#5</div>
+    <div class="name">Haystack</div>
+    <div class="stars">26.0K</div>
+    <div class="meta">Apache-2.0 · Python</div>
+  </div>
+</div>
+</section>
+
+<!-- ==================== GitHub 数据 ==================== -->
+<section id="github-data">
+<h2>2. GitHub 数据总览</h2>
+<table>
+<thead>
+<tr>
+  <th>框架</th>
+  <th>Stars</th>
+  <th>Forks</th>
+  <th>Open Issues</th>
+  <th>Issue/Fork 比</th>
+  <th>主语言</th>
+  <th>许可证</th>
+  <th>创建时间</th>
+  <th>最近提交</th>
+  <th>仓库地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="framework">RAGFlow</td>
+  <td class="num">86,174</td>
+  <td class="num">10,105</td>
+  <td class="num">2,044</td>
+  <td class="num">20.2%</td>
+  <td>Go</td>
+  <td><span class="badge badge-green">Apache-2.0</span></td>
+  <td>2023-12</td>
+  <td>2026-07-28</td>
+  <td><a href="https://github.com/infiniflow/ragflow" target="_blank">infiniflow/ragflow</a></td>
+</tr>
+<tr>
+  <td class="framework">LlamaIndex</td>
+  <td class="num">51,146</td>
+  <td class="num">7,815</td>
+  <td class="num">583</td>
+  <td class="num">7.5%</td>
+  <td>Python</td>
+  <td><span class="badge badge-green">MIT</span></td>
+  <td>2022-11</td>
+  <td>2026-07-26</td>
+  <td><a href="https://github.com/run-llama/llama_index" target="_blank">run-llama/llama_index</a></td>
+</tr>
+<tr>
+  <td class="framework">LightRAG</td>
+  <td class="num">38,242</td>
+  <td class="num">5,380</td>
+  <td class="num">229</td>
+  <td class="num">4.3%</td>
+  <td>Python</td>
+  <td><span class="badge badge-green">MIT</span></td>
+  <td>2024-10</td>
+  <td>2026-07-28</td>
+  <td><a href="https://github.com/HKUDS/LightRAG" target="_blank">HKUDS/LightRAG</a></td>
+</tr>
+<tr>
+  <td class="framework">GraphRAG</td>
+  <td class="num">34,925</td>
+  <td class="num">3,679</td>
+  <td class="num">61</td>
+  <td class="num">1.7%</td>
+  <td>Python</td>
+  <td><span class="badge badge-green">MIT</span></td>
+  <td>2024-03</td>
+  <td>2026-07-26</td>
+  <td><a href="https://github.com/microsoft/graphrag" target="_blank">microsoft/graphrag</a></td>
+</tr>
+<tr>
+  <td class="framework">Haystack</td>
+  <td class="num">26,038</td>
+  <td class="num">2,956</td>
+  <td class="num">116</td>
+  <td class="num">3.9%</td>
+  <td>Python</td>
+  <td><span class="badge badge-green">Apache-2.0</span></td>
+  <td>2019-11</td>
+  <td>2026-07-27</td>
+  <td><a href="https://github.com/deepset-ai/haystack" target="_blank">deepset-ai/haystack</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>📌 社区健康度说明：</strong>Issue/Fork 比反映社区维护压力。GraphRAG（1.7%）和 Haystack（3.9%）最低，说明维护良好；RAGFlow（20.2%）最高，与其快速增长和较复杂架构有关。</p>
+</section>
+
+<!-- ==================== RAGFlow ==================== -->
+<section id="ragflow">
+<h2>3. RAGFlow — 企业级 RAG 引擎</h2>
+<div class="compare-grid">
+<div class="info-card">
+<h4>核心定位</h4>
+<p>专注于企业级文档问答的 RAG 引擎，深度融合 DeepDoc 文档解析与 Agent 能力，提供完整的端到端 RAG 解决方案。</p>
+</div>
+<div class="info-card">
+<h4>关键词</h4>
+<p><span class="badge badge-blue">DeepDoc</span> <span class="badge badge-blue">模板分块</span> <span class="badge badge-blue">混合检索</span> <span class="badge badge-blue">引用溯源</span> <span class="badge badge-purple">MCP 支持</span></p>
+</div>
+</div>
+
+<h3>架构特点</h3>
+<table>
+<tr><th style="width:180px;">维度</th><th>说明</th></tr>
+<tr><td><strong>文档解析</strong></td><td>自研 DeepDoc 引擎，支持 PDF/Word/Excel/PPT/图片等 20+ 格式，具备 OCR、表格识别、版面分析能力，尤其擅长复杂 PDF（论文、报表、合同）</td></tr>
+<tr><td><strong>分块策略</strong></td><td>支持按段落、按页面、按章节、按模板等多种分块方式，可自定义分块规则，支持手动标注和调整</td></tr>
+<tr><td><strong>检索方式</strong></td><td>向量检索 + BM25 关键词检索 + 重排序（Rerank），支持混合检索权重调节</td></tr>
+<tr><td><strong>向量库</strong></td><td>内置 Elasticsearch / Infinity（自研）；可选支持 ChromaDB、Faiss</td></tr>
+<tr><td><strong>LLM 支持</strong></td><td>OpenAI / Claude / 通义千问 / 智谱 / 月之暗面 / Ollama / 本地模型，通过 API Key 配置即可切换</td></tr>
+<tr><td><strong>部署方式</strong></td><td>Docker Compose 一键部署，支持 K8s，提供 SaaS 版本</td></tr>
+<tr><td><strong>Agent 能力</strong></td><td>内置 Agent 模块，支持可视化编排工作流（DAG），可定义多步检索-推理流程</td></tr>
+<tr><td><strong>引用溯源</strong></td><td>每个回答附带原文引用位置，支持点击跳转原文片段</td></tr>
+<tr><td><strong>MCP 支持</strong></td><td>✅ 原生支持 MCP 协议，可作为 MCP Server 暴露知识库检索能力</td></tr>
+</table>
+
+<div class="compare-grid">
+<div class="info-card">
+<h4>✅ 优势</h4>
+<ul class="pro-list">
+<li>文档解析能力行业领先，复杂 PDF 处理效果极佳</li>
+<li>开箱即用，UI 完善且可视化操作</li>
+<li>引用溯源能力强，适合企业知识库场景</li>
+<li>支持 MCP 协议，与 Agent 生态集成友好</li>
+<li>社区活跃，Star 数最高</li>
+<li>支持多租户、权限管理，企业功能完善</li>
+</ul>
+</div>
+<div class="info-card">
+<h4>⚠️ 注意事项</h4>
+<ul class="con-list">
+<li>整体架构较重，Docker Compose 部署依赖 ES + Redis + MinIO 等多个组件</li>
+<li>Go + Python 混合技术栈，二次开发门槛略高</li>
+<li>Issue/Fork 比偏高（20.2%），部分 Issue 响应较慢</li>
+<li>与 LangChain 集成主要通过 REST API，无原生 Python SDK 桥接</li>
+<li>Agent 编排能力相比 LangGraph 较弱，更侧重 RAG 本身</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- ==================== LlamaIndex ==================== -->
+<section id="llamaindex">
+<h2>4. LlamaIndex — 文档 Agent 与 OCR 平台</h2>
+<div class="compare-grid">
+<div class="info-card">
+<h4>核心定位</h4>
+<p>以数据为中心的 LLM 应用框架，提供从数据摄入、索引到查询的完整工具链，强调文档 Agent 与多模态能力。</p>
+</div>
+<div class="info-card">
+<h4>关键词</h4>
+<p><span class="badge badge-blue">LlamaParse</span> <span class="badge badge-blue">300+ 集成</span> <span class="badge badge-blue">VectorStoreIndex</span> <span class="badge badge-blue">Query Engine</span> <span class="badge badge-purple">多模态</span></p>
+</div>
+</div>
+
+<h3>架构特点</h3>
+<table>
+<tr><th style="width:180px;">维度</th><th>说明</th></tr>
+<tr><td><strong>文档解析</strong></td><td>LlamaParse 云端服务支持 130+ 文件格式（PDF/DOCX/PPTX/HTML/图片等），含表格、图表、公式识别；也支持本地解析器</td></tr>
+<tr><td><strong>分块策略</strong></td><td>SentenceSplitter / TokenTextSplitter / SemanticSplitter（基于嵌入的语义分块）/ HierarchicalNodeParser（层级分块）</td></tr>
+<tr><td><strong>检索方式</strong></td><td>向量检索 + 关键词检索 + 知识图谱检索 + 子问题查询 + 递归检索 + FLARE（前向主动检索）</td></tr>
+<tr><td><strong>向量库</strong></td><td>30+ 向量库集成：Chroma / Pinecone / Weaviate / Qdrant / Milvus / pgvector / Faiss 等</td></tr>
+<tr><td><strong>LLM 支持</strong></td><td>通过 <code>llama_index.llms</code> 模块统一抽象，支持 OpenAI / Anthropic / Google / Azure / Ollama / HuggingFace / Cohere 等 40+ LLM</td></tr>
+<tr><td><strong>部署方式</strong></td><td>Python pip 安装，轻量级；LlamaCloud 提供托管服务；支持 Docker 部署</td></tr>
+<tr><td><strong>Agent 能力</strong></td><td>内置 ReAct Agent / Function Agent / OpenAI Agent，支持多 Agent 协作</td></tr>
+<tr><td><strong>高级特性</strong></td><td>多文档 Agent、文档摘要索引、自动路由查询、多模态检索（图文混合）</td></tr>
+<tr><td><strong>MCP 支持</strong></td><td>✅ 通过 <code>llama_index.tools.mcp</code> 支持 MCP Client</td></tr>
+</table>
+
+<div class="compare-grid">
+<div class="info-card">
+<h4>✅ 优势</h4>
+<ul class="pro-list">
+<li>生态最丰富的 RAG 框架，300+ 数据集成</li>
+<li>LlamaParse 文档解析能力极强（但为云服务）</li>
+<li>与 LangChain 同为 Python 生态，互操作性好</li>
+<li>API 设计优雅，开发者体验好</li>
+<li>支持高级检索模式（递归、子问题、FLARE）</li>
+<li>文档质量高，教程丰富</li>
+</ul>
+</div>
+<div class="info-card">
+<h4>⚠️ 注意事项</h4>
+<ul class="con-list">
+<li>LlamaParse 为云服务，涉及数据隐私和费用</li>
+<li>框架本身偏向 SDK 库，不含 UI 和部署方案</li>
+<li>与 LangChain 功能重叠较多，同时使用可能产生混乱</li>
+<li>版本迭代快，API 变动较频繁</li>
+<li>无内置向量库，需额外部署</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- ==================== LightRAG ==================== -->
+<section id="lightrag">
+<h2>5. LightRAG — 轻量级图增强 RAG</h2>
+<div class="compare-grid">
+<div class="info-card">
+<h4>核心定位</h4>
+<p>港大 HKUDS 团队开发的学术级 RAG 框架，EMNLP 2025 论文，以"简单、快速"为核心理念，融合知识图谱与向量检索。</p>
+</div>
+<div class="info-card">
+<h4>关键词</h4>
+<p><span class="badge badge-blue">Graph + Vector</span> <span class="badge badge-blue">双层检索</span> <span class="badge badge-blue">EMNLP 2025</span> <span class="badge badge-blue">5 种查询模式</span></p>
+</div>
+</div>
+
+<h3>架构特点</h3>
+<table>
+<tr><th style="width:180px;">维度</th><th>说明</th></tr>
+<tr><td><strong>文档解析</strong></td><td>基于 Python 基础解析器，支持 TXT/MD/PDF/DOCX，轻量级方案</td></tr>
+<tr><td><strong>分块策略</strong></td><td>Tiktoken Token 分块，可配置 chunk_size 和 overlap</td></tr>
+<tr><td><strong>核心创新</strong></td><td><strong>双层检索架构</strong>：Low-level（实体精确匹配）+ High-level（关系主题推理），自动判断使用哪层</td></tr>
+<tr><td><strong>检索方式</strong></td><td>5 种查询模式：naive（纯向量）/ local（局部子图）/ global（全局推理）/ hybrid（混合）/ mix（全量混合）</td></tr>
+<tr><td><strong>知识图谱</strong></td><td>自动从文档中抽取实体-关系三元组，构建知识图谱，结合向量索引进行联合检索</td></tr>
+<tr><td><strong>向量库</strong></td><td>NanoVectorDB（内置轻量级）/ PostgreSQL + pgvector / Milvus / ChromaDB / Faiss / Qdrant</td></tr>
+<tr><td><strong>LLM 支持</strong></td><td>OpenAI / Azure / Ollama / HuggingFace / 智谱 / 通义千问 / DeepSeek 等，通过配置文件切换</td></tr>
+<tr><td><strong>部署方式</strong></td><td>pip 安装，极轻量；提供 Web UI（基于 Gradio）；支持 Docker</td></tr>
+<tr><td><strong>MCP 支持</strong></td><td>✅ 原生支持 MCP Server 模式</td></tr>
+</table>
+
+<div class="compare-grid">
+<div class="info-card">
+<h4>✅ 优势</h4>
+<ul class="pro-list">
+<li>图+向量双层检索，复杂推理问题表现优于纯向量 RAG</li>
+<li>极轻量，pip install 即可运行，NanoVectorDB 零依赖</li>
+<li>学术级设计，论文背书（EMNLP 2025），算法可信</li>
+<li>5 种查询模式灵活应对不同场景</li>
+<li>支持 MCP Server，Agent 集成友好</li>
+<li>社区活跃，Issue/Fork 比仅 4.3%，维护良好</li>
+</ul>
+</div>
+<div class="info-card">
+<h4>⚠️ 注意事项</h4>
+<ul class="con-list">
+<li>创建于 2024-10，相对年轻，生产环境案例较少</li>
+<li>文档解析能力不如 RAGFlow / LlamaIndex</li>
+<li>无 UI 管理界面（仅 Gradio Demo），不适合非技术用户</li>
+<li>知识图谱构建依赖 LLM 抽取实体，Token 消耗较高</li>
+<li>无多租户、权限管理等企业级功能</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- ==================== GraphRAG ==================== -->
+<section id="graphrag">
+<h2>6. GraphRAG — 微软图增强 RAG 系统</h2>
+<div class="compare-grid">
+<div class="info-card">
+<h4>核心定位</h4>
+<p>微软开源的模块化 Graph-based RAG 系统，通过社区检测和层级摘要实现全局性推理能力，适用于大规模文档集的宏观分析。</p>
+</div>
+<div class="info-card">
+<h4>关键词</h4>
+<p><span class="badge badge-blue">Leiden 社区检测</span> <span class="badge badge-blue">层级摘要</span> <span class="badge badge-blue">DRIFT 搜索</span> <span class="badge badge-blue">Microsoft</span></p>
+</div>
+</div>
+
+<h3>架构特点</h3>
+<table>
+<tr><th style="width:180px;">维度</th><th>说明</th></tr>
+<tr><td><strong>文档解析</strong></td><td>基础文本解析，支持 TXT/MD/PDF/DOCX，通过 input adapter 扩展</td></tr>
+<tr><td><strong>分块策略</strong></td><td>Token-based 分块，可配置大小和重叠</td></tr>
+<tr><td><strong>核心创新</strong></td><td><strong>Leiden 社区检测算法</strong>：自动将知识图谱中的实体聚类为社区，并为每个社区生成 AI 层级摘要，支持"全局性问题"回答</td></tr>
+<tr><td><strong>检索方式</strong></td><td>Local Search（实体子图）/ Global Search（社区摘要遍历）/ DRIFT Search（混合检索 + 图遍历，V3 新增）</td></tr>
+<tr><td><strong>知识图谱</strong></td><td>自动实体抽取 + 关系提取 → 图谱构建 → 社区检测 → 层级摘要，支持增量更新</td></tr>
+<tr><td><strong>向量库</strong></td><td>LanceDB（默认）/ Azure AI Search / Neo4j（图谱存储）</td></tr>
+<tr><td><strong>LLM 支持</strong></td><td>OpenAI / Azure OpenAI / Ollama / HuggingFace / 自定义 LLM 接口</td></tr>
+<tr><td><strong>部署方式</strong></td><td>pip 安装；支持 CLI 和 Python API；提供 Azure 部署模板</td></tr>
+<tr><td><strong>架构演进</strong></td><td>V3 Monorepo 架构：Python + Rust（核心性能模块），引入 FastAPI 服务层</td></tr>
+<tr><td><strong>MCP 支持</strong></td><td>✅ 通过 GraphRAG MCP Server 暴露检索能力</td></tr>
+</table>
+
+<div class="compare-grid">
+<div class="info-card">
+<h4>✅ 优势</h4>
+<ul class="pro-list">
+<li>微软出品，工程质量和代码规范有保障</li>
+<li>社区检测 + 层级摘要，全局性问题回答能力突出</li>
+<li>DRIFT 搜索融合图遍历与向量检索，检索精度高</li>
+<li>Issue/Fork 比最低（1.7%），维护质量极高</li>
+<li>V3 引入 Rust 核心模块，性能优秀</li>
+<li>学术与工业双重背书</li>
+</ul>
+</div>
+<div class="info-card">
+<h4>⚠️ 注意事项</h4>
+<ul class="con-list">
+<li>索引构建成本极高（需大量 LLM 调用抽取实体+关系+摘要）</li>
+<li>更适合大规模文档集（100+ 文档），小数据集优势不明显</li>
+<li>文档解析能力较弱，复杂格式需预处理</li>
+<li>无 UI 管理界面，纯 CLI/API 使用</li>
+<li>V3 架构变动较大，与 V2 API 不完全兼容</li>
+<li>与 LangChain 无原生集成，需自定义封装</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- ==================== Haystack ==================== -->
+<section id="haystack">
+<h2>7. Haystack — 生产级 AI 编排框架</h2>
+<div class="compare-grid">
+<div class="info-card">
+<h4>核心定位</h4>
+<p>deepset 开发的 AI 编排框架，以 Pipeline 为核心抽象，模块化设计，强调生产环境可控性和可观测性。项目始于 2019 年，是 RAG 领域最成熟的开源框架之一。</p>
+</div>
+<div class="info-card">
+<h4>关键词</h4>
+<p><span class="badge badge-blue">Pipeline 架构</span> <span class="badge badge-blue">Context Engineering</span> <span class="badge badge-blue">Hayhooks</span> <span class="badge badge-blue">生命周期钩子</span></p>
+</div>
+</div>
+
+<h3>架构特点</h3>
+<table>
+<tr><th style="width:180px;">维度</th><th>说明</th></tr>
+<tr><td><strong>文档解析</strong></td><td>Haystack 2.x 集成 Unstructured / Apache Tika / PDF 等多个转换器组件，支持 PDF/DOCX/PPTX/HTML/图片等</td></tr>
+<tr><td><strong>分块策略</strong></td><td>TokenTextSplitter / SentenceSplitter / 语义分块等，通过 Pipeline 组件灵活组合</td></tr>
+<tr><td><strong>核心架构</strong></td><td><strong>Pipeline DAG 架构</strong>：每个处理步骤为独立 Component，通过 <code>connect()</code> 串联，支持条件分支、循环、并行</td></tr>
+<tr><td><strong>检索方式</strong></td><td>向量检索 / BM25 / 混合检索（Embedding + BM25）+ Reranker（Cohere / SentenceTransformers / HuggingFace TEI）</td></tr>
+<tr><td><strong>向量库</strong></td><td>Elasticsearch / OpenSearch / Pinecone / Weaviate / Qdrant / Chroma / pgvector / AstraDB 等 15+</td></tr>
+<tr><td><strong>LLM 支持</strong></td><td>OpenAI / Anthropic / Google / Cohere / HuggingFace / Ollama / Amazon Bedrock / Azure 等 20+</td></tr>
+<tr><td><strong>部署方式</strong></td><td>pip 安装；Hayhooks 组件将 Pipeline 部署为 REST API；支持 K8s / Docker</td></tr>
+<tr><td><strong>Context Engineering</strong></td><td>2.x 引入 Context Engineering 概念，显式控制检索结果如何注入 LLM 上下文</td></tr>
+<tr><td><strong>生命周期钩子</strong></td><td>组件级生命周期钩子（warm-up / dispose），支持资源预加载和清理</td></tr>
+<tr><td><strong>MCP 支持</strong></td><td>✅ 通过 haystack-mcp 适配器支持</td></tr>
+</table>
+
+<div class="compare-grid">
+<div class="info-card">
+<h4>✅ 优势</h4>
+<ul class="pro-list">
+<li>最成熟的框架（2019年至今），生产环境验证充分</li>
+<li>Pipeline DAG 架构清晰，可观测性和可调试性极佳</li>
+<li>Hayhooks 一键部署 Pipeline 为 API 服务</li>
+<li>组件化设计，扩展性强，自定义组件开发简单</li>
+<li>deepset 商业公司支持，长期维护有保障</li>
+<li>Issue/Fork 比极低（3.9%），维护质量高</li>
+</ul>
+</div>
+<div class="info-card">
+<h4>⚠️ 注意事项</h4>
+<ul class="con-list">
+<li>Star 数最低（26K），社区热度不如 RAGFlow / LlamaIndex</li>
+<li>定位为 AI 编排框架而非纯 RAG，学习曲线略陡</li>
+<li>无内置 UI 管理界面（deepset Hub 为商业产品）</li>
+<li>与 LangChain 理念不同（Pipeline vs Chain），同时使用可能混乱</li>
+<li>知识图谱能力不如 LightRAG / GraphRAG</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- ==================== 横向对比 ==================== -->
+<section id="comparison">
+<h2>8. 多维度横向对比</h2>
+
+<h3>8.1 核心能力对比</h3>
+<table>
+<thead>
+<tr>
+  <th style="width:150px;">维度</th>
+  <th>RAGFlow</th>
+  <th>LlamaIndex</th>
+  <th>LightRAG</th>
+  <th>GraphRAG</th>
+  <th>Haystack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><strong>文档解析</strong></td>
+  <td><span class="badge badge-green">★★★★★</span><br>DeepDoc 引擎，复杂 PDF 最强</td>
+  <td><span class="badge badge-green">★★★★★</span><br>LlamaParse 130+ 格式（云服务）</td>
+  <td><span class="badge badge-yellow">★★★☆☆</span><br>基础解析，轻量</td>
+  <td><span class="badge badge-yellow">★★☆☆☆</span><br>需外部预处理</td>
+  <td><span class="badge badge-green">★★★★☆</span><br>集成 Unstructured/Tika</td>
+</tr>
+<tr>
+  <td><strong>分块策略</strong></td>
+  <td>模板分块 + 段落 + 页面</td>
+  <td>语义分块 + 层级分块 + Token</td>
+  <td>Token 分块</td>
+  <td>Token 分块</td>
+  <td>Token + 语义 + 自定义</td>
+</tr>
+<tr>
+  <td><strong>检索方式</strong></td>
+  <td>向量 + BM25 + Rerank</td>
+  <td>向量 + 关键词 + 图谱 + 递归 + FLARE</td>
+  <td><strong>图+向量双层</strong><br>5种模式</td>
+  <td><strong>社区摘要+图遍历</strong><br>DRIFT搜索</td>
+  <td>向量 + BM25 + Rerank</td>
+</tr>
+<tr>
+  <td><strong>知识图谱</strong></td>
+  <td>❌ 不支持</td>
+  <td>✅ 基础支持</td>
+  <td><span class="badge badge-green">✅ 核心特性</span></td>
+  <td><span class="badge badge-green">✅ 核心特性</span></td>
+  <td>❌ 不支持</td>
+</tr>
+<tr>
+  <td><strong>引用溯源</strong></td>
+  <td><span class="badge badge-green">✅ 原生</span></td>
+  <td>✅ 支持</td>
+  <td>⚠️ 有限</td>
+  <td>⚠️ 有限</td>
+  <td>✅ 支持</td>
+</tr>
+<tr>
+  <td><strong>Agent 能力</strong></td>
+  <td>内置 DAG 编排</td>
+  <td>ReAct / Function Agent</td>
+  <td>❌ 基础</td>
+  <td>❌ 基础</td>
+  <td>Pipeline 即工作流</td>
+</tr>
+<tr>
+  <td><strong>UI 管理界面</strong></td>
+  <td><span class="badge badge-green">✅ 完善</span></td>
+  <td>❌ 仅 SDK</td>
+  <td>⚠️ Gradio Demo</td>
+  <td>❌ 仅 CLI</td>
+  <td>❌ 仅 SDK</td>
+</tr>
+<tr>
+  <td><strong>MCP 支持</strong></td>
+  <td><span class="badge badge-green">✅ 原生</span></td>
+  <td>✅ Client</td>
+  <td><span class="badge badge-green">✅ 原生</span></td>
+  <td><span class="badge badge-green">✅ 原生</span></td>
+  <td>✅ 适配器</td>
+</tr>
+<tr>
+  <td><strong>多租户/权限</strong></td>
+  <td><span class="badge badge-green">✅ 支持</span></td>
+  <td>❌ 不支持</td>
+  <td>❌ 不支持</td>
+  <td>❌ 不支持</td>
+  <td>❌ 不支持</td>
+</tr>
+</tbody>
+</table>
+
+<h3>8.2 技术栈与部署对比</h3>
+<table>
+<thead>
+<tr>
+  <th style="width:150px;">维度</th>
+  <th>RAGFlow</th>
+  <th>LlamaIndex</th>
+  <th>LightRAG</th>
+  <th>GraphRAG</th>
+  <th>Haystack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><strong>主语言</strong></td>
+  <td>Go + Python</td>
+  <td>Python</td>
+  <td>Python</td>
+  <td>Python + Rust</td>
+  <td>Python</td>
+</tr>
+<tr>
+  <td><strong>许可证</strong></td>
+  <td>Apache-2.0</td>
+  <td>MIT</td>
+  <td>MIT</td>
+  <td>MIT</td>
+  <td>Apache-2.0</td>
+</tr>
+<tr>
+  <td><strong>部署复杂度</strong></td>
+  <td><span class="badge badge-red">高</span><br>ES+Redis+MinIO</td>
+  <td><span class="badge badge-green">低</span><br>pip install</td>
+  <td><span class="badge badge-green">极低</span><br>pip install</td>
+  <td><span class="badge badge-yellow">中</span><br>需图谱存储</td>
+  <td><span class="badge badge-green">低</span><br>pip install</td>
+</tr>
+<tr>
+  <td><strong>向量库集成</strong></td>
+  <td>ES/Infinity/ChromaDB</td>
+  <td><span class="badge badge-green">30+</span></td>
+  <td>NanoVectorDB/PG/Milvus</td>
+  <td>LanceDB/Azure/Neo4j</td>
+  <td><span class="badge badge-green">15+</span></td>
+</tr>
+<tr>
+  <td><strong>LLM 集成</strong></td>
+  <td>10+ 国内外模型</td>
+  <td><span class="badge badge-green">40+</span></td>
+  <td>8+ 含国产模型</td>
+  <td>5+ 主流模型</td>
+  <td>20+ 主流模型</td>
+</tr>
+<tr>
+  <td><strong>索引成本</strong></td>
+  <td>中</td>
+  <td>低</td>
+  <td>中（实体抽取）</td>
+  <td><span class="badge badge-red">高</span><br>大量 LLM 调用</td>
+  <td>低</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<!-- ==================== 评分 ==================== -->
+<section id="scoring">
+<h2>9. 评分矩阵</h2>
+<p>基于 8 个维度加权评分（满分 10 分），结合团队需求场景（企业知识库 + Agent 开发 + LangChain 基座）。</p>
+<table class="score-table">
+<thead>
+<tr>
+  <th style="width:180px;">评估维度</th>
+  <th style="width:60px;">权重</th>
+  <th>RAGFlow</th>
+  <th>LlamaIndex</th>
+  <th>LightRAG</th>
+  <th>GraphRAG</th>
+  <th>Haystack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>文档解析能力</td><td>15%</td>
+  <td><span class="score-bar" style="width:100px;"></span> 10</td>
+  <td><span class="score-bar" style="width:95px;"></span> 9.5</td>
+  <td><span class="score-bar" style="width:50px;"></span> 5</td>
+  <td><span class="score-bar" style="width:30px;"></span> 3</td>
+  <td><span class="score-bar" style="width:75px;"></span> 7.5</td>
+</tr>
+<tr>
+  <td>检索质量</td><td>20%</td>
+  <td><span class="score-bar" style="width:80px;"></span> 8</td>
+  <td><span class="score-bar" style="width:85px;"></span> 8.5</td>
+  <td><span class="score-bar" style="width:95px;"></span> 9.5</td>
+  <td><span class="score-bar" style="width:95px;"></span> 9.5</td>
+  <td><span class="score-bar" style="width:80px;"></span> 8</td>
+</tr>
+<tr>
+  <td>易用性 / 开发体验</td><td>15%</td>
+  <td><span class="score-bar" style="width:85px;"></span> 8.5</td>
+  <td><span class="score-bar" style="width:90px;"></span> 9</td>
+  <td><span class="score-bar" style="width:80px;"></span> 8</td>
+  <td><span class="score-bar" style="width:55px;"></span> 5.5</td>
+  <td><span class="score-bar" style="width:80px;"></span> 8</td>
+</tr>
+<tr>
+  <td>部署 / 运维成本</td><td>15%</td>
+  <td><span class="score-bar" style="width:50px;"></span> 5</td>
+  <td><span class="score-bar" style="width:85px;"></span> 8.5</td>
+  <td><span class="score-bar" style="width:95px;"></span> 9.5</td>
+  <td><span class="score-bar" style="width:60px;"></span> 6</td>
+  <td><span class="score-bar" style="width:85px;"></span> 8.5</td>
+</tr>
+<tr>
+  <td>企业级能力</td><td>10%</td>
+  <td><span class="score-bar" style="width:95px;"></span> 9.5</td>
+  <td><span class="score-bar" style="width:55px;"></span> 5.5</td>
+  <td><span class="score-bar" style="width:35px;"></span> 3.5</td>
+  <td><span class="score-bar" style="width:40px;"></span> 4</td>
+  <td><span class="score-bar" style="width:70px;"></span> 7</td>
+</tr>
+<tr>
+  <td>LangChain 协同</td><td>10%</td>
+  <td><span class="score-bar" style="width:60px;"></span> 6</td>
+  <td><span class="score-bar" style="width:85px;"></span> 8.5</td>
+  <td><span class="score-bar" style="width:80px;"></span> 8</td>
+  <td><span class="score-bar" style="width:50px;"></span> 5</td>
+  <td><span class="score-bar" style="width:65px;"></span> 6.5</td>
+</tr>
+<tr>
+  <td>社区活跃度</td><td>10%</td>
+  <td><span class="score-bar" style="width:95px;"></span> 9.5</td>
+  <td><span class="score-bar" style="width:85px;"></span> 8.5</td>
+  <td><span class="score-bar" style="width:80px;"></span> 8</td>
+  <td><span class="score-bar" style="width:75px;"></span> 7.5</td>
+  <td><span class="score-bar" style="width:70px;"></span> 7</td>
+</tr>
+<tr>
+  <td>维护质量</td><td>5%</td>
+  <td><span class="score-bar" style="width:55px;"></span> 5.5</td>
+  <td><span class="score-bar" style="width:80px;"></span> 8</td>
+  <td><span class="score-bar" style="width:90px;"></span> 9</td>
+  <td><span class="score-bar" style="width:95px;"></span> 9.5</td>
+  <td><span class="score-bar" style="width:90px;"></span> 9</td>
+</tr>
+<tr class="highlight-row">
+  <td><strong>加权总分</strong></td>
+  <td>100%</td>
+  <td class="score-total">8.00</td>
+  <td class="score-total">8.40</td>
+  <td class="score-total">8.05</td>
+  <td class="score-total">5.93</td>
+  <td class="score-total">7.83</td>
+</tr>
+</tbody>
+</table>
+<p style="font-size: 13px; color: var(--text-secondary);">注：评分基于团队实际场景需求。若场景不同（如纯学术研究、大规模文档分析），GraphRAG / LightRAG 排序会上升。</p>
+</section>
+
+<!-- ==================== 架构对比图 ==================== -->
+<section id="architecture">
+<h2>10. 架构对比图</h2>
+<div class="arch-diagram">
+<svg viewBox="0 0 1080 620" xmlns="http://www.w3.org/2000/svg" style="font-family: -apple-system, sans-serif;">
+  <!-- Title -->
+  <text x="540" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#1f2328">RAG 框架架构对比</text>
+
+  <!-- RAGFlow -->
+  <rect x="20" y="50" width="200" height="540" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+  <text x="120" y="75" text-anchor="middle" font-size="14" font-weight="bold" fill="#0969da">RAGFlow</text>
+  <rect x="35" y="90" width="170" height="28" rx="4" fill="#fff" stroke="#0969da"/>
+  <text x="120" y="108" text-anchor="middle" font-size="11" fill="#1f2328">📄 DeepDoc 文档解析</text>
+  <rect x="35" y="125" width="170" height="28" rx="4" fill="#fff" stroke="#0969da"/>
+  <text x="120" y="143" text-anchor="middle" font-size="11" fill="#1f2328">✂️ 模板/段落分块</text>
+  <rect x="35" y="160" width="170" height="28" rx="4" fill="#fff" stroke="#0969da"/>
+  <text x="120" y="178" text-anchor="middle" font-size="11" fill="#1f2328">🔍 向量+BM25+Rerank</text>
+  <rect x="35" y="195" width="170" height="28" rx="4" fill="#dbe5f1" stroke="#0969da"/>
+  <text x="120" y="213" text-anchor="middle" font-size="11" fill="#1f2328">🗄️ Elasticsearch / Infinity</text>
+  <rect x="35" y="230" width="170" height="28" rx="4" fill="#dbe5f1" stroke="#0969da"/>
+  <text x="120" y="248" text-anchor="middle" font-size="11" fill="#1f2328">🤖 内置 Agent DAG</text>
+  <rect x="35" y="265" width="170" height="28" rx="4" fill="#dafbe1" stroke="#1a7f37"/>
+  <text x="120" y="283" text-anchor="middle" font-size="11" fill="#1f2328">📎 引用溯源 + UI</text>
+  <rect x="35" y="300" width="170" height="28" rx="4" fill="#dafbe1" stroke="#1a7f37"/>
+  <text x="120" y="318" text-anchor="middle" font-size="11" fill="#1f2328">🔐 多租户 + 权限</text>
+  <text x="120" y="345" text-anchor="middle" font-size="10" fill="#cf222e">⚠️ 部署重 (ES+Redis+MinIO)</text>
+
+  <!-- LlamaIndex -->
+  <rect x="240" y="50" width="200" height="540" rx="8" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.5"/>
+  <text x="340" y="75" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a7f37">LlamaIndex</text>
+  <rect x="255" y="90" width="170" height="28" rx="4" fill="#fff" stroke="#1a7f37"/>
+  <text x="340" y="108" text-anchor="middle" font-size="11" fill="#1f2328">📄 LlamaParse 130+格式</text>
+  <rect x="255" y="125" width="170" height="28" rx="4" fill="#fff" stroke="#1a7f37"/>
+  <text x="340" y="143" text-anchor="middle" font-size="11" fill="#1f2328">✂️ 语义/层级/Token分块</text>
+  <rect x="255" y="160" width="170" height="28" rx="4" fill="#fff" stroke="#1a7f37"/>
+  <text x="340" y="178" text-anchor="middle" font-size="11" fill="#1f2328">🔍 向量+图谱+递归+FLARE</text>
+  <rect x="255" y="195" width="170" height="28" rx="4" fill="#dbe5f1" stroke="#1a7f37"/>
+  <text x="340" y="213" text-anchor="middle" font-size="11" fill="#1f2328">🗄️ 30+ 向量库集成</text>
+  <rect x="255" y="230" width="170" height="28" rx="4" fill="#dbe5f1" stroke="#1a7f37"/>
+  <text x="340" y="248" text-anchor="middle" font-size="11" fill="#1f2328">🤖 ReAct/Function Agent</text>
+  <rect x="255" y="265" width="170" height="28" rx="4" fill="#dafbe1" stroke="#1a7f37"/>
+  <text x="340" y="283" text-anchor="middle" font-size="11" fill="#1f2328">📦 300+ 数据集成</text>
+  <rect x="255" y="300" width="170" height="28" rx="4" fill="#dafbe1" stroke="#1a7f37"/>
+  <text x="340" y="318" text-anchor="middle" font-size="11" fill="#1f2328">🎨 多模态检索</text>
+  <text x="340" y="345" text-anchor="middle" font-size="10" fill="#cf222e">⚠️ LlamaParse 为云服务</text>
+
+  <!-- LightRAG -->
+  <rect x="460" y="50" width="200" height="540" rx="8" fill="#fbefff" stroke="#8250df" stroke-width="1.5"/>
+  <text x="560" y="75" text-anchor="middle" font-size="14" font-weight="bold" fill="#8250df">LightRAG</text>
+  <rect x="475" y="90" width="170" height="28" rx="4" fill="#fff" stroke="#8250df"/>
+  <text x="560" y="108" text-anchor="middle" font-size="11" fill="#1f2328">📄 基础文本解析</text>
+  <rect x="475" y="125" width="170" height="28" rx="4" fill="#fff" stroke="#8250df"/>
+  <text x="560" y="143" text-anchor="middle" font-size="11" fill="#1f2328">✂️ Tiktoken Token分块</text>
+  <rect x="475" y="160" width="170" height="28" rx="4" fill="#e9d5ff" stroke="#8250df"/>
+  <text x="560" y="178" text-anchor="middle" font-size="11" fill="#1f2328">🔗 实体-关系图谱构建</text>
+  <rect x="475" y="195" width="170" height="28" rx="4" fill="#e9d5ff" stroke="#8250df"/>
+  <text x="560" y="213" text-anchor="middle" font-size="11" fill="#1f2328">🔍 图+向量 双层检索</text>
+  <rect x="475" y="230" width="170" height="28" rx="4" fill="#dbe5f1" stroke="#8250df"/>
+  <text x="560" y="248" text-anchor="middle" font-size="11" fill="#1f2328">🗄️ NanoVectorDB(零依赖)</text>
+  <rect x="475" y="265" width="170" height="28" rx="4" fill="#dafbe1" stroke="#8250df"/>
+  <text x="560" y="283" text-anchor="middle" font-size="11" fill="#1f2328">⚡ 5种查询模式</text>
+  <rect x="475" y="300" width="170" height="28" rx="4" fill="#dafbe1" stroke="#8250df"/>
+  <text x="560" y="318" text-anchor="middle" font-size="11" fill="#1f2328">📄 EMNLP 2025 论文</text>
+  <text x="560" y="345" text-anchor="middle" font-size="10" fill="#cf222e">⚠️ 年轻项目，企业功能少</text>
+
+  <!-- GraphRAG -->
+  <rect x="680" y="50" width="200" height="540" rx="8" fill="#fff8c5" stroke="#9a6700" stroke-width="1.5"/>
+  <text x="780" y="75" text-anchor="middle" font-size="14" font-weight="bold" fill="#9a6700">GraphRAG</text>
+  <rect x="695" y="90" width="170" height="28" rx="4" fill="#fff" stroke="#9a6700"/>
+  <text x="780" y="108" text-anchor="middle" font-size="11" fill="#1f2328">📄 基础文本解析</text>
+  <rect x="695" y="125" width="170" height="28" rx="4" fill="#fff" stroke="#9a6700"/>
+  <text x="780" y="143" text-anchor="middle" font-size="11" fill="#1f2328">✂️ Token分块</text>
+  <rect x="695" y="160" width="170" height="28" rx="4" fill="#ffe0a0" stroke="#9a6700"/>
+  <text x="780" y="178" text-anchor="middle" font-size="11" fill="#1f2328">🔗 实体抽取→知识图谱</text>
+  <rect x="695" y="195" width="170" height="28" rx="4" fill="#ffe0a0" stroke="#9a6700"/>
+  <text x="780" y="213" text-anchor="middle" font-size="11" fill="#1f2328">🏘️ Leiden社区检测+摘要</text>
+  <rect x="695" y="230" width="170" height="28" rx="4" fill="#dbe5f1" stroke="#9a6700"/>
+  <text x="780" y="248" text-anchor="middle" font-size="11" fill="#1f2328">🗄️ LanceDB/Neo4j</text>
+  <rect x="695" y="265" width="170" height="28" rx="4" fill="#dafbe1" stroke="#9a6700"/>
+  <text x="780" y="283" text-anchor="middle" font-size="11" fill="#1f2328">🔍 Local/Global/DRIFT</text>
+  <rect x="695" y="300" width="170" height="28" rx="4" fill="#dafbe1" stroke="#9a6700"/>
+  <text x="780" y="318" text-anchor="middle" font-size="11" fill="#1f2328">⚙️ V3 Python+Rust</text>
+  <text x="780" y="345" text-anchor="middle" font-size="10" fill="#cf222e">⚠️ 索引成本极高</text>
+
+  <!-- Haystack -->
+  <rect x="900" y="50" width="160" height="540" rx="8" fill="#ffebe9" stroke="#cf222e" stroke-width="1.5"/>
+  <text x="980" y="75" text-anchor="middle" font-size="14" font-weight="bold" fill="#cf222e">Haystack</text>
+  <rect x="915" y="90" width="130" height="28" rx="4" fill="#fff" stroke="#cf222e"/>
+  <text x="980" y="108" text-anchor="middle" font-size="11" fill="#1f2328">📄 Unstructured/Tika</text>
+  <rect x="915" y="125" width="130" height="28" rx="4" fill="#fff" stroke="#cf222e"/>
+  <text x="980" y="143" text-anchor="middle" font-size="11" fill="#1f2328">✂️ Token/语义分块</text>
+  <rect x="915" y="160" width="130" height="28" rx="4" fill="#fff" stroke="#cf222e"/>
+  <text x="980" y="178" text-anchor="middle" font-size="11" fill="#1f2328">🔍 向量+BM25+Rerank</text>
+  <rect x="915" y="195" width="130" height="28" rx="4" fill="#f5cccc" stroke="#cf222e"/>
+  <text x="980" y="213" text-anchor="middle" font-size="11" fill="#1f2328">🔗 Pipeline DAG</text>
+  <rect x="915" y="230" width="130" height="28" rx="4" fill="#dbe5f1" stroke="#cf222e"/>
+  <text x="980" y="248" text-anchor="middle" font-size="11" fill="#1f2328">🗄️ 15+ 向量库</text>
+  <rect x="915" y="265" width="130" height="28" rx="4" fill="#dafbe1" stroke="#cf222e"/>
+  <text x="980" y="283" text-anchor="middle" font-size="11" fill="#1f2328">🪝 Hayhooks API</text>
+  <rect x="915" y="300" width="130" height="28" rx="4" fill="#dafbe1" stroke="#cf222e"/>
+  <text x="980" y="318" text-anchor="middle" font-size="11" fill="#1f2328">📊 生命周期钩子</text>
+  <text x="980" y="345" text-anchor="middle" font-size="10" fill="#cf222e">⚠️ 社区热度较低</text>
+
+  <!-- Bottom legend -->
+  <rect x="20" y="410" width="1040" height="180" rx="8" fill="#f8fbff" stroke="#d0d7de"/>
+  <text x="540" y="435" text-anchor="middle" font-size="13" font-weight="bold" fill="#1f2328">图例说明</text>
+  <rect x="40" y="450" width="14" height="14" rx="2" fill="#dbe5f1" stroke="#0969da"/>
+  <text x="62" y="462" font-size="12" fill="#1f2328">存储/基础设施</text>
+  <rect x="180" y="450" width="14" height="14" rx="2" fill="#dafbe1" stroke="#1a7f37"/>
+  <text x="202" y="462" font-size="12" fill="#1f2328">核心优势</text>
+  <rect x="300" y="450" width="14" height="14" rx="2" fill="#e9d5ff" stroke="#8250df"/>
+  <text x="322" y="462" font-size="12" fill="#1f2328">图增强检索</text>
+  <rect x="420" y="450" width="14" height="14" rx="2" fill="#ffe0a0" stroke="#9a6700"/>
+  <text x="442" y="462" font-size="12" fill="#1f2328">社区图谱创新</text>
+  <rect x="560" y="450" width="14" height="14" rx="2" fill="#f5cccc" stroke="#cf222e"/>
+  <text x="582" y="462" font-size="12" fill="#1f2328">Pipeline 架构</text>
+
+  <text x="540" y="490" text-anchor="middle" font-size="12" fill="#656d76">每个框架从上到下展示：文档解析 → 分块 → 检索 → 存储 → Agent → 特色能力 → 注意事项</text>
+  <text x="540" y="515" text-anchor="middle" font-size="12" fill="#656d76">颜色区分：蓝色=RAGFlow（企业RAG引擎）  绿色=LlamaIndex（数据框架）  紫色=LightRAG（轻量图RAG）</text>
+  <text x="540" y="535" text-anchor="middle" font-size="12" fill="#656d76">黄色=GraphRAG（微软社区图谱）  红色=Haystack（生产编排框架）</text>
+  <text x="540" y="565" text-anchor="middle" font-size="13" font-weight="bold" fill="#0969da">推荐分层组合：LlamaIndex（轻量SDK层） + RAGFlow（生产RAG引擎） + LightRAG（图增强补充）</text>
+</svg>
+</div>
+</section>
+
+<!-- ==================== LangChain 集成 ==================== -->
+<section id="langchain">
+<h2>11. 与 LangChain 集成方案</h2>
+<p>团队已选定 LangChain + LangGraph 作为 Agent 基座。以下展示 5 个 RAG 框架与 LangChain 的集成路径：</p>
+
+<table>
+<thead>
+<tr>
+  <th style="width:120px;">框架</th>
+  <th style="width:120px;">集成方式</th>
+  <th>集成复杂度</th>
+  <th>代码示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td class="framework">RAGFlow</td>
+  <td>REST API → LangChain Tool</td>
+  <td><span class="badge badge-yellow">中等</span></td>
+  <td>
+<pre><code>from langchain.tools import Tool
+import requests
+
+def ragflow_search(query: str) -> str:
+    resp = requests.post(
+        "http://ragflow:9380/api/v1/retrieval",
+        json={"question": query, "dataset_ids": ["ds_id"], "top_k": 10},
+        headers={"Authorization": "Bearer YOUR_API_KEY"}
+    )
+    return resp.json()
+
+ragflow_tool = Tool(
+    name="RAGFlow_Search",
+    description="搜索企业知识库",
+    func=ragflow_search
+)
+# 在 LangGraph 中作为工具节点使用</code></pre>
+  </td>
+</tr>
+<tr>
+  <td class="framework">LlamaIndex</td>
+  <td>原生 Python 互操作</td>
+  <td><span class="badge badge-green">低</span></td>
+  <td>
+<pre><code>from llama_index.core import VectorStoreIndex
+from langchain.tools import Tool
+
+# LlamaIndex 构建索引
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine()
+
+# 包装为 LangChain Tool
+def llama_search(query: str) -> str:
+    return str(query_engine.query(query))
+
+llama_tool = Tool(name="KB_Search", 
+                  description="搜索知识库", func=llama_search)</code></pre>
+  </td>
+</tr>
+<tr>
+  <td class="framework">LightRAG</td>
+  <td>Python SDK 直接调用</td>
+  <td><span class="badge badge-green">低</span></td>
+  <td>
+<pre><code>from lightrag import LightRAG, QueryParam
+from langchain.tools import Tool
+
+rag = LightRAG(working_dir="./rag_storage")
+
+def lightrag_search(query: str) -> str:
+    return rag.query(query, param=QueryParam(mode="hybrid"))
+
+lightrag_tool = Tool(name="Graph_Search",
+                     description="图谱增强检索", func=lightrag_search)</code></pre>
+  </td>
+</tr>
+<tr>
+  <td class="framework">GraphRAG</td>
+  <td>自定义封装 / MCP</td>
+  <td><span class="badge badge-red">较高</span></td>
+  <td>
+<pre><code># 方案1: 通过 MCP Server 集成
+from langchain.tools import Tool
+import subprocess
+
+def graphrag_search(query: str) -> str:
+    result = subprocess.run(
+        ["graphrag", "query", "--method", "global", 
+         "--query", query],
+        capture_output=True, text=True
+    )
+    return result.stdout
+
+# 方案2: 使用 GraphRAG MCP Server
+graphrag_tool = Tool(name="GraphRAG_Search",
+                     description="全局图谱检索", func=graphrag_search)</code></pre>
+  </td>
+</tr>
+<tr>
+  <td class="framework">Haystack</td>
+  <td>Hayhooks REST API</td>
+  <td><span class="badge badge-yellow">中等</span></td>
+  <td>
+<pre><code>from langchain.tools import Tool
+import requests
+
+def haystack_search(query: str) -> str:
+    resp = requests.post(
+        "http://hayhooks:1416/v1/pipelines/rag_pipeline/run",
+        json={"inputs": {"query": query}}
+    )
+    return resp.json()["result"]
+
+haystack_tool = Tool(name="Haystack_Search",
+                     description="Pipeline检索", func=haystack_search)</code></pre>
+  </td>
+</tr>
+</tbody>
+</table>
+
+<h3>集成策略建议</h3>
+<table>
+<tr><th style="width:200px;">策略</th><th>方案</th><th>适用场景</th></tr>
+<tr><td><strong>方案 A：单框架直接集成</strong></td><td>选择 1 个 RAG 框架作为 LangChain Tool</td><td>快速验证、小规模团队</td></tr>
+<tr><td><strong>方案 B：分层组合</strong></td><td>RAGFlow（生产引擎） + LightRAG（图谱增强）双 Tool</td><td><span class="badge badge-green">推荐</span> 兼顾文档解析与图谱推理</td></tr>
+<tr><td><strong>方案 C：MCP 统一协议</strong></td><td>所有 RAG 框架作为 MCP Server，LangGraph 通过 MCP Client 统一调用</td><td>长期演进、多知识源</td></tr>
+</table>
+</section>
+
+<!-- ==================== 选型建议 ==================== -->
+<section id="recommendation">
+<h2>12. 选型建议</h2>
+
+<div class="recommend-box">
+<h3>🎯 最终推荐：分层组合策略</h3>
+<div class="verdict">主力：RAGFlow（企业知识库） + 补充：LightRAG（图谱增强推理）</div>
+<p>结合团队已选 LangChain + LangGraph 基座，建议采用<strong>双框架分层组合</strong>策略，而非单一框架。</p>
+</div>
+
+<h3>推荐逻辑</h3>
+<table>
+<thead>
+<tr>
+  <th style="width:120px;">层次</th>
+  <th style="width:140px;">框架</th>
+  <th>角色定位</th>
+  <th>选择理由</th>
+</tr>
+</thead>
+<tbody>
+<tr class="highlight-row">
+  <td><strong>生产层</strong></td>
+  <td class="framework">RAGFlow</td>
+  <td>企业知识库主力引擎</td>
+  <td>
+    • DeepDoc 文档解析能力最强，处理复杂 PDF（合同/报表/论文）<br>
+    • 完善的 UI + 引用溯源 + 多租户权限，开箱即用<br>
+    • 86K Star 社区最活跃，Apache-2.0 许可证商用友好<br>
+    • 原生 MCP 支持，通过 REST API 集成为 LangChain Tool<br>
+    • 内置 Agent DAG 可作为 LangGraph 的补充
+  </td>
+</tr>
+<tr class="highlight-row">
+  <td><strong>增强层</strong></td>
+  <td class="framework">LightRAG</td>
+  <td>图谱增强推理补充</td>
+  <td>
+    • 图+向量双层检索，复杂关联推理问题表现突出<br>
+    • 极轻量（pip install + NanoVectorDB），部署零负担<br>
+    • 5 种查询模式灵活应对不同检索场景<br>
+    • EMNLP 2025 论文背书，算法可信<br>
+    • 原生 MCP Server，集成简单<br>
+    • 与 RAGFlow 互补：RAGFlow 强在解析+精确检索，LightRAG 强在关系推理
+  </td>
+</tr>
+</tbody>
+</table>
+
+<h3>为什么不选其他框架？</h3>
+<table>
+<tr><th style="width:140px;">框架</th><th>未选为主力的原因</th></tr>
+<tr>
+  <td class="framework">LlamaIndex</td>
+  <td>与 LangChain 功能重叠严重，同时使用两个框架会导致架构混乱；LlamaParse 为云服务，数据隐私风险；无 UI 管理界面。但其检索模式设计优秀，可在需要时作为 SDK 层参考。</td>
+</tr>
+<tr>
+  <td class="framework">GraphRAG</td>
+  <td>索引构建成本极高（大量 LLM 调用），不适合频繁更新场景；更适合超大规模文档集（1000+文档）的全局分析；与 LangChain 无原生集成；V3 API 变动大。如未来有大规模文档分析需求可引入。</td>
+</tr>
+<tr>
+  <td class="framework">Haystack</td>
+  <td>Pipeline 架构理念与 LangChain Chain 不同，同时使用增加认知负担；无知识图谱能力；社区热度较低。但其 Pipeline 可观测性和 Hayhooks 部署模式值得借鉴。</td>
+</tr>
+</table>
+</section>
+
+<!-- ==================== 落地路线图 ==================== -->
+<section id="roadmap">
+<h2>13. 落地路线图</h2>
+
+<div class="arch-diagram">
+<svg viewBox="0 0 1000 360" xmlns="http://www.w3.org/2000/svg" style="font-family: -apple-system, sans-serif;">
+  <!-- Timeline line -->
+  <line x1="60" y1="180" x2="940" y2="180" stroke="#d0d7de" stroke-width="3"/>
+
+  <!-- Phase 1 -->
+  <circle cx="150" cy="180" r="12" fill="#0969da" stroke="#fff" stroke-width="3"/>
+  <rect x="60" y="50" width="180" height="110" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+  <text x="150" y="75" text-anchor="middle" font-size="13" font-weight="bold" fill="#0969da">阶段一：验证</text>
+  <text x="150" y="95" text-anchor="middle" font-size="11" fill="#1f2328">部署 RAGFlow</text>
+  <text x="150" y="112" text-anchor="middle" font-size="11" fill="#1f2328">导入团队文档</text>
+  <text x="150" y="129" text-anchor="middle" font-size="11" fill="#1f2328">验证检索效果</text>
+  <text x="150" y="146" text-anchor="middle" font-size="11" fill="#1f2328">REST API → LC Tool</text>
+  <text x="150" y="205" text-anchor="middle" font-size="11" font-weight="bold" fill="#0969da">第 1-2 周</text>
+
+  <!-- Phase 2 -->
+  <circle cx="380" cy="180" r="12" fill="#1a7f37" stroke="#fff" stroke-width="3"/>
+  <rect x="290" y="50" width="180" height="110" rx="8" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.5"/>
+  <text x="380" y="75" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a7f37">阶段二：集成</text>
+  <text x="380" y="95" text-anchor="middle" font-size="11" fill="#1f2328">LangGraph Agent</text>
+  <text x="380" y="112" text-anchor="middle" font-size="11" fill="#1f2328">接入 RAGFlow Tool</text>
+  <text x="380" y="129" text-anchor="middle" font-size="11" fill="#1f2328">构建多步检索工作流</text>
+  <text x="380" y="146" text-anchor="middle" font-size="11" fill="#1f2328">引用溯源 + 结果验证</text>
+  <text x="380" y="205" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a7f37">第 3-4 周</text>
+
+  <!-- Phase 3 -->
+  <circle cx="610" cy="180" r="12" fill="#8250df" stroke="#fff" stroke-width="3"/>
+  <rect x="520" y="50" width="180" height="110" rx="8" fill="#fbefff" stroke="#8250df" stroke-width="1.5"/>
+  <text x="610" y="75" text-anchor="middle" font-size="13" font-weight="bold" fill="#8250df">阶段三：增强</text>
+  <text x="610" y="95" text-anchor="middle" font-size="11" fill="#1f2328">引入 LightRAG</text>
+  <text x="610" y="112" text-anchor="middle" font-size="11" fill="#1f2328">图谱增强检索 Tool</text>
+  <text x="610" y="129" text-anchor="middle" font-size="11" fill="#1f2328">双 Tool 智能路由</text>
+  <text x="610" y="146" text-anchor="middle" font-size="11" fill="#1f2328">复杂推理场景验证</text>
+  <text x="610" y="205" text-anchor="middle" font-size="11" font-weight="bold" fill="#8250df">第 5-6 周</text>
+
+  <!-- Phase 4 -->
+  <circle cx="840" cy="180" r="12" fill="#9a6700" stroke="#fff" stroke-width="3"/>
+  <rect x="750" y="50" width="180" height="110" rx="8" fill="#fff8c5" stroke="#9a6700" stroke-width="1.5"/>
+  <text x="840" y="75" text-anchor="middle" font-size="13" font-weight="bold" fill="#9a6700">阶段四：生产化</text>
+  <text x="840" y="95" text-anchor="middle" font-size="11" fill="#1f2328">MCP 统一协议</text>
+  <text x="840" y="112" text-anchor="middle" font-size="11" fill="#1f2328">K8s 集群部署</text>
+  <text x="840" y="129" text-anchor="middle" font-size="11" fill="#1f2328">监控 + 告警</text>
+  <text x="840" y="146" text-anchor="middle" font-size="11" fill="#1f2328">多知识库管理</text>
+  <text x="840" y="205" text-anchor="middle" font-size="11" font-weight="bold" fill="#9a6700">第 7-8 周</text>
+
+  <!-- Bottom annotations -->
+  <rect x="60" y="240" width="870" height="90" rx="8" fill="#f8fbff" stroke="#d0d7de"/>
+  <text x="80" y="265" font-size="12" font-weight="bold" fill="#1f2328">关键里程碑：</text>
+  <text x="80" y="285" font-size="11" fill="#656d76">✅ 第2周末：RAGFlow 可用，团队可上传文档进行问答</text>
+  <text x="80" y="303" font-size="11" fill="#656d76">✅ 第4周末：LangGraph Agent 可通过 RAGFlow 检索知识库完成多步推理任务</text>
+  <text x="80" y="321" font-size="11" fill="#656d76">✅ 第6周末：LightRAG 图谱增强上线，复杂关联问题检索质量提升</text>
+</svg>
+</div>
+
+<h3>架构终态</h3>
+<pre><code>┌─────────────────────────────────────────────────┐
+│              LangGraph Agent (编排层)              │
+│         ┌──────────┐    ┌──────────────┐         │
+│         │ Router   │───▶│ Tool Selector │         │
+│         └──────────┘    └──────┬───────┘         │
+│                                │                  │
+│              ┌─────────────────┼─────────────────┐│
+│              ▼                 ▼                 ▼│
+│  ┌───────────────┐  ┌──────────────┐  ┌─────────────┐│
+│  │ RAGFlow Tool  │  │ LightRAG Tool│  │ Other Tools ││
+│  │ (精确检索+溯源) │  │ (图谱推理)    │  │ (Web/API等) ││
+│  └───────┬───────┘  └──────┬───────┘  └─────────────┘│
+│          │                 │                          │
+│          ▼                 ▼                          │
+│  ┌───────────────┐  ┌──────────────┐                │
+│  │ RAGFlow Server│  │ LightRAG Srv │                │
+│  │ (DeepDoc+ES)  │  │ (Graph+Vec)  │                │
+│  └───────────────┘  └──────────────┘                │
+│          │                                           │
+│          ▼                                           │
+│  ┌───────────────────────────────┐                  │
+│  │    MCP Protocol (统一协议)     │                  │
+│  └───────────────────────────────┘                  │
+└─────────────────────────────────────────────────┘</code></pre>
+</section>
+
+<div class="footer">
+  <p>RAG 框架 Top5 选型对比报告 · 基于 GitHub 数据（2026-07-28） · 团队 Agent 基座：LangChain + LangGraph</p>
+  <p>推荐方案：RAGFlow（生产层）+ LightRAG（增强层）分层组合 · 8 周落地路线图</p>
+</div>
+
+</div>
+
+<script>
+// Smooth scroll for sidebar links
+document.querySelectorAll('#sidebar nav a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
