@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaaS 公司 MCP 能力调研报告</title>
+<style>
+  :root{
+    --bg:#fff; --fg:#1a1a2e; --muted:#5c6370; --border:#e4e7eb;
+    --accent:#534AB7; --accent-bg:#EEEDFE; --teal:#0F6E56; --teal-bg:#E1F5EE;
+    --blue:#185FA5; --blue-bg:#E6F1FB; --amber:#854F0B; --amber-bg:#FAEEDA;
+    --code-bg:#f6f8fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.7;font-size:15px}
+  .wrap{max-width:920px;margin:0 auto;padding:40px 24px 80px}
+  header{border-bottom:2px solid var(--accent);padding-bottom:20px;margin-bottom:32px}
+  header h1{margin:0 0 8px;font-size:26px;font-weight:600;color:var(--accent)}
+  .meta{color:var(--muted);font-size:13px}
+  .meta span{margin-right:16px}
+  h2{font-size:20px;font-weight:600;margin:40px 0 14px;padding-bottom:6px;border-bottom:1px solid var(--border);color:var(--accent)}
+  h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:var(--blue)}
+  p{margin:10px 0}
+  ul,ol{margin:10px 0;padding-left:24px}
+  li{margin:4px 0}
+  strong{color:#1a1a2e}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;overflow:hidden}
+  th{background:var(--accent);color:#fff;text-align:left;padding:9px 10px;font-weight:500}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  tr:nth-child(even) td{background:#fafbfc}
+  tr:hover td{background:var(--accent-bg)}
+  code{background:var(--code-bg);padding:1px 5px;border-radius:4px;font-family:"SF Mono",Consolas,monospace;font-size:13px}
+  blockquote{margin:14px 0;padding:12px 16px;background:var(--accent-bg);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;color:#3C3489}
+  blockquote p{margin:0}
+  .callout{background:var(--amber-bg);border-left:3px solid var(--amber);padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0}
+  .callout strong{color:var(--amber)}
+  .trend{background:var(--teal-bg);border:1px solid #9FE1CB;border-radius:8px;padding:14px 16px;margin:12px 0}
+  .trend h4{margin:0 0 6px;color:var(--teal);font-size:14px;font-weight:600}
+  .trend p{margin:0;font-size:14px;color:#085041}
+  hr{border:none;border-top:1px solid var(--border);margin:36px 0}
+  footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
+  .badge{display:inline-block;background:var(--accent-bg);color:var(--accent);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;margin-left:6px}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+  .pill-r{background:#FAECE7;color:#993C1D}
+  .pill-w{background:#E6F1FB;color:#185FA5}
+  .pill-e{background:#E1F5EE;color:#0F6E56}
+  .pill-x{background:#FAEEDA;color:#854F0B}
+  @media(max-width:640px){.wrap{padding:24px 16px 60px} table{font-size:12px} th,td{padding:6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>SaaS 公司 MCP 能力调研报告</h1>
+  <div class="meta">
+    <span>调研日期：2026-08-10</span>
+    <span>范围：国内外 SaaS · MCP 能力 + 未来趋势</span>
+    <span class="badge">知识库</span>
+  </div>
+</header>
+
+<blockquote>
+<p><strong>核心结论</strong>：MCP 已从 2024 年的开源协议演变为 2026 年 SaaS AI 接入的事实标准。国外 SaaS 偏"直发远程 server + OAuth"，国内大厂偏"平台市场聚合 + 生态卡位"。<strong>不接入 MCP = 站在 Agent 分发之外。</strong></p>
+</blockquote>
+
+<h2>一、背景：MCP 是什么</h2>
+<p><strong>Model Context Protocol (MCP)</strong> 是 Anthropic 于 2024 年 11 月开源的协议，被称为 "AI 时代的 USB-C 接口"。通过 client-server 架构（JSON-RPC 2.0）让任意 AI 模型与外部工具/数据源标准化对接，把 "M 模型 × N 工具 = M×N 自定义集成" 的复杂度降到 "M+N"。</p>
+<h3>三个核心原语</h3>
+<ul>
+<li><strong>Tools</strong>：可执行函数（如创建联系人、发送消息、跑 SQL）</li>
+<li><strong>Resources</strong>：可读数据（如客户记录、文件、仪表盘）</li>
+<li><strong>Prompts</strong>：预置工作流模板</li>
+</ul>
+<h3>关键里程碑</h3>
+<table>
+<thead><tr><th>时间</th><th>事件</th></tr></thead>
+<tbody>
+<tr><td>2024-11</td><td>Anthropic 发布 MCP，含 TS/Python 参考实现</td></tr>
+<tr><td>2025-03</td><td>OpenAI 宣布 Agents SDK 支持 MCP（决定性信号）</td></tr>
+<tr><td>2025-04</td><td>Google DeepMind、Microsoft Copilot Studio、AWS Bedrock 跟进</td></tr>
+<tr><td>2025-09</td><td>官方 MCP Registry 上线，几周内近 2000 条</td></tr>
+<tr><td>2025-12</td><td>Linux Foundation 旗下 Agentic AI Foundation 接管 MCP 规范</td></tr>
+<tr><td>2026-Q1</td><td>月 SDK 下载 97M+，公开 server 5800+，Fortune 500 采用率 28%</td></tr>
+</tbody>
+</table>
+<p>SaaS 公司接入 MCP 的<strong>战略动因</strong>：① 抢占 Agent 时代分发入口；② 避免被 AI 生态边缘化；③ 降低自建 AI 集成的工程成本；④ 把既有 API 资产以"Agent 可调用"形态二次变现。</p>
+
+<h2>二、国际 SaaS 公司 MCP 能力一览</h2>
+<table>
+<thead><tr><th>公司</th><th>核心暴露能力</th><th>能力类型</th><th>部署形态</th><th>战略意义</th></tr></thead>
+<tbody>
+<tr><td><strong>Notion</strong></td><td>搜索工作区、读写页面/数据库/评论</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.notion.com + 本地</td><td>AI 知识中枢</td></tr>
+<tr><td><strong>GitHub</strong></td><td>仓库/PR/Issue、代码搜索、Actions、安全告警</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span><span class="pill pill-r">执行</span></td><td>远程 api.githubcopilot.com/mcp + 本地</td><td>开发者生态护城河</td></tr>
+<tr><td><strong>Linear</strong></td><td>Issue/项目/Sprint，25+ 工具（含只读端点）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.linear.app</td><td>AI 原生研发工作流</td></tr>
+<tr><td><strong>Slack</strong></td><td>频道/消息/会话/Canvas，伙伴审批门控</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 Slack-hosted</td><td>通信入口卡位</td></tr>
+<tr><td><strong>Stripe</strong></td><td>25 工具：客户/产品/支付/订阅/发票/退款/争议</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程 mcp.stripe.com</td><td>支付闭环"最后一公里"</td></tr>
+<tr><td><strong>Cloudflare</strong></td><td>Workers/KV/R2/D1/Pages/DNS，2500+ API 端点，13 个细分 server</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程多端点</td><td>边缘计算 AI 接口（参考实现）</td></tr>
+<tr><td><strong>Supabase</strong></td><td>list_tables/execute_sql/migrations/Edge Functions/分支</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程 mcp.supabase.com/mcp</td><td>后端即服务 AI 化</td></tr>
+<tr><td><strong>Vercel</strong></td><td>项目/部署/环境变量/日志/文档搜索</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.vercel.com</td><td>前端部署闭环</td></tr>
+<tr><td><strong>Atlassian</strong></td><td>Jira 工作项、Confluence 页面、批量操作</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.atlassian.com/v1/sse</td><td>企业协作 AI 入口</td></tr>
+<tr><td><strong>Figma</strong></td><td>读取设计/Token/组件；同时是 MCP 客户端</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span><span class="pill pill-e">写</span></td><td>远程</td><td>设计-代码桥梁</td></tr>
+<tr><td><strong>Asana</strong></td><td>任务/项目/评论/截止日期</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.asana.com/v2/mcp</td><td>工作流 AI 协作</td></tr>
+<tr><td><strong>HubSpot</strong></td><td>CRM contacts/companies/deals/tickets（200+ ops）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.hubspot.com</td><td>销售 CRM 自动化</td></tr>
+<tr><td><strong>Salesforce</strong></td><td>CRM 记录、SOQL 查询（Enterprise+，2026-04 GA）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 Salesforce-hosted</td><td>企业 CRM AI 化</td></tr>
+<tr><td><strong>Zapier</strong></td><td>跨 8000+ 应用执行工作流</td><td><span class="pill pill-r">执行</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.zapier.com</td><td>自动化中枢放大</td></tr>
+<tr><td><strong>Sentry</strong></td><td>错误/性能/replay 查询</td><td><span class="pill pill-w">读</span></td><td>远程 mcp.sentry.dev/sse</td><td>可观测性接入 Agent</td></tr>
+<tr><td><strong>Snowflake / Databricks</strong></td><td>SQL 查询、Cortex Analyst/Search</td><td><span class="pill pill-w">读</span></td><td>远程托管</td><td>数据仓库 AI 接入</td></tr>
+<tr><td><strong>PayPal / Plaid / Square</strong></td><td>支付、金融账户连接</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程</td><td>金融 Agent 闭环</td></tr>
+<tr><td><strong>Replit</strong></td><td>一键接入 25+ MCP，支持自定义 server</td><td><span class="pill pill-r">执行</span><span class="pill pill-w">读</span></td><td>远程 DCR OAuth</td><td>AI 原生开发平台</td></tr>
+<tr><td><strong>Intercom</strong></td><td>6 个只读工具：会话/联系人/搜索</td><td><span class="pill pill-w">读</span></td><td>远程 mcp.intercom.com</td><td>客服 Agent 接入</td></tr>
+<tr><td><strong>Pendo</strong></td><td>使用分析、分群、访客元数据</td><td><span class="pill pill-w">读</span></td><td>远程</td><td>产品分析 AI 化</td></tr>
+<tr><td><strong>Fireflies / Fathom / Granola</strong></td><td>会议转写/摘要/行动项</td><td><span class="pill pill-w">读</span></td><td>远程</td><td>会议 Agent</td></tr>
+<tr><td><strong>ClickUp</strong></td><td>任务/项目管理</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.clickup.com/mcp</td><td>项目管理 Agent</td></tr>
+<tr><td><strong>MongoDB / Neon / Redis / Elasticsearch</strong></td><td>数据库 CRUD、查询、分支</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>本地 + 远程</td><td>数据库 AI 接入</td></tr>
+</tbody>
+</table>
+
+<h2>三、国内 SaaS 与大厂 MCP 能力一览</h2>
+<p>国内生态呈现"<strong>大厂平台市场聚合 + SaaS 单点接入</strong>"的双轨格局。</p>
+
+<h3>3.1 大厂平台（MCP 市场/托管）</h3>
+<table>
+<thead><tr><th>平台</th><th>上线</th><th>形态</th><th>核心能力</th></tr></thead>
+<tbody>
+<tr><td><strong>阿里云百炼</strong></td><td>2025-04-09</td><td>全生命周期 MCP 服务</td><td>函数计算 + 200+ 大模型 + 近百款 MCP 服务（高德/无影/Fetch/Notion/博查），5 分钟搭 Agent；Qwen3 原生支持 MCP</td></tr>
+<tr><td><strong>腾讯云知识引擎</strong></td><td>2025-04-14</td><td>MCP 插件托管</td><td>腾讯位置服务/EdgeOne Pages/Airbnb/Figma/微信读书；标准/工作流/Agent 三种模式</td></tr>
+<tr><td><strong>字节扣子空间</strong></td><td>2025-04-18</td><td>MCP 扩展体系</td><td>飞书多维表格/GitHub/MySQL/天气/地图/高德</td></tr>
+<tr><td><strong>百度千帆 / Create</strong></td><td>2025-04-25</td><td>MCP 门户商店 + 全面兼容</td><td>全球首个电商交易 MCP、百度搜索 MCP server、百度地图 MCP（3/21 国内首家地图兼容）</td></tr>
+<tr><td><strong>腾讯云 MCP Hub</strong></td><td>持续</td><td>MCP 服务目录</td><td>上千个 MCP 服务，覆盖办公/数据/开发场景</td></tr>
+</tbody>
+</table>
+
+<h3>3.2 SaaS 单点接入（含 Skill/CLI/MCP 多形态）</h3>
+<table>
+<thead><tr><th>公司</th><th>暴露能力</th><th>能力类型</th><th>形态</th></tr></thead>
+<tbody>
+<tr><td><strong>飞书 / Lark</strong></td><td>消息/文档/日历/任务/多维表格/审批</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>Skill + CLI + MCP（三形态全开）</td></tr>
+<tr><td><strong>钉钉</strong></td><td>通讯录/日历/AI 表格/审批/消息</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>Skill + CLI + MCP，MCP 广场 100+ 能力</td></tr>
+<tr><td><strong>企业微信</strong></td><td>消息收发/通讯录管理</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>CLI + Skill + MCP</td></tr>
+<tr><td><strong>腾讯文档</strong></td><td>创建/编辑在线文档、知识库管理、AI PPT</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>官方 MCP（docs.qq.com/openapi/mcp）</td></tr>
+<tr><td><strong>金山文档 / WPS</strong></td><td>文档读写、知识库</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
+<tr><td><strong>企查查</strong></td><td>企业工商/法律/股权/风险数据，5 server/151 原子工具</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>远程 StreamableHTTP（mcp.qcc.com）</td></tr>
+<tr><td><strong>天眼查 / 启信慧眼</strong></td><td>企业信息查询 / 企业征信</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
+<tr><td><strong>支付宝</strong></td><td>手机支付/网页支付/订单查询/退款</td><td><span class="pill pill-r">执行</span><span class="pill pill-e">写</span></td><td>国内首个支付 MCP（2025-04-15）+ 支付集成 Skill</td></tr>
+<tr><td><strong>百度/腾讯/高德地图</strong></td><td>地图/定位/路径/POI</td><td><span class="pill pill-x">搜索</span><span class="pill pill-r">执行</span></td><td>MCP（百度 3/21 国内首家）</td></tr>
+<tr><td><strong>腾讯问卷 / 金数据</strong></td><td>问卷/表单创建回收</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>MCP</td></tr>
+<tr><td><strong>腾讯会议</strong></td><td>会议创建/记录/智能纪要/转写</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>MCP</td></tr>
+<tr><td><strong>百度网盘 / 腾讯微云</strong></td><td>云端文件读写</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
+<tr><td><strong>IMA 知识库 / 腾讯乐享</strong></td><td>知识库搜索/文档创建</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
+<tr><td><strong>TAPD</strong></td><td>任务/缺陷/项目进度</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
+<tr><td><strong>通达信 / 同花顺 / 东方财富</strong></td><td>行情/财务/研报</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
+<tr><td><strong>金蝶 / 泛微 / 鼎捷 / 汉得</strong></td><td>ERP/财务/协同</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>通过百炼等平台接入</td></tr>
+</tbody>
+</table>
+
+<div class="callout">
+<p>根据 WorkBuddy 连接器状态面板，国内已有 <strong>70+ 家 SaaS</strong> 提供 MCP connector，覆盖供应链、HR、营销、财税、电商、法务、专利等垂直场景。</p>
+</div>
+
+<h2>四、能力类型分类框架</h2>
+<p>按"<strong>读 / 写 / 搜索 / 执行 / 通知</strong>"五维归纳：</p>
+<table>
+<thead><tr><th>能力类型</th><th>典型工具</th><th>代表 SaaS</th></tr></thead>
+<tbody>
+<tr><td><strong>读 (Read)</strong></td><td>list_tables、get_user、view deployments、query errors</td><td>Sentry、Notion、Pendo、Intercom、Snowflake</td></tr>
+<tr><td><strong>写 (Write)</strong></td><td>create issue/page、send message、update deal</td><td>Linear、Notion、Slack、HubSpot、Salesforce</td></tr>
+<tr><td><strong>搜索 (Search)</strong></td><td>code search、fuzzy search、search docs、跨应用知识搜索</td><td>GitHub、企查查、腾讯乐享、Notion</td></tr>
+<tr><td><strong>执行 (Execute)</strong></td><td>支付扣款、部署代码、触发 Zapier 工作流、预订会议室</td><td>Stripe、Cloudflare、Zapier、支付宝、腾讯会议</td></tr>
+<tr><td><strong>通知 (Notify)</strong></td><td>群机器人消息推送</td><td>Slack、钉钉、企业微信、飞书</td></tr>
+</tbody>
+</table>
+<p><strong>粒度演进趋势</strong>：早期 server 多为"读+少量写"，2026 年向"端到端商业闭环"演进——Stripe 25 工具、Cloudflare 2500 端点、企查查 151 工具、支付宝完整收款闭环。</p>
+
+<h2>五、国内 vs 国外差异分析</h2>
+<table>
+<thead><tr><th>维度</th><th>国外</th><th>国内</th></tr></thead>
+<tbody>
+<tr><td><strong>部署形态</strong></td><td>SaaS 直发官方远程 MCP（mcp.xxx.com）</td><td>多走大厂平台市场模式（百炼/千帆/扣子/TraeWork）</td></tr>
+<tr><td><strong>鉴权</strong></td><td>OAuth 2.1 + PKCE + 细粒度 scope 为主</td><td>API Key/Bearer 居多，OAuth 与细粒度权限开发中</td></tr>
+<tr><td><strong>能力品类</strong></td><td>通用协作/CRM/支付/DevOps/数据库</td><td>强数据型（企查查 4 亿企业）+ 支付 + 地图 + 协同</td></tr>
+<tr><td><strong>路径选择</strong></td><td>直接面向 Claude/Cursor/ChatGPT</td><td>走大厂 Host 聚合，再做自建入口</td></tr>
+<tr><td><strong>生态卡位</strong></td><td>单家 SaaS 独立卡位 Agent 分发</td><td>大厂抢"AI 流量入口"，SaaS 借平台分发</td></tr>
+<tr><td><strong>治理重点</strong></td><td>OAuth/SSO/审计/客户端白名单（Vercel）</td><td>二次加密+鉴权健全（阿里云）</td></tr>
+<tr><td><strong>标准化</strong></td><td>已进 Linux Foundation，NIST 制定互操作 profile</td><td>跟随国际标准，国内大厂各自建市场</td></tr>
+</tbody>
+</table>
+
+<h2>六、未来 SaaS 在 MCP 层面的 7 大趋势</h2>
+
+<div class="trend">
+<h4>趋势 1：本地 stdio → 远程 OAuth 托管（已成主流）</h4>
+<p>2026 年新发布的官方 server 几乎全部采用 HTTP/SSE + OAuth 2.1 远程托管，用户"输入 URL 即用"。Streamable HTTP 取代 stdio，让 MCP server 能挂在云负载均衡和 API 网关后。本地 stdio 仍保留于 IDE 工具/文件系统等"本地信任"场景。</p>
+</div>
+
+<div class="trend">
+<h4>趋势 2：大厂竞相做 MCP 市场（国内特有且最激烈）</h4>
+<p>阿里云百炼、腾讯云知识引擎 + MCP Hub、百度千帆 + MCP Store、字节扣子、TraeWork 等抢"AI 流量入口"。对标智能手机"应用商店引爆生态"的剧本，MCP 市场可能成为 AI 时代的分发钥匙。</p>
+</div>
+
+<div class="trend">
+<h4>趋势 3：从"只读"到"读写+执行"端到端闭环</h4>
+<p>能力从"让 AI 看到数据"升级为"让 AI 完成业务"。Stripe 完整支付闭环、支付宝收款闭环、Cloudflare 部署闭环、Zapier 8000 应用编排是典型。下一阶段会向高价值写操作（退款、合同签署、资金转移）延伸，伴随 human-in-the-loop 审批。</p>
+</div>
+
+<div class="trend">
+<h4>趋势 4：安全与治理从"可选"变"必选"</h4>
+<p>MCP 2026 路线图三大焦点：OAuth 2.1 默认化、审计日志标准化、网关/代理模式。NIST AI Agent Standards Initiative 预计 2026 Q4 发布互操作 profile；EU AI Act 2026-08 全面执行，高风险 AI 系统的 MCP 调用需满足网络安全/日志/人类监督要求。独立扫描显示多数公开 MCP server 存在路径穿越/命令注入/SSRF 风险——治理层是下一阶段的核心战场。</p>
+</div>
+
+<div class="trend">
+<h4>趋势 5：MCP + A2A 双协议栈成为企业编排底座</h4>
+<p><strong>MCP</strong> 管 agent-to-tool，<strong>A2A (Agent-to-Agent)</strong> 管 agent-to-agent 委托。A2A 已在 150+ 组织生产使用。两者共同构成 2027 年多厂商企业 Agent 编排的骨干。SaaS 不仅要暴露 MCP，还要考虑被多 Agent 协作调用时的状态/会话/委托语义。</p>
+</div>
+
+<div class="trend">
+<h4>趋势 6：SaaS 产品形态从"Dashboard+API"转向"Agent 调用即服务"</h4>
+<p>Cloudflare 明确称"首批 MCP-first 企业有先发优势"。Forbes 通过 MCP 把内容运营开发依赖去掉，年省 18000 工时、落地页转化率翻倍。这意味着 SaaS 的<strong>第一入口</strong>正在从人机交互界面（Web UI）让位给 Agent 调用接口（MCP tools）。产品设计要同时服务"人"和"Agent"两类消费者——API 描述要语义化、错误要结构化（RFC 7807）、响应要强类型。</p>
+</div>
+
+<div class="trend">
+<h4>趋势 7：垂直行业与遗留系统的 MCP 化是下一片蓝海</h4>
+<p>目前<strong>饱和</strong>：CRM、DevOps、云数据库、协作通信。<strong>部分覆盖</strong>：现代 ERP（Dynamics 365）、医疗（FHIR）、电商（Shopify）。<strong>严重缺口</strong>：遗留 SAP ERP、大型机、受监管金融基础设施。SaaS 公司若能把垂直行业深度能力（如合同审查、临床试验、合规审计、供应链对账）封装为 MCP server，将在 Agent 时代获得<strong>行业级卡位</strong>。</p>
+</div>
+
+<h2>七、给 SaaS 公司的行动建议</h2>
+<ol>
+<li><strong>现在就出 MCP server</strong>：不接入 = 站在 Agent 分发之外。先覆盖读+搜索，再逐步开放写与执行。</li>
+<li><strong>远程优先 + OAuth 2.1</strong>：远程托管 + OAuth + PKCE 是 2026 默认，降低用户接入摩擦。</li>
+<li><strong>按数据域拆分 server</strong>：参照 Pinterest 多 domain-specific server 模式，避免单体 server。</li>
+<li><strong>审计日志从第一天起</strong>：记录 who/which model/what tool/what args/what result，满足 EU AI Act 与企业采购要求。</li>
+<li><strong>细粒度 scope</strong>：把现有 RBAC 映射为 read:* / write:* scope，敏感操作用 Rich Authorization Requests 做一次性授权。</li>
+<li><strong>机器可读的信任清单</strong>：在 README/manifest 中声明"读什么/写什么/副作用/失败模式"——H2 可能会被规范正式化。</li>
+<li><strong>国内 SaaS 优先上大厂市场</strong>：借百炼/千帆/扣子/MCP Hub 分发，再建自建入口；同时关注 NIST 互操作 profile，避免被单一市场绑定。</li>
+<li><strong>垂直行业是蓝海</strong>：把行业深度能力（法务、财税、医疗、制造）封装为 MCP，抢行业级卡位。</li>
+</ol>
+
+<h2>八、核心结论</h2>
+<p>MCP 已从 2024 年的开源协议演变为 <strong>2026 年 SaaS AI 接入的事实标准</strong>。</p>
+<ul>
+<li><strong>国外</strong>：SaaS 偏"直发远程 server + OAuth"，治理与审计跟进，企业级硬化是当前阶段焦点。</li>
+<li><strong>国内</strong>：大厂偏"平台市场聚合 + 生态卡位"，SaaS 借平台分发，支付/地图/企业数据等强数据型能力率先 MCP 化。</li>
+<li><strong>未来 18 个月</strong>：远程托管 + OAuth 2.1 + 审计网关成为默认；MCP + A2A 双协议栈构成企业 Agent 编排骨架；垂直行业与遗留系统的 MCP 化是最大蓝海；SaaS 产品形态从"Dashboard + API"加速转向"Agent 调用即服务"。</li>
+</ul>
+
+<blockquote>
+<p>对 SaaS 公司而言，MCP 不是"是否要接"的问题，而是"以什么粒度、什么治理、什么路径接"的问题。</p>
+</blockquote>
+
+<hr>
+
+<h2>附录：关键数据源</h2>
+<ul>
+<li><a href="https://modelcontextprotocol.io">Anthropic MCP 官方</a></li>
+<li><a href="https://registry.modelcontextprotocol.io">官方 MCP Registry</a></li>
+<li><a href="https://www.pulsemcp.com">PulseMCP</a></li>
+<li><a href="https://github.com/microchipgnu/awesome-remote-mcp-servers">awesome-remote-mcp-servers</a></li>
+<li><a href="https://mcpservers.org">mcpservers.org</a></li>
+<li><a href="https://smithery.ai">Smithery MCP 市场</a></li>
+<li><a href="https://cloud.tencent.com/developer/mcp">腾讯云 MCP Hub</a></li>
+<li><a href="https://docs.qq.com/open/document/">腾讯文档 MCP</a></li>
+<li><a href="https://open.feishu.cn">飞书开放</a></li>
+<li><a href="https://open.dingtalk.com">钉钉开放</a></li>
+<li><a href="https://github.com/WecomTeam/wecom-cli">企业微信 CLI</a></li>
+<li><a href="https://open.alipay.com">支付宝开放平台</a></li>
+<li><a href="https://www.stcn.com/article/detail/1764588.html">证券时报 MCP 报道</a></li>
+<li><a href="https://www.digitalapplied.com/blog/mcp-ecosystem-h1-2026-retrospective-adoption-data-points">MCP 生态回顾 H1 2026</a></li>
+<li><a href="https://theagentics.co/insights/the-enterprise-mcp-guide-2026">企业 MCP 指南 2026</a></li>
+<li><a href="https://tyk.io/learning-center/is-mcp-dead-in-2026-why-enterprises-still-need-mcp">MCP 是否已死 2026</a></li>
+</ul>
+
+<footer>
+  调研：WorkBuddy · netguo · 2026-08-10 &nbsp;|&nbsp; 知识库：netguo/aiwork
+</footer>
+</div>
+</body>
+</html>

@@ -41,6 +41,12 @@ AI 技术选型与研究报告合集。
 | [风控 AI 项目搜索与分类报告](https://netguo.github.io/aiwork/risk-control/risk-control-ai-projects.html) | 16 组关键词搜索 GitHub，筛选 59 个风控相关 AI 项目，分 10 大类 | 2026-07-28 |
 | [大模型风控项目深度对比](https://netguo.github.io/aiwork/risk-control/fraud-credit-risk-llm-projects.html) | 14 组 LLM 关键词搜索，筛选 15 个 LLM/Agent 相关风控项目，6 个关键项目深度调研 | 2026-07-28 |
 
+### SaaS MCP 调研
+
+| 报告 | 说明 | 日期 |
+|------|------|------|
+| [SaaS 公司 MCP 能力调研报告](https://netguo.github.io/aiwork/saas-mcp/saas-mcp-capabilities-research.html) | 国内外 SaaS 公司 MCP 能力暴露全景（国际 20+ 家、国内 70+ 家），5 维能力分类、国内外差异分析、7 大未来趋势、行动建议 | 2026-08-10 |
+
 ### Claude 博客
 
 | 报告 | 说明 | 日期 |
@@ -58,6 +64,7 @@ AI 技术选型与研究报告合集。
 | RAG 增强层 | LightRAG (38K Star) | 图+向量双层检索、极轻量、EMNLP 2025 论文背书 |
 | AI 记忆层 | Mem0 (62K Star) | 通用记忆层，插件式集成，1-2 天可落地 |
 | 风控数据层 | 基础设施层切入 | API+MCP 暴露，按量计费引流 + 效果分润变现 |
+| SaaS AI 接入 | MCP 协议优先 | 2026 事实标准，不接入 = 站在 Agent 分发之外 |
 
 ## 仓库结构
 
@@ -69,6 +76,7 @@ aiwork/
 ├── ai-knowledge/       # AI 知识沉淀工具
 ├── risk-control/       # 风控 AI 项目调研
 ├── claude-blog/        # Claude 官方博客翻译
+├── saas-mcp/           # SaaS MCP 能力与趋势调研
 └── README.md           # 索引
 ```
 
