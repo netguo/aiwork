@@ -47,6 +47,7 @@
   .pill-w{background:#E6F1FB;color:#185FA5}
   .pill-e{background:#E1F5EE;color:#0F6E56}
   .pill-x{background:#FAEEDA;color:#854F0B}
+  .ts{font-size:11px;color:var(--muted);font-weight:400}
   @media(max-width:640px){.wrap{padding:24px 16px 60px} table{font-size:12px} th,td{padding:6px}}
 </style>
 </head>
@@ -91,29 +92,29 @@
 <table>
 <thead><tr><th>公司</th><th>核心暴露能力</th><th>能力类型</th><th>部署形态</th><th>战略意义</th></tr></thead>
 <tbody>
-<tr><td><strong>Notion</strong></td><td>搜索工作区、读写页面/数据库/评论</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.notion.com + 本地</td><td>AI 知识中枢</td></tr>
-<tr><td><strong>GitHub</strong></td><td>仓库/PR/Issue、代码搜索、Actions、安全告警</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span><span class="pill pill-r">执行</span></td><td>远程 api.githubcopilot.com/mcp + 本地</td><td>开发者生态护城河</td></tr>
-<tr><td><strong>Linear</strong></td><td>Issue/项目/Sprint，25+ 工具（含只读端点）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.linear.app</td><td>AI 原生研发工作流</td></tr>
-<tr><td><strong>Slack</strong></td><td>频道/消息/会话/Canvas，伙伴审批门控</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 Slack-hosted</td><td>通信入口卡位</td></tr>
-<tr><td><strong>Stripe</strong></td><td>25 工具：客户/产品/支付/订阅/发票/退款/争议</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程 mcp.stripe.com</td><td>支付闭环"最后一公里"</td></tr>
-<tr><td><strong>Cloudflare</strong></td><td>Workers/KV/R2/D1/Pages/DNS，2500+ API 端点，13 个细分 server</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程多端点</td><td>边缘计算 AI 接口（参考实现）</td></tr>
-<tr><td><strong>Supabase</strong></td><td>list_tables/execute_sql/migrations/Edge Functions/分支</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程 mcp.supabase.com/mcp</td><td>后端即服务 AI 化</td></tr>
-<tr><td><strong>Vercel</strong></td><td>项目/部署/环境变量/日志/文档搜索</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.vercel.com</td><td>前端部署闭环</td></tr>
-<tr><td><strong>Atlassian</strong></td><td>Jira 工作项、Confluence 页面、批量操作</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.atlassian.com/v1/sse</td><td>企业协作 AI 入口</td></tr>
-<tr><td><strong>Figma</strong></td><td>读取设计/Token/组件；同时是 MCP 客户端</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span><span class="pill pill-e">写</span></td><td>远程</td><td>设计-代码桥梁</td></tr>
-<tr><td><strong>Asana</strong></td><td>任务/项目/评论/截止日期</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.asana.com/v2/mcp</td><td>工作流 AI 协作</td></tr>
-<tr><td><strong>HubSpot</strong></td><td>CRM contacts/companies/deals/tickets（200+ ops）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.hubspot.com</td><td>销售 CRM 自动化</td></tr>
-<tr><td><strong>Salesforce</strong></td><td>CRM 记录、SOQL 查询（Enterprise+，2026-04 GA）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 Salesforce-hosted</td><td>企业 CRM AI 化</td></tr>
-<tr><td><strong>Zapier</strong></td><td>跨 8000+ 应用执行工作流</td><td><span class="pill pill-r">执行</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.zapier.com</td><td>自动化中枢放大</td></tr>
-<tr><td><strong>Sentry</strong></td><td>错误/性能/replay 查询</td><td><span class="pill pill-w">读</span></td><td>远程 mcp.sentry.dev/sse</td><td>可观测性接入 Agent</td></tr>
-<tr><td><strong>Snowflake / Databricks</strong></td><td>SQL 查询、Cortex Analyst/Search</td><td><span class="pill pill-w">读</span></td><td>远程托管</td><td>数据仓库 AI 接入</td></tr>
-<tr><td><strong>PayPal / Plaid / Square</strong></td><td>支付、金融账户连接</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程</td><td>金融 Agent 闭环</td></tr>
-<tr><td><strong>Replit</strong></td><td>一键接入 25+ MCP，支持自定义 server</td><td><span class="pill pill-r">执行</span><span class="pill pill-w">读</span></td><td>远程 DCR OAuth</td><td>AI 原生开发平台</td></tr>
-<tr><td><strong>Intercom</strong></td><td>6 个只读工具：会话/联系人/搜索</td><td><span class="pill pill-w">读</span></td><td>远程 mcp.intercom.com</td><td>客服 Agent 接入</td></tr>
-<tr><td><strong>Pendo</strong></td><td>使用分析、分群、访客元数据</td><td><span class="pill pill-w">读</span></td><td>远程</td><td>产品分析 AI 化</td></tr>
-<tr><td><strong>Fireflies / Fathom / Granola</strong></td><td>会议转写/摘要/行动项</td><td><span class="pill pill-w">读</span></td><td>远程</td><td>会议 Agent</td></tr>
-<tr><td><strong>ClickUp</strong></td><td>任务/项目管理</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.clickup.com/mcp</td><td>项目管理 Agent</td></tr>
-<tr><td><strong>MongoDB / Neon / Redis / Elasticsearch</strong></td><td>数据库 CRUD、查询、分支</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>本地 + 远程</td><td>数据库 AI 接入</td></tr>
+<tr><td><strong>Notion</strong><br><span class="ts">一体化工作空间，文档/数据库/知识库</span></td><td>搜索工作区、读写页面/数据库/评论</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.notion.com + 本地</td><td>AI 知识中枢</td></tr>
+<tr><td><strong>GitHub</strong><br><span class="ts">全球最大代码托管与协作平台，微软旗下</span></td><td>仓库/PR/Issue、代码搜索、Actions、安全告警</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span><span class="pill pill-r">执行</span></td><td>远程 api.githubcopilot.com/mcp + 本地</td><td>开发者生态护城河</td></tr>
+<tr><td><strong>Linear</strong><br><span class="ts">面向产品研发的现代 issue 跟踪与冲刺管理工具</span></td><td>Issue/项目/Sprint，25+ 工具（含只读端点）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.linear.app</td><td>AI 原生研发工作流</td></tr>
+<tr><td><strong>Slack</strong><br><span class="ts">企业即时协作通信平台，Salesforce 旗下</span></td><td>频道/消息/会话/Canvas，伙伴审批门控</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 Slack-hosted</td><td>通信入口卡位</td></tr>
+<tr><td><strong>Stripe</strong><br><span class="ts">在线支付与商户基础设施，开发者首选支付 API</span></td><td>25 工具：客户/产品/支付/订阅/发票/退款/争议</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程 mcp.stripe.com</td><td>支付闭环"最后一公里"</td></tr>
+<tr><td><strong>Cloudflare</strong><br><span class="ts">边缘网络/CDN/安全与边缘计算平台</span></td><td>Workers/KV/R2/D1/Pages/DNS，2500+ API 端点，13 个细分 server</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程多端点</td><td>边缘计算 AI 接口（参考实现）</td></tr>
+<tr><td><strong>Supabase</strong><br><span class="ts">开源 Firebase 替代，Postgres+Auth+存储后端即服务</span></td><td>list_tables/execute_sql/migrations/Edge Functions/分支</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程 mcp.supabase.com/mcp</td><td>后端即服务 AI 化</td></tr>
+<tr><td><strong>Vercel</strong><br><span class="ts">前端云平台，Next.js 母公司，前后端部署闭环</span></td><td>项目/部署/环境变量/日志/文档搜索</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.vercel.com</td><td>前端部署闭环</td></tr>
+<tr><td><strong>Atlassian</strong><br><span class="ts">Jira/Confluence 企业协作软件厂商（澳大利亚）</span></td><td>Jira 工作项、Confluence 页面、批量操作</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.atlassian.com/v1/sse</td><td>企业协作 AI 入口</td></tr>
+<tr><td><strong>Figma</strong><br><span class="ts">浏览器端协作式 UI 设计工具，Adobe 收购</span></td><td>读取设计/Token/组件；同时是 MCP 客户端</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span><span class="pill pill-e">写</span></td><td>远程</td><td>设计-代码桥梁</td></tr>
+<tr><td><strong>Asana</strong><br><span class="ts">任务与项目管理 SaaS，Dustin Moskovitz 创立</span></td><td>任务/项目/评论/截止日期</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.asana.com/v2/mcp</td><td>工作流 AI 协作</td></tr>
+<tr><td><strong>HubSpot</strong><br><span class="ts">面向中小企业的营销/销售/服务一体化 CRM</span></td><td>CRM contacts/companies/deals/tickets（200+ ops）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.hubspot.com</td><td>销售 CRM 自动化</td></tr>
+<tr><td><strong>Salesforce</strong><br><span class="ts">全球 CRM 龙头，云软件标杆</span></td><td>CRM 记录、SOQL 查询（Enterprise+，2026-04 GA）</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>远程 Salesforce-hosted</td><td>企业 CRM AI 化</td></tr>
+<tr><td><strong>Zapier</strong><br><span class="ts">无代码自动化集成平台，连接 8000+ 应用</span></td><td>跨 8000+ 应用执行工作流</td><td><span class="pill pill-r">执行</span><span class="pill pill-x">搜索</span></td><td>远程 mcp.zapier.com</td><td>自动化中枢放大</td></tr>
+<tr><td><strong>Sentry</strong><br><span class="ts">应用错误监控、性能与 replay 可观测性平台</span></td><td>错误/性能/replay 查询</td><td><span class="pill pill-w">读</span></td><td>远程 mcp.sentry.dev/sse</td><td>可观测性接入 Agent</td></tr>
+<tr><td><strong>Snowflake / Databricks</strong><br><span class="ts">云数据仓库 / 数据湖仓+AI 统一平台（Spark 母公司）</span></td><td>SQL 查询、Cortex Analyst/Search</td><td><span class="pill pill-w">读</span></td><td>远程托管</td><td>数据仓库 AI 接入</td></tr>
+<tr><td><strong>PayPal / Plaid / Square</strong><br><span class="ts">全球在线支付 / 金融账户连接 API / 中小商户支付硬件（Block）</span></td><td>支付、金融账户连接</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>远程</td><td>金融 Agent 闭环</td></tr>
+<tr><td><strong>Replit</strong><br><span class="ts">浏览器端 AI 原生开发与托管平台</span></td><td>一键接入 25+ MCP，支持自定义 server</td><td><span class="pill pill-r">执行</span><span class="pill pill-w">读</span></td><td>远程 DCR OAuth</td><td>AI 原生开发平台</td></tr>
+<tr><td><strong>Intercom</strong><br><span class="ts">客户沟通、客服支持与消息平台</span></td><td>6 个只读工具：会话/联系人/搜索</td><td><span class="pill pill-w">读</span></td><td>远程 mcp.intercom.com</td><td>客服 Agent 接入</td></tr>
+<tr><td><strong>Pendo</strong><br><span class="ts">产品使用分析、用户引导与反馈</span></td><td>使用分析、分群、访客元数据</td><td><span class="pill pill-w">读</span></td><td>远程</td><td>产品分析 AI 化</td></tr>
+<tr><td><strong>Fireflies / Fathom / Granola</strong><br><span class="ts">AI 会议录制、转写与笔记工具（三选一代表）</span></td><td>会议转写/摘要/行动项</td><td><span class="pill pill-w">读</span></td><td>远程</td><td>会议 Agent</td></tr>
+<tr><td><strong>ClickUp</strong><br><span class="ts">一体化生产力、文档与项目管理</span></td><td>任务/项目管理</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>远程 mcp.clickup.com/mcp</td><td>项目管理 Agent</td></tr>
+<tr><td><strong>MongoDB / Neon / Redis / Elasticsearch</strong><br><span class="ts">文档型NoSQL / Serverless Postgres / 内存数据库 / 开源搜索分析引擎</span></td><td>数据库 CRUD、查询、分支</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>本地 + 远程</td><td>数据库 AI 接入</td></tr>
 </tbody>
 </table>
 
@@ -124,11 +125,11 @@
 <table>
 <thead><tr><th>平台</th><th>上线</th><th>形态</th><th>核心能力</th></tr></thead>
 <tbody>
-<tr><td><strong>阿里云百炼</strong></td><td>2025-04-09</td><td>全生命周期 MCP 服务</td><td>函数计算 + 200+ 大模型 + 近百款 MCP 服务（高德/无影/Fetch/Notion/博查），5 分钟搭 Agent；Qwen3 原生支持 MCP</td></tr>
-<tr><td><strong>腾讯云知识引擎</strong></td><td>2025-04-14</td><td>MCP 插件托管</td><td>腾讯位置服务/EdgeOne Pages/Airbnb/Figma/微信读书；标准/工作流/Agent 三种模式</td></tr>
-<tr><td><strong>字节扣子空间</strong></td><td>2025-04-18</td><td>MCP 扩展体系</td><td>飞书多维表格/GitHub/MySQL/天气/地图/高德</td></tr>
-<tr><td><strong>百度千帆 / Create</strong></td><td>2025-04-25</td><td>MCP 门户商店 + 全面兼容</td><td>全球首个电商交易 MCP、百度搜索 MCP server、百度地图 MCP（3/21 国内首家地图兼容）</td></tr>
-<tr><td><strong>腾讯云 MCP Hub</strong></td><td>持续</td><td>MCP 服务目录</td><td>上千个 MCP 服务，覆盖办公/数据/开发场景</td></tr>
+<tr><td><strong>阿里云百炼</strong><br><span class="ts">阿里云大模型应用开发平台，集成通义千问与函数计算</span></td><td>2025-04-09</td><td>全生命周期 MCP 服务</td><td>函数计算 + 200+ 大模型 + 近百款 MCP 服务（高德/无影/Fetch/Notion/博查），5 分钟搭 Agent；Qwen3 原生支持 MCP</td></tr>
+<tr><td><strong>腾讯云知识引擎</strong><br><span class="ts">腾讯云企业知识库与大模型应用托管平台</span></td><td>2025-04-14</td><td>MCP 插件托管</td><td>腾讯位置服务/EdgeOne Pages/Airbnb/Figma/微信读书；标准/工作流/Agent 三种模式</td></tr>
+<tr><td><strong>字节扣子空间</strong><br><span class="ts">字节 AI Agent 协作办公与应用开发平台</span></td><td>2025-04-18</td><td>MCP 扩展体系</td><td>飞书多维表格/GitHub/MySQL/天气/地图/高德</td></tr>
+<tr><td><strong>百度千帆 / Create</strong><br><span class="ts">百度大模型平台与 AI 应用开发，文心大模型底座</span></td><td>2025-04-25</td><td>MCP 门户商店 + 全面兼容</td><td>全球首个电商交易 MCP、百度搜索 MCP server、百度地图 MCP（3/21 国内首家地图兼容）</td></tr>
+<tr><td><strong>腾讯云 MCP Hub</strong><br><span class="ts">腾讯云提供的 MCP 服务目录与托管市场</span></td><td>持续</td><td>MCP 服务目录</td><td>上千个 MCP 服务，覆盖办公/数据/开发场景</td></tr>
 </tbody>
 </table>
 
@@ -136,22 +137,22 @@
 <table>
 <thead><tr><th>公司</th><th>暴露能力</th><th>能力类型</th><th>形态</th></tr></thead>
 <tbody>
-<tr><td><strong>飞书 / Lark</strong></td><td>消息/文档/日历/任务/多维表格/审批</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>Skill + CLI + MCP（三形态全开）</td></tr>
-<tr><td><strong>钉钉</strong></td><td>通讯录/日历/AI 表格/审批/消息</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>Skill + CLI + MCP，MCP 广场 100+ 能力</td></tr>
-<tr><td><strong>企业微信</strong></td><td>消息收发/通讯录管理</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>CLI + Skill + MCP</td></tr>
-<tr><td><strong>腾讯文档</strong></td><td>创建/编辑在线文档、知识库管理、AI PPT</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>官方 MCP（docs.qq.com/openapi/mcp）</td></tr>
-<tr><td><strong>金山文档 / WPS</strong></td><td>文档读写、知识库</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
-<tr><td><strong>企查查</strong></td><td>企业工商/法律/股权/风险数据，5 server/151 原子工具</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>远程 StreamableHTTP（mcp.qcc.com）</td></tr>
-<tr><td><strong>天眼查 / 启信慧眼</strong></td><td>企业信息查询 / 企业征信</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
-<tr><td><strong>支付宝</strong></td><td>手机支付/网页支付/订单查询/退款</td><td><span class="pill pill-r">执行</span><span class="pill pill-e">写</span></td><td>国内首个支付 MCP（2025-04-15）+ 支付集成 Skill</td></tr>
-<tr><td><strong>百度/腾讯/高德地图</strong></td><td>地图/定位/路径/POI</td><td><span class="pill pill-x">搜索</span><span class="pill pill-r">执行</span></td><td>MCP（百度 3/21 国内首家）</td></tr>
-<tr><td><strong>腾讯问卷 / 金数据</strong></td><td>问卷/表单创建回收</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>MCP</td></tr>
-<tr><td><strong>腾讯会议</strong></td><td>会议创建/记录/智能纪要/转写</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>MCP</td></tr>
-<tr><td><strong>百度网盘 / 腾讯微云</strong></td><td>云端文件读写</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
-<tr><td><strong>IMA 知识库 / 腾讯乐享</strong></td><td>知识库搜索/文档创建</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
-<tr><td><strong>TAPD</strong></td><td>任务/缺陷/项目进度</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
-<tr><td><strong>通达信 / 同花顺 / 东方财富</strong></td><td>行情/财务/研报</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
-<tr><td><strong>金蝶 / 泛微 / 鼎捷 / 汉得</strong></td><td>ERP/财务/协同</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>通过百炼等平台接入</td></tr>
+<tr><td><strong>飞书 / Lark</strong><br><span class="ts">字节跳动一体化协作办公套件（文档/IM/日历/多维表格）</span></td><td>消息/文档/日历/任务/多维表格/审批</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>Skill + CLI + MCP（三形态全开）</td></tr>
+<tr><td><strong>钉钉</strong><br><span class="ts">阿里旗下企业智能移动办公平台</span></td><td>通讯录/日历/AI 表格/审批/消息</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>Skill + CLI + MCP，MCP 广场 100+ 能力</td></tr>
+<tr><td><strong>企业微信</strong><br><span class="ts">腾讯企业 IM 与客户运营平台，打通微信生态</span></td><td>消息收发/通讯录管理</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>CLI + Skill + MCP</td></tr>
+<tr><td><strong>腾讯文档</strong><br><span class="ts">腾讯在线文档协作工具，支持 Word/Excel/PPT</span></td><td>创建/编辑在线文档、知识库管理、AI PPT</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>官方 MCP（docs.qq.com/openapi/mcp）</td></tr>
+<tr><td><strong>金山文档 / WPS</strong><br><span class="ts">金山办公在线文档与办公套件</span></td><td>文档读写、知识库</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
+<tr><td><strong>企查查</strong><br><span class="ts">企业工商/法律/股权/风险信息查询平台（4 亿企业数据）</span></td><td>企业工商/法律/股权/风险数据，5 server/151 原子工具</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>远程 StreamableHTTP（mcp.qcc.com）</td></tr>
+<tr><td><strong>天眼查 / 启信慧眼</strong><br><span class="ts">企业信用信息查询 / 企业征信与风险监控 SaaS</span></td><td>企业信息查询 / 企业征信</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
+<tr><td><strong>支付宝</strong><br><span class="ts">蚂蚁集团旗下第三方支付平台，国民级支付入口</span></td><td>手机支付/网页支付/订单查询/退款</td><td><span class="pill pill-r">执行</span><span class="pill pill-e">写</span></td><td>国内首个支付 MCP（2025-04-15）+ 支付集成 Skill</td></tr>
+<tr><td><strong>百度/腾讯/高德地图</strong><br><span class="ts">国内主流地图与位置服务（高德属阿里）</span></td><td>地图/定位/路径/POI</td><td><span class="pill pill-x">搜索</span><span class="pill pill-r">执行</span></td><td>MCP（百度 3/21 国内首家）</td></tr>
+<tr><td><strong>腾讯问卷 / 金数据</strong><br><span class="ts">在线问卷、表单与数据收集工具</span></td><td>问卷/表单创建回收</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>MCP</td></tr>
+<tr><td><strong>腾讯会议</strong><br><span class="ts">腾讯视频会议与协作，含 AI 纪要</span></td><td>会议创建/记录/智能纪要/转写</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-r">执行</span></td><td>MCP</td></tr>
+<tr><td><strong>百度网盘 / 腾讯微云</strong><br><span class="ts">个人云端文件存储服务</span></td><td>云端文件读写</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
+<tr><td><strong>IMA 知识库 / 腾讯乐享</strong><br><span class="ts">腾讯 AI 知识库与企业知识协作平台</span></td><td>知识库搜索/文档创建</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
+<tr><td><strong>TAPD</strong><br><span class="ts">腾讯敏捷项目管理与缺陷追踪平台</span></td><td>任务/缺陷/项目进度</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>MCP</td></tr>
+<tr><td><strong>通达信 / 同花顺 / 东方财富</strong><br><span class="ts">金融行情与证券分析 / 金融数据与证券投资服务</span></td><td>行情/财务/研报</td><td><span class="pill pill-w">读</span><span class="pill pill-x">搜索</span></td><td>MCP</td></tr>
+<tr><td><strong>金蝶 / 泛微 / 鼎捷 / 汉得</strong><br><span class="ts">企业 ERP/财务/协同 OA 与数字化实施厂商</span></td><td>ERP/财务/协同</td><td><span class="pill pill-w">读</span><span class="pill pill-e">写</span></td><td>通过百炼等平台接入</td></tr>
 </tbody>
 </table>
 
@@ -159,76 +160,7 @@
 <p>根据 WorkBuddy 连接器状态面板，国内已有 <strong>70+ 家 SaaS</strong> 提供 MCP connector，覆盖供应链、HR、营销、财税、电商、法务、专利等垂直场景。</p>
 </div>
 
-<h2>四、SaaS 公司概要速查</h2>
-<p>下表给出报告中涉及主要公司的一句话业务简介，方便不熟悉某家公司的读者快速了解。</p>
-
-<h3>4.1 国际 SaaS 公司</h3>
-<table>
-<thead><tr><th style="width:32%">公司</th><th>业务概要</th></tr></thead>
-<tbody>
-<tr><td><strong>Notion</strong></td><td>一体化工作空间，文档/数据库/知识库/项目管理</td></tr>
-<tr><td><strong>GitHub</strong></td><td>全球最大代码托管与协作平台，微软旗下</td></tr>
-<tr><td><strong>Linear</strong></td><td>面向产品研发团队的现代 issue 跟踪与冲刺管理工具</td></tr>
-<tr><td><strong>Slack</strong></td><td>企业即时协作通信平台，Salesforce 旗下</td></tr>
-<tr><td><strong>Stripe</strong></td><td>在线支付与商户基础设施，开发者首选支付 API</td></tr>
-<tr><td><strong>Cloudflare</strong></td><td>边缘网络/CDN/安全与边缘计算平台</td></tr>
-<tr><td><strong>Supabase</strong></td><td>开源 Firebase 替代，Postgres + Auth + 存储后端即服务</td></tr>
-<tr><td><strong>Vercel</strong></td><td>前端云平台，Next.js 母公司，前后端部署闭环</td></tr>
-<tr><td><strong>Atlassian</strong></td><td>Jira / Confluence 企业协作软件厂商（澳大利亚）</td></tr>
-<tr><td><strong>Figma</strong></td><td>浏览器端协作式 UI 设计工具，Adobe 收购</td></tr>
-<tr><td><strong>Asana</strong></td><td>任务与项目管理 SaaS，Dustin Moskovitz 创立</td></tr>
-<tr><td><strong>HubSpot</strong></td><td>面向中小企业的营销/销售/服务一体化 CRM</td></tr>
-<tr><td><strong>Salesforce</strong></td><td>全球 CRM 龙头，云软件标杆</td></tr>
-<tr><td><strong>Zapier</strong></td><td>无代码自动化集成平台，连接 8000+ 应用</td></tr>
-<tr><td><strong>Sentry</strong></td><td>应用错误监控、性能与 replay 可观测性平台</td></tr>
-<tr><td><strong>Snowflake</strong></td><td>云数据仓库，主打数据云与协作</td></tr>
-<tr><td><strong>Databricks</strong></td><td>数据湖仓 + AI 统一平台，Spark 母公司</td></tr>
-<tr><td><strong>PayPal</strong></td><td>全球在线支付与钱包服务</td></tr>
-<tr><td><strong>Plaid</strong></td><td>金融账户数据连接 API，Visa 收购中</td></tr>
-<tr><td><strong>Square (Block)</strong></td><td>面向中小商户的支付硬件与服务</td></tr>
-<tr><td><strong>Replit</strong></td><td>浏览器端 AI 原生开发与托管平台</td></tr>
-<tr><td><strong>Intercom</strong></td><td>客户沟通、客服支持与消息平台</td></tr>
-<tr><td><strong>Pendo</strong></td><td>产品使用分析、用户引导与反馈</td></tr>
-<tr><td><strong>Fireflies / Fathom / Granola</strong></td><td>AI 会议录制、转写与笔记工具（三选一代表）</td></tr>
-<tr><td><strong>ClickUp</strong></td><td>一体化生产力、文档与项目管理</td></tr>
-<tr><td><strong>MongoDB</strong></td><td>文档型 NoSQL 数据库与 Atlas 云服务</td></tr>
-<tr><td><strong>Neon</strong></td><td>Serverless Postgres，支持分支与时间旅行</td></tr>
-<tr><td><strong>Redis</strong></td><td>内存数据库与缓存，Redis Labs 维护</td></tr>
-<tr><td><strong>Elasticsearch</strong></td><td>开源搜索与分析引擎，Elastic 公司</td></tr>
-</tbody>
-</table>
-
-<h3>4.2 国内 SaaS 与大厂</h3>
-<table>
-<thead><tr><th style="width:32%">公司 / 平台</th><th>业务概要</th></tr></thead>
-<tbody>
-<tr><td><strong>阿里云百炼</strong></td><td>阿里云大模型应用开发平台，集成通义千问与函数计算</td></tr>
-<tr><td><strong>腾讯云知识引擎</strong></td><td>腾讯云企业知识库与大模型应用托管平台</td></tr>
-<tr><td><strong>字节扣子空间 (Coze)</strong></td><td>字节 AI Agent 协作办公与应用开发平台</td></tr>
-<tr><td><strong>百度千帆</strong></td><td>百度大模型平台与 AI 应用开发，文心大模型底座</td></tr>
-<tr><td><strong>腾讯云 MCP Hub</strong></td><td>腾讯云提供的 MCP 服务目录与托管市场</td></tr>
-<tr><td><strong>飞书 / Lark</strong></td><td>字节跳动一体化协作办公套件（文档/IM/日历/多维表格）</td></tr>
-<tr><td><strong>钉钉</strong></td><td>阿里旗下企业智能移动办公平台</td></tr>
-<tr><td><strong>企业微信</strong></td><td>腾讯企业 IM 与客户运营平台，打通微信生态</td></tr>
-<tr><td><strong>腾讯文档</strong></td><td>腾讯在线文档协作工具，支持 Word/Excel/PPT</td></tr>
-<tr><td><strong>金山文档 / WPS</strong></td><td>金山办公在线文档与办公套件</td></tr>
-<tr><td><strong>企查查</strong></td><td>企业工商/法律/股权/风险信息查询平台（4 亿企业数据）</td></tr>
-<tr><td><strong>天眼查</strong></td><td>企业信用信息查询与商业关系挖掘平台</td></tr>
-<tr><td><strong>启信慧眼</strong></td><td>企业征信与风险监控 SaaS</td></tr>
-<tr><td><strong>支付宝</strong></td><td>蚂蚁集团旗下第三方支付平台，国民级支付入口</td></tr>
-<tr><td><strong>百度地图 / 腾讯地图 / 高德地图</strong></td><td>国内主流地图与位置服务（高德属阿里）</td></tr>
-<tr><td><strong>腾讯问卷 / 金数据</strong></td><td>在线问卷、表单与数据收集工具</td></tr>
-<tr><td><strong>腾讯会议</strong></td><td>腾讯视频会议与协作，含 AI 纪要</td></tr>
-<tr><td><strong>百度网盘 / 腾讯微云</strong></td><td>个人云端文件存储服务</td></tr>
-<tr><td><strong>IMA 知识库 / 腾讯乐享</strong></td><td>腾讯 AI 知识库与企业知识协作平台</td></tr>
-<tr><td><strong>TAPD</strong></td><td>腾讯敏捷项目管理与缺陷追踪平台</td></tr>
-<tr><td><strong>通达信</strong></td><td>金融行情与证券分析软件</td></tr>
-<tr><td><strong>同花顺 / 东方财富</strong></td><td>金融数据、财经资讯与证券投资服务</td></tr>
-<tr><td><strong>金蝶 / 泛微 / 鼎捷 / 汉得</strong></td><td>企业 ERP / 财务 / 协同 OA 与数字化实施厂商</td></tr>
-</tbody>
-</table>
-
-<h2>五、能力类型分类框架</h2>
+<h2>四、能力类型分类框架</h2>
 <p>按"<strong>读 / 写 / 搜索 / 执行 / 通知</strong>"五维归纳：</p>
 <table>
 <thead><tr><th>能力类型</th><th>典型工具</th><th>代表 SaaS</th></tr></thead>
@@ -242,7 +174,7 @@
 </table>
 <p><strong>粒度演进趋势</strong>：早期 server 多为"读+少量写"，2026 年向"端到端商业闭环"演进——Stripe 25 工具、Cloudflare 2500 端点、企查查 151 工具、支付宝完整收款闭环。</p>
 
-<h2>六、国内 vs 国外差异分析</h2>
+<h2>五、国内 vs 国外差异分析</h2>
 <table>
 <thead><tr><th>维度</th><th>国外</th><th>国内</th></tr></thead>
 <tbody>
@@ -256,7 +188,7 @@
 </tbody>
 </table>
 
-<h2>七、未来 SaaS 在 MCP 层面的 7 大趋势</h2>
+<h2>六、未来 SaaS 在 MCP 层面的 7 大趋势</h2>
 
 <div class="trend">
 <h4>趋势 1：本地 stdio → 远程 OAuth 托管（已成主流）</h4>
@@ -293,7 +225,7 @@
 <p>目前<strong>饱和</strong>：CRM、DevOps、云数据库、协作通信。<strong>部分覆盖</strong>：现代 ERP（Dynamics 365）、医疗（FHIR）、电商（Shopify）。<strong>严重缺口</strong>：遗留 SAP ERP、大型机、受监管金融基础设施。SaaS 公司若能把垂直行业深度能力（如合同审查、临床试验、合规审计、供应链对账）封装为 MCP server，将在 Agent 时代获得<strong>行业级卡位</strong>。</p>
 </div>
 
-<h2>八、给 SaaS 公司的行动建议</h2>
+<h2>七、给 SaaS 公司的行动建议</h2>
 <ol>
 <li><strong>现在就出 MCP server</strong>：不接入 = 站在 Agent 分发之外。先覆盖读+搜索，再逐步开放写与执行。</li>
 <li><strong>远程优先 + OAuth 2.1</strong>：远程托管 + OAuth + PKCE 是 2026 默认，降低用户接入摩擦。</li>
@@ -305,10 +237,10 @@
 <li><strong>垂直行业是蓝海</strong>：把行业深度能力（法务、财税、医疗、制造）封装为 MCP，抢行业级卡位。</li>
 </ol>
 
-<h2>九、垂直领域中小 SaaS 的 MCP 发展</h2>
+<h2>八、垂直领域中小 SaaS 的 MCP 发展</h2>
 <p>前文聚焦头部 SaaS 与大厂，本节专门看<strong>垂直领域的中小 SaaS</strong>——它们既不像 Notion/GitHub 有足够工程团队自建远程 server，也不像阿里腾讯有平台市场背书，但恰恰是 MCP 生态中"最被低估也最活跃"的一层。</p>
 
-<h3>9.1 国际垂直中小 SaaS 的 MCP 进展</h3>
+<h3>8.1 国际垂直中小 SaaS 的 MCP 进展</h3>
 <p>垂直中小 SaaS 接入 MCP 的速度远超预期，且<strong>按行业成簇出现</strong>：</p>
 <table>
 <thead><tr><th>行业</th><th>代表公司</th><th>MCP 形态与进展</th></tr></thead>
@@ -330,7 +262,7 @@
 <p><strong>SaaSpocalypse 模式</strong>：当 Claude Cowork 等通用 Agent 能直接完成"文本搬运型"工作流，核心价值仅是工作流编排（非专有数据）的中小 SaaS 首当其冲被替代——法律 CLM、文档审查、提案生成、HR 绩效评估是第一批。<strong>聪明的应对不是对抗，而是把自己变成带"专有数据 + 审计留痕"的 MCP server</strong>：通用 Agent 能调你的工具，但离不开你的行业数据与合规记录。</p>
 </div>
 
-<h3>9.2 国内垂直中小 SaaS 的 MCP 进展</h3>
+<h3>8.2 国内垂直中小 SaaS 的 MCP 进展</h3>
 <p>国内垂直中小 SaaS 已大面积接入 MCP，主要通过<strong>三条路径</strong>：① 大厂平台市场（百炼/千帆/扣子/MCP Hub）；② WorkBuddy 等客户端连接器生态；③ 自建官方远程 MCP。代表性案例：</p>
 <table>
 <thead><tr><th>行业</th><th>代表公司</th><th>MCP 形态与能力</th></tr></thead>
@@ -350,18 +282,18 @@
 </table>
 <p>根据 WorkBuddy 连接器状态面板，国内已有 <strong>70+ 家垂直 SaaS</strong> 提供 MCP connector，覆盖供应链、HR、营销、财税、电商、法务、专利、商标、征信、客服等十余个垂直场景。<strong>知识产权领域的智慧芽是国内垂直 SaaS MCP 化最彻底的样本</strong>——四种集成方式并存、按量计费、数据 + AI 能力同时对外暴露。</p>
 
-<h3>9.3 垂直中小 SaaS 的三条路径选择</h3>
+<h3>8.3 垂直中小 SaaS 的三条路径选择</h3>
 <ol>
 <li><strong>上大厂市场</strong>（最快、流量大）：接入百炼/千帆/扣子/MCP Hub，借平台分发，但受平台规则约束、数据可能过平台。</li>
 <li><strong>自建官方远程 MCP</strong>（可控、体现数据资产价值）：像智慧芽/企查查那样自托管远程 MCP + API Key/OAuth，直接面向 Claude/Cursor，但需自维护工程与鉴权。</li>
 <li><strong>第三方 MCP 托管</strong>（折中、省工程）：通过 Vinkius/Smithery/Pipedream 等托管平台把已有 API 包装成 MCP，适合没有专职 MCP 工程团队的小厂，但治理层依赖第三方。</li>
 </ol>
 
-<h3>9.4 机遇与挑战</h3>
+<h3>8.4 机遇与挑战</h3>
 <p><strong>机遇</strong>：垂直行业是 MCP 生态最大蓝海（遗留 SAP ERP、医疗 FHIR、受监管金融仍严重缺口）；垂直 SaaS 手握<strong>专有行业数据 + 行业 know-how</strong>，这是通用 Agent 无法替代的护城河；按量计费/按任务计费的新模式让中小 SaaS 不再依赖账号订阅。</p>
 <p><strong>挑战</strong>：① 工程能力不足——多数中小 SaaS 没有专职 MCP 团队；② 数据合规与审计要求高（医疗/金融/法律）；③ "SaaSpocalypse" 风险——纯工作流编排型 SaaS 若不绑定专有数据会被通用 Agent 直接替代；④ 平台依赖——上大厂市场可能失去直连用户。</p>
 
-<h2>十、核心结论</h2>
+<h2>九、核心结论</h2>
 <p>MCP 已从 2024 年的开源协议演变为 <strong>2026 年 SaaS AI 接入的事实标准</strong>。</p>
 <ul>
 <li><strong>国外</strong>：SaaS 偏"直发远程 server + OAuth"，治理与审计跟进，企业级硬化是当前阶段焦点。</li>
