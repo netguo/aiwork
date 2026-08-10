@@ -293,7 +293,262 @@
 <p><strong>机遇</strong>：垂直行业是 MCP 生态最大蓝海（遗留 SAP ERP、医疗 FHIR、受监管金融仍严重缺口）；垂直 SaaS 手握<strong>专有行业数据 + 行业 know-how</strong>，这是通用 Agent 无法替代的护城河；按量计费/按任务计费的新模式让中小 SaaS 不再依赖账号订阅。</p>
 <p><strong>挑战</strong>：① 工程能力不足——多数中小 SaaS 没有专职 MCP 团队；② 数据合规与审计要求高（医疗/金融/法律）；③ "SaaSpocalypse" 风险——纯工作流编排型 SaaS 若不绑定专有数据会被通用 Agent 直接替代；④ 平台依赖——上大厂市场可能失去直连用户。</p>
 
-<h2>九、核心结论</h2>
+<h2>九、受监管金融 SaaS 的 MCP 合规缺口</h2>
+
+<p>前文多次提及"受监管金融仍严重缺口"。这不是一句泛泛的判断——当通用 SaaS 的 MCP 部署率已突破 12%，<strong>金融行业仅 3%</strong> 达到广度生产部署（DreamFactory 2026 调研），差距来自监管合规而非技术能力。本节专项拆解这一缺口的成因、四大合规断点、先行者路径与国内外监管动态。</p>
+
+<div class="callout">
+  <strong>核心矛盾：</strong>MCP 协议本身不提供任何合规保证。协议规范将审计日志视为"可选工具"，而 SOX 要求 7 年留存、HIPAA 要求 6 年、PCI-DSS 要求 1 年、FedRAMP 要求 3 年——每一项监管都定义了日志"必须包含什么"，但 MCP 把这个定义留给了实现方。
+</div>
+
+<h3>9.1 四大合规缺口</h3>
+
+<p>Agentic AI Foundation 2026 路线图坦承：企业就绪是四条路线中"优先级最高且定义最少"的一条。具体而言，受监管企业采购 MCP 前必须解决的<strong>四个缺口</strong>：</p>
+
+<table>
+<thead><tr><th style="width:20%">缺口</th><th style="width:35%">现状</th><th style="width:25%">对应监管</th><th style="width:20%">MCP v2.1 进展</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>① SSO 集成认证</strong></td>
+  <td>53% 的公共 MCP server 仍使用静态 API Key，无法绑定到个人身份、无法按角色限权、无法选择性撤销</td>
+  <td>SOX 用户级访问控制；HIPAA 最小必要原则</td>
+  <td>强制 OAuth 2.1 + PKCE；CIMD 替代 DCR；但多跳代理链中下游 server 如何获知原始客户端授权上下文——<strong>尚未定义</strong></td>
+</tr>
+<tr>
+  <td><strong>② 结构化审计日志导出</strong></td>
+  <td>MCP 规范将审计日志视为可选工具；典型部署仅产生网络级工具调用日志，缺失"谁 → 为什么 → 用什么权限 → 操作了什么"的完整链路</td>
+  <td>SOX §404 访问控制有效性证据；HIPAA 审计日志；EU AI Act 可追溯性</td>
+  <td>路线图已标记为优先项，但工作组尚未正式成立</td>
+</tr>
+<tr>
+  <td><strong>③ 无损密钥轮换</strong></td>
+  <td>密钥/证书轮换期间在途会话中断，受监管系统不能容忍交易中途失败</td>
+  <td>PCI-DSS 密钥管理；DORA 运营韧性</td>
+  <td>未指定</td>
+</tr>
+<tr>
+  <td><strong>④ 多租户执行隔离</strong></td>
+  <td>同一 MCP server 实例服务多个租户时，执行环境、数据访问、审计上下文未做租户级隔离</td>
+  <td>SOC 2 Type II 租户隔离；GDPR 数据边界</td>
+  <td>未指定</td>
+</tr>
+</tbody>
+</table>
+
+<h3>9.2 四个治理断点</h3>
+
+<p>DataWalk 将 MCP 驱动的受监管工作流失败模式拆解为<strong>四个治理断点</strong>——身份归属失败会连锁引发其余三个的下游症状：</p>
+
+<table>
+<thead><tr><th style="width:20%">断点</th><th style="width:40%">监管者想要看到什么</th><th style="width:40%">典型 MCP 部署实际产出什么</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>身份归属</strong></td>
+  <td>具名人类用户，已认证，有记录的行动授权</td>
+  <td>Agent 会话 Token——背后的原始人类可能根本不出现在日志中</td>
+</tr>
+<tr>
+  <td><strong>审计完整性</strong></td>
+  <td>可审查的推理依据：为什么调用这个查询、为什么取这份数据</td>
+  <td>推理过程存在于 AI 模型上下文中，没有持久化记录</td>
+</tr>
+<tr>
+  <td><strong>数据驻留</strong></td>
+  <td>证据表明只触达了允许的数据、在允许的司法辖区内</td>
+  <td>数据驻留取决于每个被连接系统，脱敏是实现方自行决定的</td>
+</tr>
+<tr>
+  <td><strong>证据链</strong></td>
+  <td>防篡改审计记录，链接人类→决策→数据→行动</td>
+  <td>网络级工具调用日志，回溯到人类和推理的链接缺失</td>
+</tr>
+</tbody>
+</table>
+
+<h3>9.3 NSA 安全警告与英国监管压力</h3>
+
+<p>2026 年 5 月，美国国家安全局（NSA）发布 MCP 安全指南，警告该协议存在以下风险：</p>
+<ul>
+  <li><strong>弱认证</strong>：静态密钥泛滥，缺乏 OAuth 2.1 强制执行</li>
+  <li><strong>审批控制不足</strong>：Agent 可在运行时自主调用工具，无逐步人工审核</li>
+  <li><strong>不安全的数据处理</strong>：敏感数据可能未经脱敏即进入模型上下文</li>
+  <li><strong>审计日志缺失</strong>：无法满足监管检查"谁在何时做了什么"的基本要求</li>
+  <li><strong>指令注入风险</strong>：恶意工具描述可劫持 Agent 行为，产生"未被充分追踪的攻击路径"</li>
+</ul>
+<p>该警告对英国银行尤为尖锐：DORA 的 ICT 第三方规则要求关键功能可观测；FCA 要求银行"展示"AI 测试而非"描述"AI 测试；运营韧性规则要求识别重要业务服务并压测——而自主 AI Agent 横跨反欺诈、KYC 和客户系统，默认落在多数银行的重要业务服务范围内。Resultsense 预计 FCA 和 PRA 将在 2026 下半年的 ICT 和 AI 主题审查中开始提出 MCP 专项问题。</p>
+
+<div class="callout">
+  <strong>行业现实：</strong>58% 的金融机构将安全顾虑列为部署 MCP 的首要障碍；仅 3% 达到广度生产部署（跨行业为 12%）；43% 的金融机构指派安全团队作为 MCP 的主要管理者。安全不是部署的阻碍——安全是部署的<strong>前提</strong>。
+</div>
+
+<h3>9.4 先行者：谁在弥合缺口</h3>
+
+<p>尽管缺口巨大，一批受监管机构和 RegTech 厂商正在用不同路径弥合：</p>
+
+<table>
+<thead><tr><th style="width:22%">先行者</th><th style="width:18%">类型</th><th style="width:35%">MCP 做法</th><th style="width:25%">合规亮点</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>Bloomberg</strong></td>
+  <td>金融数据终端</td>
+  <td>联合牵头 MCP 金融服务兴趣组（FSIG），贡献审计/归属/数据谱系扩展提案</td>
+  <td>从协议层推动"防篡改、可移植的事件/声明模型"</td>
+</tr>
+<tr>
+  <td><strong>Saxo Bank</strong></td>
+  <td>在线券商</td>
+  <td>FSIG 联合主持人，输入受监管交易场景的部署约束</td>
+  <td>将 FCA/Danish FSA 合规约束转化为协议需求</td>
+</tr>
+<tr>
+  <td><strong>Moody's</strong></td>
+  <td>信用评级与风险数据</td>
+  <td>通过 Amazon Quick 提供<strong>专用 MCP server</strong>，覆盖 6 亿+实体的评级/研究/数据</td>
+  <td>将"数十年信用经验"编码为可审计的决策级输出</td>
+</tr>
+<tr>
+  <td><strong>Comply (ComplyAI)</strong></td>
+  <td>RegTech SaaS</td>
+  <td>2026-04 推出<strong>金融业首个合规 MCP Server</strong>：交易预审批、政策指引、合规晨报、自然语言报告</td>
+  <td>所有 Agent 操作在 Comply 平台留存审计日志，CCO 可查询"哪些员工有未关证明"</td>
+</tr>
+<tr>
+  <td><strong>新华财经</strong></td>
+  <td>国家级金融数据平台</td>
+  <td>2026-05 推出 MCP 服务矩阵：6 大类 30+ 服务（行情/宏观/企业/资讯/政策/研报）</td>
+  <td>数据来源可追溯、可审计；覆盖 18 万条政策法规，支持合规溯源</td>
+</tr>
+<tr>
+  <td><strong>企查查</strong></td>
+  <td>企业数据查询</td>
+  <td>5 层可信能力矩阵：原子工具→服务端→资源层→业务技能→全局约束；9 个 server / 197 项工具</td>
+  <td>KYB/UBO 场景全链路留存查询证据，契合金融强监管可审计要求</td>
+</tr>
+<tr>
+  <td><strong>Fintel Discovery</strong></td>
+  <td>开源金融数据</td>
+  <td>免费 MCP server，接入 FINRA BrokerCheck、SEC IAPD、SEC EDGAR 公开数据</td>
+  <td>面向 AI Agent 的合规尽调工具，无需认证即可调用</td>
+</tr>
+<tr>
+  <td><strong>IBM OpenPages 9.2</strong></td>
+  <td>GRC 平台</td>
+  <td>2026-03 发布，AI Agent 可与大型银行/保险公司的 GRC 工作流交互</td>
+  <td>将企业治理/风险/合规工作流暴露给 Agent，而非绕过</td>
+</tr>
+<tr>
+  <td><strong>东方财富</strong></td>
+  <td>金融信息服务</td>
+  <td>妙想 Claw 全面开放 + MCP 服务上线，覆盖行情/财务/研报数据</td>
+  <td>投研工具向"专业数据 + Skill/MCP + AI 工作流"延伸</td>
+</tr>
+<tr>
+  <td><strong>LSEG / Wolters Kluwer / First Data Bank</strong></td>
+  <td>受监管数据商</td>
+  <td>均已开始采用 MCP，但部署方案尚需叠加治理层</td>
+  <td>采用本身不等于合规——治理/审计/驻留/归属挑战仍需解决</td>
+</tr>
+</tbody>
+</table>
+
+<h3>9.5 国内监管动态</h3>
+
+<p>中国金融监管层在 2026 年密集出台 AI 安全与数据合规规则，直接约束 MCP 在金融场景的落地：</p>
+
+<ul>
+  <li><strong>金融监管总局</strong>：出台银行业保险业 AI 安全指导意见，金融机构 AI 应用从"功能落地"进入"安全、可控、可审计"阶段</li>
+  <li><strong>中国人民银行等</strong>：联合发布《金融业网络安全管理办法（征求意见稿）》，建立统一监管框架</li>
+  <li><strong>银行间市场商会</strong>：发布信息服务商自律新规，要求信息源/采集渠道/加工方法详细披露，利益冲突防范机制，信息服务与投资交易业务隔离</li>
+  <li><strong>跨境展业收紧</strong>：股票类跨境 TRS 新增业务暂停，跨境展业合规边界持续收紧</li>
+</ul>
+
+<p>国内金融 SaaS 的 MCP 落地面临<strong>双重约束</strong>：既要满足协议层的认证/审计/隔离要求，又要符合行业监管的数据出境、牌照准入、信息隔离等特有规则。企查查的"五层可信能力矩阵"和新华财经的"可追溯、可审计"数据基座是国内厂商对这一双重约束的代表性回应。</p>
+
+<h3>9.6 国际监管动态</h3>
+
+<ul>
+  <li><strong>FINRA</strong>：2026 年度监管报告首次设立 GenAI 专章（NEW FOR 2026），关注 AI 在反欺诈、通讯合规、交易监控中的风险</li>
+  <li><strong>SEC</strong>：Rule 17a-4(f) 要求 WORM 存储策略 + FIPS 140-3 认证 HMAC-SHA384 签名链；FINRA Rule 4511(c) 要求操作日志保留 6 年且不可篡改</li>
+  <li><strong>EU AI Act</strong>：高风险 AI 系统的透明性条款 2026 年 8 月全面生效，要求 AI 辅助决策可追溯、可解释</li>
+  <li><strong>DORA</strong>：ICT 第三方规则要求关键功能可观测性，AI 基础设施和供应商关系须满足运营韧性</li>
+  <li><strong>FCA / PRA</strong>：预计 2026 下半年在 ICT 和 AI 主题审查中开始提出 MCP 专项问题</li>
+</ul>
+
+<h3>9.7 MCP 金融服务兴趣组（FSIG）</h3>
+
+<p>2026-06-25，MCP 官方社区正式成立<strong>金融服务兴趣组（Financial Services Interest Group）</strong>，由 Bloomberg 和 Saxo Bank 联合主持，每两周召开一次工作会议。FSIG 的使命是：</p>
+
+<ul>
+  <li><strong>合规与可审计性</strong>：防篡改、可移植的工具调用记录——在什么授权下、依据什么策略、做了什么</li>
+  <li><strong>数据谱系与来源</strong>：通过 MCP 展示的数据的来源归属、引用与同意元数据</li>
+  <li><strong>护栏与证明</strong>：验证框架和加密证明，让受监管机构在行动前获得 server 身份/工具行为/响应完整性的保证</li>
+  <li><strong>策略执行</strong>：工具使用和数据处理的声明式策略，在哪些点执行——将监管和内控约束编码为机器可检查的规则</li>
+  <li><strong>金融特有扩展</strong>：在 FSIG 仓库中开发和维护参考实现与一致性测试</li>
+  <li><strong>机构间互操作</strong>：通用模式和标准，避免每家机构重新发明合规管道</li>
+  <li><strong>监管联络</strong>：将监管机构和行业机构的约束转化为具体技术需求</li>
+</ul>
+
+<div class="callout">
+  <strong>关键信号：</strong>FSIG 的成立标志着 MCP 社区正式承认金融场景需要协议层扩展而非仅靠实现方自行补充。这是从"MCP 能用于金融"到"MCP 需要为金融而变"的分水岭。
+</div>
+
+<h3>9.8 治理网关模式</h3>
+
+<p>业界当前主流回应是在 Agent 和 MCP server 之间插入<strong>治理网关</strong>，在运行时强制执行合规控制：</p>
+
+<table>
+<thead><tr><th style="width:18%">网关层</th><th style="width:42%">职责</th><th style="width:40%">代表实践</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>身份传播层</strong></td>
+  <td>将上游已认证人类身份透传至下游 MCP server，确保每次工具调用可归属到人</td>
+  <td>Okta/Entra 身份联邦；Bifrost 网关虚拟键级治理</td>
+</tr>
+<tr>
+  <td><strong>策略执行层</strong></td>
+  <td>按虚拟键配置内容安全策略、工具级过滤、监管风险画像</td>
+  <td>Bifrost 每键护栏；DreamFactory RBAC 端点/字段级控制</td>
+</tr>
+<tr>
+  <td><strong>审计导出层</strong></td>
+  <td>结构化审计日志导出至 SIEM（Splunk/Datadog），满足监管留存要求</td>
+  <td>Bifrost 原生 Datadog 连接器；WORM 存储绑定</td>
+</tr>
+<tr>
+  <td><strong>数据驻留层</strong></td>
+  <td>私有 VPC 部署，无公网暴露，满足 PCI-DSS 网络分段</td>
+  <td>6% 金融机构纯私有部署；33% 主要私有部署</td>
+</tr>
+<tr>
+  <td><strong>合规中间件层</strong></td>
+  <td>从"记录仪"升级为"预警系统"，自动编译合规摘要、生成工作流配置</td>
+  <td>ComplyAI MCP Server；Sumsub MCP 反洗钱策略；Sherlock 30+ 司法管辖区</td>
+</tr>
+</tbody>
+</table>
+
+<h3>9.9 受监管金融 SaaS 的 MCP 行动框架</h3>
+
+<div class="trend">
+  <h4>1. 协议层：拥抱 FSIG 扩展，而非等待</h4>
+  <p>不要等 MCP 核心规范补齐金融扩展再行动。加入 FSIG 贡献用例，在 SEP 层面推动审计/归属/谱系扩展——先行者定义标准，跟随者被动适配。</p>
+</div>
+<div class="trend">
+  <h4>2. 部署层：治理网关优先，而非事后补丁</h4>
+  <p>在 MCP server 前部署治理网关（身份传播 + 策略执行 + 审计导出 + 数据驻留），将合规控制作为部署的前提而非上线后的补丁。58% 的金融机构在安全顾虑上停滞——率先解决治理的厂商将吃掉这 38% 的"计划中"存量。</p>
+</div>
+<div class="trend">
+  <h4>3. 数据层：专有数据 + 可审计证据链是护城河</h4>
+  <p>受监管金融 SaaS 的核心壁垒不是协议接入能力，而是<strong>专有合规数据 + 全链路证据链</strong>。企查查的"主体锚定→分层扫描→时点区分→证据留存"四步流程、新华财经的"可追溯可审计数据基座"、Moody's 的"数十年信用经验编码为决策级输出"——共同验证了：在受监管场景，数据可信 > 协议先进。</p>
+</div>
+<div class="trend">
+  <h4>4. 监管层：主动对接，而非被动等待</h4>
+  <p>国内：跟踪金融监管总局 AI 安全指导意见、央行网络安全管理办法正式稿、银行间市场商会自律新规。国际：跟踪 FINRA GenAI 专章、SEC Rule 17a-4(f)、EU AI Act 8 月生效、DORA 运营韧性、FCA/PRA 下半年 MCP 专项审查。将监管约束翻译为技术需求，在产品层提前预留合规接口。</p>
+</div>
+
+<hr>
+
+<h2>十、核心结论</h2>
 <p>MCP 已从 2024 年的开源协议演变为 <strong>2026 年 SaaS AI 接入的事实标准</strong>。</p>
 <ul>
 <li><strong>国外</strong>：SaaS 偏"直发远程 server + OAuth"，治理与审计跟进，企业级硬化是当前阶段焦点。</li>
@@ -325,6 +580,16 @@
 <li><a href="https://www.digitalapplied.com/blog/mcp-ecosystem-h1-2026-retrospective-adoption-data-points">MCP 生态回顾 H1 2026</a></li>
 <li><a href="https://theagentics.co/insights/the-enterprise-mcp-guide-2026">企业 MCP 指南 2026</a></li>
 <li><a href="https://tyk.io/learning-center/is-mcp-dead-in-2026-why-enterprises-still-need-mcp">MCP 是否已死 2026</a></li>
+<li><a href="https://modelcontextprotocol.io/community/interest-groups/financial-services">MCP 金融服务兴趣组（FSIG）</a></li>
+<li><a href="https://agentmarketcap.ai/blog/2026/04/25/mcp-enterprise-readiness-sso-audit-log-key-rotation-multitenant-auth">MCP 四大合规缺口分析</a></li>
+<li><a href="https://www.resultsense.com/news/2026-05-26-nsa-mcp-warning-banks-agentic-ai">NSA MCP 安全警告</a></li>
+<li><a href="https://datawalk.com/what-is-mcp-in-a-regulated-workflow">受监管工作流四个治理断点</a></li>
+<li><a href="https://www.dreamfactory.com/hub/mcp-security-financial-services">MCP 金融安全 2026 指南</a></li>
+<li><a href="https://globalfintechseries.com/fintech/comply-launches-financial-services-first-agentic-compliance-platform-mcp-server-enabling-teams-to-build-custom-ai-agents-without-developers">Comply 金融业首个合规 MCP Server</a></li>
+<li><a href="https://m.cnfin.com/hg-lb//zixun/20260518/4413883_1.html">新华财经 MCP 服务矩阵</a></li>
+<li><a href="https://www.finra.org/sites/default/files/2025-12/2026-annual-regulatory-oversight-report.pdf">FINRA 2026 年度监管报告</a></li>
+<li><a href="https://fin-discovery.com/">Fintel Discovery MCP Server</a></li>
+<li><a href="https://www.moodys.com/fisonline">Moody's MCP in Amazon Quick</a></li>
 </ul>
 
 <footer>
