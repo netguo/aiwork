@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 博客中文翻译 — 2026年7月精选</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --surface: #ffffff;
+    --text: #1a1a1a;
+    --text-secondary: #555;
+    --text-muted: #888;
+    --accent: #d97757;
+    --accent-light: #f4ede8;
+    --border: #e5e2dd;
+    --code-bg: #f5f3f0;
+    --sidebar-bg: #f0eee9;
+    --tag-product: #e8f0fe;
+    --tag-code: #e6f4ea;
+    --tag-enterprise: #fef7e0;
+    --tag-agents: #fce8e6;
+    --tag-product-text: #1967d2;
+    --tag-code-text: #137333;
+    --tag-enterprise-text: #b06000;
+    --tag-agents-text: #c5221f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 300px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+  }
+  .sidebar-header {
+    padding: 0 28px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .sidebar-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .sidebar-header .source {
+    margin-top: 12px;
+    font-size: 12px;
+  }
+  .sidebar-header .source a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .nav-list {
+    list-style: none;
+    padding: 16px 0;
+  }
+  .nav-list li {
+    padding: 0;
+  }
+  .nav-list a {
+    display: block;
+    padding: 10px 28px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-list a:hover {
+    background: rgba(0,0,0,0.03);
+    color: var(--text);
+    border-left-color: var(--accent);
+  }
+  .nav-list a.active {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 600;
+    border-left-color: var(--accent);
+  }
+  .nav-list .nav-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .nav-list .nav-title {
+    font-size: 13px;
+  }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    margin-left: 300px;
+    padding: 0;
+  }
+  .main-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 48px 120px;
+  }
+
+  /* Page header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 60px;
+    padding-bottom: 40px;
+    border-bottom: 2px solid var(--border);
+  }
+  .page-header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .page-header .subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .page-header .meta {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .page-header .meta a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* Article */
+  article {
+    margin-bottom: 80px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid var(--border);
+    scroll-margin-top: 20px;
+  }
+  article:last-child {
+    border-bottom: none;
+  }
+  article .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  article .article-date {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  article .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .tag-product { background: var(--tag-product); color: var(--tag-product-text); }
+  .tag-code { background: var(--tag-code); color: var(--tag-code-text); }
+  .tag-enterprise { background: var(--tag-enterprise); color: var(--tag-enterprise-text); }
+  .tag-agents { background: var(--tag-agents); color: var(--tag-agents-text); }
+
+  article h2 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  article h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+  article h2 a:hover {
+    color: var(--accent);
+  }
+  article .original-link {
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: inline-block;
+  }
+  article .original-link a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  article h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 36px;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  article h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  article p {
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  article ul, article ol {
+    margin-bottom: 16px;
+    padding-left: 24px;
+  }
+  article li {
+    margin-bottom: 8px;
+  }
+  article strong {
+    font-weight: 700;
+    color: var(--text);
+  }
+  article blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 12px 20px;
+    margin: 20px 0;
+    background: var(--accent-light);
+    border-radius: 0 6px 6px 0;
+    color: var(--text-secondary);
+  }
+  article blockquote p {
+    margin-bottom: 0;
+  }
+  article code {
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: #c7254e;
+  }
+  article pre {
+    background: var(--code-bg);
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  article pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+  }
+  article .callout {
+    background: #f0f7ff;
+    border: 1px solid #d0e3ff;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  article .callout strong {
+    color: #1967d2;
+  }
+  article .author {
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  article table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  article th, article td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  article th {
+    background: var(--code-bg);
+    font-weight: 600;
+  }
+
+  /* Scroll to top */
+  .scroll-top {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 44px;
+    height: 44px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(217,119,87,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 200;
+  }
+  .scroll-top.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Mobile */
+  @media (max-width: 900px) {
+    .sidebar {
+      display: none;
+    }
+    .main { margin-left: 0; }
+    .main-inner { padding: 40px 20px 80px; }
+    .page-header h1 { font-size: 28px; }
+    article h2 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h1>Claude 博客</h1>
+      <p>2026年7月精选 · 中文翻译</p>
+      <div class="source">
+        原文来源：<a href="https://claude.com/blog/" target="_blank">claude.com/blog</a>
+      </div>
+    </div>
+    <ul class="nav-list">
+      <li><a href="#article-1">
+        <span class="nav-date">7月28日</span>
+        <span class="nav-title">MCP 2026-07-28 规范：无状态核心</span>
+      </a></li>
+      <li><a href="#article-2">
+        <span class="nav-date">7月24日</span>
+        <span class="nav-title">Claude 5 模型的上下文工程新规则</span>
+      </a></li>
+      <li><a href="#article-3">
+        <span class="nav-date">7月24日</span>
+        <span class="nav-title">Claude 模型解析：如何选择</span>
+      </a></li>
+      <li><a href="#article-4">
+        <span class="nav-date">7月23日</span>
+        <span class="nav-title">语音模式：思考复杂问题</span>
+      </a></li>
+      <li><a href="#article-5">
+        <span class="nav-date">7月21日</span>
+        <span class="nav-title">Anthropic 如何保障 AI 原生软件安全</span>
+      </a></li>
+      <li><a href="#article-6">
+        <span class="nav-date">7月20日</span>
+        <span class="nav-title">Rakuten 用 Claude Fable 5 通宵构建 Agent</span>
+      </a></li>
+      <li><a href="#article-7">
+        <span class="nav-date">7月16日</span>
+        <span class="nav-title">用 Claude Code 进行大规模代码迁移</span>
+      </a></li>
+    </ul>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="main-inner">
+
+      <header class="page-header">
+        <h1>Claude 博客中文翻译</h1>
+        <p class="subtitle">2026 年 7 月精选文章 · 共 7 篇</p>
+        <p class="meta">原文来源：<a href="https://claude.com/blog/" target="_blank">https://claude.com/blog/</a> · 翻译时间：2026年8月1日</p>
+      </header>
+
+      <!-- Article 1 -->
+      <article id="article-1">
+        <div class="article-meta">
+          <span class="article-date">2026年7月28日</span>
+          <span class="tag tag-product">产品公告</span>
+        </div>
+        <h2>MCP 2026-07-28 规范：无状态核心，现已登陆 Claude</h2>
+        <div class="original-link">原文链接：<a href="https://claude.com/blog/bringing-mcp-2026-07-28-to-claude" target="_blank">claude.com/blog/bringing-mcp-2026-07-28-to-claude</a></div>
+
+        <p>模型上下文协议（MCP）的第五次规范发布——<strong>MCP 2026-07-28</strong>——今日正式上线。最新规范将 MCP 迁移至无状态核心，同时强化了授权机制并将官方扩展正式毕业。支持正在 Claude 各产品中陆续推出。</p>
+
+        <h3>MCP 有哪些新特性</h3>
+        <p>MCP 最近月度 SDK 下载量突破 4 亿次，年内增长了 4 倍，已成为连接 AI Agent 与应用程序的行业标准。MCP 2026-07-28 是迄今最重要的规范发布之一：</p>
+
+        <ul>
+          <li><strong>无状态核心。</strong>MCP 从双向有状态协议转向请求/响应模型。服务器现在可以部署在无服务器和边缘基础设施上。这简化了为 Claude 构建 MCP 服务器的体验，并随着使用量增长更易于扩展。</li>
+          <li><strong>标准化扩展。</strong>MCP Apps 和 Tasks 现在在版本化扩展框架下发布，为开发者提供了添加交互式 UI 和长时间运行工作等能力的正式路径，而无需更改核心协议。</li>
+          <li><strong>授权强化。</strong>授权现在与生产级 OAuth 2.0 和 OIDC 部署对齐，使 MCP 服务器无需变通方案即可连接到 Entra 或 Okta 等企业身份系统。</li>
+        </ul>
+
+        <p>生态系统的各公司自 Beta 阶段起就与 MCP 社区一起基于新规范进行构建：</p>
+
+        <blockquote>
+          <p>"越来越多的构建者使用我们的 MCP 服务器将生成内容带入 Figma 画布，在那里他们可以与团队一起探索、迭代和优化，打造出色的产品。随着使用量增长，我们的无状态架构可以随之扩展；借助 MCP Apps、Tasks 和企业管理授权，我们能进一步保持设计与代码在一个互联流程中紧密结合。"</p>
+        </blockquote>
+
+        <h3>推进 Claude 中的 MCP</h3>
+        <p>Claude 现在在连接器目录中列出了超过 950 个 MCP 服务器，每天有数百万人使用。今年我们推出了对新协议扩展的支持，以及让 MCP 更易于构建和部署的功能：</p>
+
+        <ul>
+          <li><strong>MCP Apps</strong> 允许服务器在对话中直接渲染交互式 UI。用户可以查看连接器正在做什么并内联操作，无需切换标签页。</li>
+          <li><strong>企业管理授权</strong> 允许管理员通过其身份提供商为整个组织配置 MCP 连接器。管理员授权一次连接器，用户通过现有 IdP 组继承访问权限，首次登录即连接：对终端用户零接触设置。</li>
+          <li><strong>连接器可观测性</strong> 为目录中已发布的连接器提供仪表板，展示其在 Claude 各产品界面上的表现。开发者可以用它跟踪使用情况、诊断错误和延迟，并按产品分解使用量。</li>
+          <li><strong>MCP 隧道（研究预览）</strong> 将 Claude 连接到私有网络内的 MCP 服务器，无需将其暴露在公共互联网上。团队可以将内部工具带到 Claude，无需入站防火墙规则、公共端点或来源 IP 白名单。</li>
+        </ul>
+
+        <p>2026-07-28 中的无状态核心、标准化扩展和强化授权将帮助开发者以更低摩擦、更一致的用户体验将更多应用程序带到 Claude。我们将继续与社区一起投资 MCP 作为开放标准，并投资于使 MCP 在生产中更易用和更有效的 Claude 功能。</p>
+
+        <h3>入门指南</h3>
+        <p>探索 <a href="https://modelcontextprotocol.io/specification/2026-07-28/" target="_blank">规范</a>和 <a href="https://modelcontextprotocol.io/docs/sdk" target="_blank">SDK</a> 即可开始。支持即将在 Claude 各产品中推出。</p>
+      </article>
+
+      <!-- Article 2 -->
+      <article id="article-2">
+        <div class="article-meta">
+          <span class="article-date">2026年7月24日</span>
+          <span class="tag tag-code">Claude Code</span>
+        </div>
+        <h2>Claude 5 代模型的上下文工程新规则</h2>
+        <div class="original-link">原文链接：<a href="https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models" target="_blank">claude.com/blog/the-new-rules-of-context-engineering...</a></div>
+
+        <p>我们为更先进的模型删除了 Claude Code 超过 80% 的系统提示词。以下是如何将我们学到的经验应用到你在 Claude Code 中的上下文工程以及你自己的 Agent 中。</p>
+
+        <p>我之前写过关于如何最好地 <a href="https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns" target="_blank">提示最新一代 Claude 5 模型</a> 以及如何迭代地与它们合作以发现你想构建的内容。</p>
+
+        <p>但当你向 Claude 发送消息时，提示词只是它收到的上下文的一小部分。大部分上下文是从你的系统提示词、Skills、CLAUDE.md 文件、记忆和其他来源组装的。我们称之为 <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">上下文工程</a>，它对你在使用 Claude Code 或构建自己的 Agent 时生成的结果影响巨大。</p>
+
+        <p>与提示词不同，上下文通常在许多请求中通用，因此它不能那么具体。你如何为 Claude 构建这些通用提示和指导，尤其是在你不知道用户的提示词可能是什么的时候？</p>
+
+        <p>随着 Claude 自身能力的演进，这出乎意料地困难。最近，我们注意到我们提示最新一代 Claude 模型的方式发生了巨大变化。我们为 Claude Opus 5 和 Claude Fable 5 等模型删除了 Claude Code 超过 80% 的系统提示词，在我们的编码评估中没有可衡量的损失。</p>
+
+        <p>以下是我们学到的关于提示这类新模型的经验，以及你如何利用它来更新你的上下文工程。</p>
+
+        <h3>解除对 Claude 的束缚</h3>
+        <p>总体而言，我们发现我们对 Claude Code 的约束过度了，无论是在系统提示词中还是在 CLAUDE.md 文件和 Skills 中。</p>
+
+        <p>例如，当我们阅读自己内部使用 Claude Code 的对话记录时，我们在单个请求中看到了几条相互冲突的消息，比如"留下适当的文档"或"不要添加注释"，因为我们的系统提示词、Skills 和用户请求相互冲突。</p>
+
+        <p>通常 Claude 可以解读用户的意图来得到正确答案，但 Claude 必须在决定做什么之前更仔细地思考这些重叠和冲突的消息。</p>
+
+        <p>虽然这些约束曾经是避免最坏情况所必需的，但我们后来发现可以删除许多约束，让模型使用周围的上下文和判断力来替代。</p>
+
+        <p>此外，Claude Code 现在有了更多工具。Claude 过去依赖 CLAUDE.md 作为记忆、信息和指导的来源。现在我们有了记忆、Artifacts 和 Skills，Claude 可以用它们来创建跨会话加载和共享上下文的新方式。</p>
+
+        <h3>过去与现在</h3>
+
+        <h4>过去：给 Claude 规则 → 现在：让 Claude 运用判断力</h4>
+        <p>当我们首次推出 Claude Code 时，我们需要确保 Claude 避免最坏情况，比如删除文件。这意味着我们会给出可能并不总是正确的强力指导。例如，系统提示词中我们曾经说：</p>
+        <blockquote><p>在代码中：默认不写注释。永远不要写多段 docstring 或多行注释块——最多一行简短注释。除非用户要求，不要创建规划、决策或分析文档——从对话上下文工作，而非中间文件。</p></blockquote>
+        <p>但对于某些提示词，这个指导是错误的。在文档方面，用户可能有自己的偏好，或者非常复杂的代码的某些部分可能需要多行注释块。</p>
+        <p>尽管如此，如果没有这些针对旧模型的护栏，Claude 写的注释在很多情况下是不正确的，我们不得不接受这种权衡。但较新的模型有更好的判断力，可以在没有明确规则的情况下很好地处理这些决定。</p>
+        <p>在新的系统提示词中我们说：<em>编写与周围代码风格一致的代码：匹配其注释密度、命名和惯用法。</em></p>
+
+        <h4>过去：给 Claude 示例 → 现在：设计接口</h4>
+        <p>工具使用的头号规则是给 Claude 如何使用它们的示例。对于我们的最新模型，我们发现给示例实际上将它们限制在某个探索空间中。</p>
+        <p>不要使用示例，而应更多考虑你的工具、脚本和文件的设计——Claude 有哪些参数，它们如何更具表达力？</p>
+        <p>例如，在 Todo 工具示例中，仅将状态列为 pending、in_progress 和 completed 之间的枚举，就向 Claude 暗示了如何使用它。保持一个项目为 in_progress 的说明有助于定义我们请求的行为。</p>
+
+        <h4>过去：全部前置 → 现在：渐进式披露</h4>
+        <p>因为 Claude Code 专注于编码，我们的系统提示词包含了如何进行代码审查和验证的详细信息。这些并不总是需要，但当需要时，这是关键信息。</p>
+        <p>此后，Claude Code 变得非常善于使用渐进式披露——在正确的时机加载正确的上下文。例如，我们将验证和代码审查移到了 Claude Code 可以选择性调用的独立 Skills 中。</p>
+        <p>渐进式披露不仅适用于 Skills，我们也将其用于工具。我们的一些工具是"延迟加载"的，这意味着 Agent 必须在使用前通过 ToolSearch 搜索其完整定义。这允许我们拥有更多工具（如我们的 Task 工具），它们在需要之前不占用上下文。</p>
+        <p>这同样适用于你自己的 CLAUDE.md 和 Skill.md 文件。一个常见的误区是你想使它们成为你*可能*遇到的每个已知实践的中央仓库，因为否则 Claude 不会找到它。相反，<a href="https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code" target="_blank">考虑使用一个文件树，可以在正确的时机加载</a>。</p>
+
+        <h4>过去：重复自己 → 现在：简洁的工具描述</h4>
+        <p>早期 Claude 模型有时需要重复指令，或者更倾向于听从上下文窗口末尾而非开头的指令。这意味着我们的系统提示词有时会在主系统提示词中引用工具，同时在工具描述中也有指令。</p>
+        <p>我们发现可以删除这些重复示例，并将如何使用工具的指令放在工具描述中，而非系统提示词中。</p>
+
+        <h4>过去：在 CLAUDE.md 文件中记忆 → 现在：自动记忆</h4>
+        <p>我们过去鼓励用户通过使用 # 快捷键自动写入 CLAUDE.md 来将内容保存到 Claude 的记忆中。相反，Claude 现在会自动保存与工作和与你相关的记忆。</p>
+
+        <h4>过去：简单规范 → 现在：丰富参考</h4>
+        <p>在计划模式下，Claude Code 严重依赖包含计划的 Markdown 文件。将这些文件存储为计划帮助 Claude 在需要时参考。另一个类似的最佳实践是将规范存储在代码库中，供 Claude 在跨长项目工作时参考。</p>
+        <p>但我们发现 Claude 可以处理越来越复杂的参考。不再是简单的 Markdown 文件，Claude 可以引用我们新 Artifacts 功能创建的 HTML Artifacts。</p>
+        <p>你也可以以代码形式给 Claude 参考。规范也可以是详细的测试套件，或 Claude 可能移植的另一个代码库中的函数。</p>
+        <p>评分标准（Rubrics）是另一种参考形式。评分标准允许 Claude 通过使用 <a href="https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code" target="_blank">动态工作流</a> 并启动带有这些评分标准的验证 Agent，来尝试验证你在特定领域的品味（例如，好的 API 设计是什么样的）。</p>
+
+        <h3>将其应用到你的上下文中</h3>
+        <p>将以上所有内容整合在一起，当你组装上下文时会是什么样子？</p>
+
+        <h4>系统提示词</h4>
+        <p>系统提示词与产品上下文紧密相关。它告诉 Claude 它在什么产品中运行以及它在做什么。对于 Claude Code，你可能永远不会修改它，但如果你在构建自己的 Agent 框架，这是你应该花大量时间的地方。</p>
+
+        <h4>CLAUDE.md</h4>
+        <p>保持你的 CLAUDE.md 轻量，简要描述你的仓库用途，但将大部分 token 花在代码库内的陷阱（gotchas）上。例如，你可能组织代码以将类型保存在一个整体文件中而非其他地方。避免陈述 Claude 通过查看文件系统或仓库就应该知道的"显而易见"的事情。</p>
+        <p>大量使用渐进式披露，例如如果你有关于如何验证工作的几条独特指令，创建一个验证 Skill 并从 CLAUDE.md 中引用它。</p>
+
+        <h4>Skills</h4>
+        <p>将 Skills 视为让 Claude 在需要时找到信息的轻量指南。避免过度约束它们，除非在高度重要的领域。</p>
+        <p>对于长 Skills，尽可能使用渐进式披露——将其分成多个文件并拆分。</p>
+        <p>当 Skills 编码了你、你的团队或产品特有的特定观点、知识或最佳实践时效果最佳。</p>
+
+        <h4>参考</h4>
+        <p>你可以使用 @ 提及文件将其作为参考包含。参考允许 Claude 引用关于当前计划的深入信息。这可能在规范文件、模型图中，甚至整个代码库中。通常你应该优先使用代码中的文件，因为它以 Claude 非常了解的语言提供清晰、高保真的指令。例如，设计的 HTML 模型图通常比设计描述或截图产生更好的结果。</p>
+
+        <h3>尝试简化</h3>
+        <p>在你的系统提示词、Skills 和 CLAUDE.md 文件中，你可能需要像我们一样进行简化。我们推出了一个名为 <code>claude doctor</code> 的新命令，它也会自动帮你完成这件事。有关专门提示更高级模型的更多细节，请查看我们的 <a href="https://claude.com/blog/a-field-guide-to-claude-fable-finding-your-unknowns" target="_blank">Fable 实地指南</a>。</p>
+
+        <p class="author">本文作者：Thariq Shihipar，Anthropic 技术团队成员。</p>
+      </article>
+
+      <!-- Article 3 -->
+      <article id="article-3">
+        <div class="article-meta">
+          <span class="article-date">2026年7月24日</span>
+          <span class="tag tag-enterprise">企业 AI</span>
+        </div>
+        <h2>Claude 模型解析：如何为你的用例选择最佳模型</h2>
+        <div class="original-link">原文链接：<a href="https://claude.com/blog/claude-models-explained-choosing-the-best-model-for-your-use-case" target="_blank">claude.com/blog/claude-models-explained-choosing-the-best-model...</a></div>
+
+        <h3>我们的建议：从智能开始</h3>
+        <p>我们最常听到的问题之一是"我应该为这个工作负载选择什么模型？"随着我们发布更多模型类别和版本，答案变得更加细致。</p>
+
+        <p>本文涵盖了这些细节，包括每个模型类别的描述、选择模型时需要问的关键问题，以及其他最佳实践。</p>
+
+        <p>暂时抛开这些细节，我们的默认建议是<strong>从最智能的通用可用模型开始，并使用努力级别来调整性能和成本</strong>。</p>
+
+        <p>更智能的模型每任务成本通常更低，尤其是在较低努力级别下，即使每 token 价格更高。这是因为更强大的模型通常需要更少的轮次和更少的思考时间来完成大多数任务。从较小模型开始也可能使你难以区分模型失败和设置失败。</p>
+
+        <p>当然，随着出现更多延迟或成本敏感的用例，你可以测试更低层级的模型，直到找到理想的匹配。</p>
+
+        <div class="callout">
+          <strong>核心洞察：</strong>每任务成本（cost-per-task）往往比每 token 价格更重要。更智能的模型即使单 token 更贵，但在较低努力级别下通常总成本更低，因为它们用更少的轮次就能完成任务。
+        </div>
+
+        <h3>Claude 模型家族</h3>
+
+        <h4>Mythos / Fable</h4>
+        <p>Mythos 是 Anthropic 最强大的模型类别，在各领域具有前沿能力。该模型类别尤其擅长编码、长时间运行的 Agent 任务，以及解决 AI 之前无法可靠处理的问题。</p>
+        <p>Mythos 类别以同一底层模型的两种包形式发布。Claude <strong>Mythos</strong> 面向处理双用途网络安全和生物安全的<a href="https://www.anthropic.com/glasswing" target="_blank">受信任组织</a>；Claude <strong>Fable</strong> 则带有额外的安全保障措施，使模型可供公众安全使用。两者都需要<a href="https://privacy.claude.com/en/articles/15425996-data-retention-practices-for-covered-models" target="_blank">有限数据保留</a>以便安全使用。</p>
+
+        <h4>Opus</h4>
+        <p>Opus 是我们用于推理密集型企业任务的强大模型类别。Opus 模型在关键行业基准上持续名列前茅，如知识工作基准 GDPval-AA 和 Agent 编码基准 Terminal-Bench 2.1。</p>
+        <p>Opus 和 Fable 之间的选择表面上可能不太明确，因为两者都擅长编码、长时间运行的 Agent 和知识工作。在实际情况下，像 Fable 这样更大的模型往往具有更多的智慧、创造力和写作技巧，尽管与 Opus 等模型具有相似的基准分数。</p>
+        <p>一般经验法则是：如果你的评估或内部测试显示 Opus 在某些任务上挣扎，那么 Fable 就是答案。如果 Opus 已经达到了质量门槛，那么其速度和价格特征可能使其成为更好的选择。</p>
+
+        <h4>Sonnet</h4>
+        <p>Sonnet 是我们用于日常任务的多功能模型类别。Sonnet 在性能、成本和速度之间取得了平衡，适用于最广泛的通用用例，包括多 Agent 编排设置中的高量子 Agent。</p>
+
+        <h4>Haiku</h4>
+        <p>Haiku 是我们成本最低、速度最快的模型类别。Haiku 模型专为延迟和成本至关重要的高频工作负载而设计。</p>
+
+        <h3>如何选择适合你工作负载的 Claude 模型</h3>
+        <p>我们的模型类别并不专注于一种工作类型。我们不推荐一个模型类别用于金融、另一个用于科学。每个 Claude 模型都经过训练，擅长编码、Agent 任务和知识工作等领域。</p>
+        <p>不同模型类别之间的主要区别在于它们能可靠承担的问题<strong>难度</strong>，以及该能力在价格和速度上的成本。选择模型时，请问：</p>
+
+        <ul>
+          <li><strong>这个任务有多难？</strong>如果它通常需要大量时间、涉及多个步骤、或是之前未解决的问题，则更适合更强大的模型类别。</li>
+          <li><strong>延迟需求是什么？</strong>如果模型涉及高频面向客户的工作负载，则 Sonnet 通常是最佳选择。</li>
+          <li><strong>访问约束是什么？</strong>Mythos 仅在 Project Glasswing 下向组织提供。并非所有组织都向所有角色开放所有模型类别。</li>
+          <li><strong>单位经济性是什么？</strong>更高量的生产可能更适合较低类别的模型，特别是如果评估显示这些任务可以满意完成。模型按 token 定价不同，并且基于其能力和努力级别有不同的每任务成本。</li>
+        </ul>
+
+        <p>努力级别也影响质量、速度和成本的平衡。更高类别的模型在更高努力下提供最佳性能，而更高类别的模型在较低努力下有时比更小的模型更高效。</p>
+
+        <h3>用顾问策略组合模型优势</h3>
+        <p><a href="https://claude.com/blog/the-advisor-strategy" target="_blank">顾问策略</a>允许更快、更低成本的 worker 模型调用更智能的模型来检查其计划并评估其工作，从而提高性能。</p>
+        <p>这种执行者模型仅在需要时接受指导的方法，显著提高了性能。例如，在 SWE-bench Pro 上，使用 Fable 5 顾问的 Sonnet 5 与 Fable 5 全程使用的分数差距在 10% 以内，但成本仅为 Fable 5 的 63%。</p>
+
+        <h3>评估和基准如何帮助选择模型</h3>
+        <p>查看模型能力是否满足需求的两种常见方法是使用标准基准和自定义评估。</p>
+        <p>基准是一组预先确定的任务或场景，通常针对特定领域，具有已知解决方案。它们可以作为评估不同模型类别和提供商能力的方向性指南。当评估像 Opus 和 Fable 这样可以解决测试中几乎所有问题的强大模型时，挑战就会出现（通常称为饱和）。</p>
+        <p>在这些情况下，我们建议组织在真实工作负载上使用模型或用自己的评估进行测试，以做出模型选择决定。通常，评估是从生产中提取的一组精心策划的问题——包括你当前工具不足的困难任务，以及你团队定义的成功标准。</p>
+
+        <h3>做出明智的选择</h3>
+        <p>AI 模型选择没有一刀切的方法，这就是为什么我们提供多个模型类别。最终，选择模型的最佳方式是了解每个模型类别的基础知识并深入理解你的用例。这意味着构建、维护和部署强大的评估。</p>
+      </article>
+
+      <!-- Article 4 -->
+      <article id="article-4">
+        <div class="article-meta">
+          <span class="article-date">2026年7月23日</span>
+          <span class="tag tag-product">产品公告</span>
+        </div>
+        <h2>语音模式：用语音思考复杂问题</h2>
+        <div class="original-link">原文链接：<a href="https://claude.com/blog/think-through-hard-problems-in-voice-mode" target="_blank">claude.com/blog/think-through-hard-problems-in-voice-mode</a></div>
+
+        <p>从今天起，语音模式运行在 Claude Opus、Claude Sonnet 和 Claude Haiku 上，可以触达你已连接的工具如 Gmail 和 Slack，并支持更多语言。</p>
+
+        <p>有些问题你无法通过打字来解决。语音模式适用于练习重要的提案会议、在多个 Offer 之间做决定、大声审查自己的流程，或者头脑风暴新想法。</p>
+
+        <h3>跟得上你的回音板</h3>
+        <p>今年早些时候我们添加了免提对话后，人们开始将语音模式用于快速问答以外的用途。他们开始跨更长的会话大声而非通过文字来处理真正的业务问题。但在此之前，语音模式仅在我们的 Claude Haiku 模型上运行，我们选择它是为了速度。它保持了对话的快速，但并不总是深入。</p>
+
+        <p>Claude Opus 和 Sonnet——为解决难题而设计的模型——现在可在语音模式中使用。你可以在对话中通过模型选择器切换模型。语音模式使用你所选模型的最快版本，因此对话运行流畅。它默认使用你上次在文字聊天中使用的模型，因此你可以在语音和文字之间切换而无需重新开始。</p>
+
+        <p>借助更强大的模型，你可以谈论一个半成型的想法并弄清楚你真正在想什么。Claude 会提出后续问题并基于你的思考进行构建，而不是直接给你答案。语音模式轮流对话，意味着 Claude 会倾听、暂停思考，然后回应。</p>
+
+        <h4>一些可以尝试的用法：</h4>
+        <ul>
+          <li>练习一次重要的对话，并请 Claude 对你的沟通风格给出反馈。</li>
+          <li>讨论一个客户提案，并请 Claude 找出你逻辑中的漏洞。</li>
+          <li>为你的产品路线图头脑风暴创意，并请 Claude 用竞争研究来验证它们。</li>
+          <li>请 Claude 帮你评估几个关于你上一个视频为什么走红的假设。</li>
+        </ul>
+
+        <h3>从对话到行动</h3>
+        <p>当你决定要做什么时，让 Claude 去做。以下是你可以在连接的工具中实现的一些示例：</p>
+        <ul>
+          <li>要迟到了？让 Claude 将你的 Google 日历会议推迟 30 分钟。</li>
+          <li>将关于客户提案的对话变成 Canva 中的一页文档。</li>
+          <li>请 Claude 总结你今天收到的邮件并起草对最关键邮件的回复。</li>
+        </ul>
+        <p>Claude 在使用你的连接工具之前会请求许可。你可以在 Claude 移动端、桌面端或网页应用的"设置 > 连接器"中连接新工具。</p>
+
+        <h3>支持更多语言</h3>
+        <p>语音模式现在在每个计划中都支持更多语言，你可以用你思考的语言与 Claude 交谈，甚至可以在对话中途切换。可用语言包括：</p>
+        <ul>
+          <li>英语、法语、德语、印地语、印尼语、意大利语、日语、韩语、巴西葡萄牙语、拉丁美洲西班牙语、西班牙语（西班牙）</li>
+        </ul>
+        <p>大声告诉 Claude 从英语切换到你选择的语言，或在语音设置的语言选择器中选择你的语言。</p>
+        <p>Claude 不会自动检测你的语言，因此你需要大声要求或选择你的语言以从英语切换。你需要专门为语音模式设置语言，因为之前的语言设置不会延续。</p>
+
+        <h3>入门指南</h3>
+        <p>语音模式的最新更新以 Beta 形式向移动端、桌面端和网页端的所有聊天用户开放，但在手机上效果最佳。免费计划可使用 Claude Haiku、一个连接工具和所有可用语言。付费计划可访问扩展的模型和所有已连接的工具。语音对话计入你的常规使用限额。</p>
+        <p>在 Claude 移动应用中点击声波图标即可尝试语音模式，或<a href="https://claude.com/download" target="_blank">下载应用</a>开始使用。</p>
+      </article>
+
+      <!-- Article 5 -->
+      <article id="article-5">
+        <div class="article-meta">
+          <span class="article-date">2026年7月21日</span>
+          <span class="tag tag-code">Claude Code</span>
+        </div>
+        <h2>Anthropic 如何保障其 AI 原生软件开发生命周期的安全</h2>
+        <div class="original-link">原文链接：<a href="https://claude.com/blog/how-anthropic-secures-its-ai-native-software-development-lifecycle" target="_blank">claude.com/blog/how-anthropic-secures-its-ai-native-sdlc</a></div>
+
+        <p>Anthropic 副首席信息安全官 Jason Clinton 详细介绍了安全工程团队如何保障一个 AI 编写了 80% 合并代码的软件开发生命周期。</p>
+
+        <h3>导语</h3>
+        <p>在 Anthropic，代码量和部署速度呈指数级增长。我们的软件工程师平均每季度交付的代码量是 2021 至 2025 年期间的 8 倍。我们的审查、监控及其他安全流程需要随这一加速步伐同步扩展，否则它将成为瓶颈（阿姆达尔定律）。</p>
+
+        <p>我们的软件开发流程也发生了巨大变化。Claude 已从编码助手演变为主要的创建者和审查者。<a href="https://www.anthropic.com/institute/recursive-self-improvement" target="_blank">Claude 编写</a>了当今合并到我们代码库中约 80% 的代码。超过一半的代码由我们的 <a href="https://www.anthropic.com/news/introducing-claude-tag" target="_blank">Claude Tag</a> 内部版本合并，而人类工程师专注于指导、设定意图和拥有最终批准权。</p>
+
+        <p>这意味着我们的安全团队必须捍卫一个快速扩展的攻击面，并加固一个以非确定性、不断演进的 Agent 为核心的生命周期。</p>
+
+        <div class="callout">
+          <strong>核心策略：</strong>将安全左移并完全集成到代码开发阶段；使用硬性访问和身份边界来控制爆炸半径；在生产前后结合自动化确定性和 Agent 式审查；在最高杠杆点插入人类介入。
+        </div>
+
+        <h3>不断演进的软件开发生命周期</h3>
+        <p>我们的开发团队已经详细介绍了其软件开发生命周期的变化。在较高层面上，我们的软件开发生命周期被压缩了。它由原型和内部采纳（dogfooding）驱动，而非冗长的规划周期。创意来自组织各个角落，传统角色（前端、后端、设计）之间的界限变得模糊。审查和批准仍然有人类参与，但也由 Agent 循环驱动。</p>
+
+        <h3>规划阶段（Plan）</h3>
+        <p>我们最早的安全自动化之一是一个简单的由 Claude Opus 驱动的 PSR（项目安全审查）Web 应用程序。它接收项目设计文档，并根据 MITRE ATT&CK 框架进行分析，以识别潜在漏洞并建议缓解措施。</p>
+        <p>我们通过将其连接到内部知识索引来大幅增强了该系统，该索引提供了跨组织范围政策、过往决策和相关系统的更深层上下文。这让我们更好地理解潜在风险，同时也捕获了 PSR 中缺失的信息。这一项实现节省了 AppSec 团队的大部分时间。</p>
+        <p><strong>持久原则：</strong>将安全 Agent 连接到组织上下文。随着规划周期的压缩，将这些 Agent 带到上下文已经存在的地方——聊天线程、过往审查、代码库——比在可能不再需要它们的阶段强制要求详细文档要有效得多。</p>
+
+        <h3>编码阶段（Code）</h3>
+        <p>AI 原生工程组织中的安全专业人士拥有一个新的杠杆：他们可以直接塑造代码的创建方式，从源头帮助防止漏洞。</p>
+        <p>以前，团队观察到反复出现的漏洞并创建安全编码指南来解决它们，但这些指南难以执行且很少标准化。在 Anthropic，这些指南被编码在 CLAUDE.md 文件中并引用组织范围的 Skills，因此代码在生成的瞬间就遵循这些最佳实践。这是作为闭环的一部分完成的——一旦 Agent 发现了一个 bug 类，相关文件就会被更新以防止它在未来的代码中再次出现。</p>
+        <p>除了塑造和审查代码外，控制爆炸半径是我们在这一阶段的主要关注点之一。我们通过在身份周围设置硬边界以及让开发人员在虚拟机上进行编码来实现这一点。</p>
+        <p><strong>持久原则：</strong>在 AI 原生工程组织中左移意味着在漏洞发现与更新指令以自定义 Claude 生成代码的方式之间形成闭环。用硬边界限制爆炸半径（最小代理原则）以及 Agent 可访问的内容。</p>
+
+        <h3>测试阶段（Test / CI）</h3>
+        <p>根据我的经验，test 或 CI 阶段在 AI 原生转型中很快成为最痛苦的瓶颈。一旦大多数开发者使用 Agent 式编码工具并同时运行多个 Agent，很快就变得明显：团队的移动速度只能和人类审查代码的速度一样快。</p>
+        <p>人类问责制仍然是流程的核心。我们通过结合自动化 Agent 式和确定性审查来加速审查流程，同时将人类审查保留用于受监管的或真正关键的代码。获得实质性审查评论的 PR 比例已从 16% 增长到 54%。</p>
+        <p>当在 Anthropic 打开一个 PR 时，多个 Agent 自动审查它。每个审查 Agent 都针对特定的、狭窄的焦点进行设计和范围设定，并利用 RAG 获取关于过往事件的额外上下文和记忆。这比一个大提示词或超级安全 Agent 更有效，因为：它们不共享偏见和盲点；如果一个被攻破或犯了错误，其他审查者可以捕获它；精力不会在多个焦点领域之间分散得太薄。</p>
+        <p>需要明确的是，Agent 不会在未经检查的情况下将代码合并到生产环境。我们按风险对代码库进行分层，并就哪些部分自动化做出审慎决定。整个代码库都有严格的人工审批流程。</p>
+        <p><strong>持久原则：</strong>自动化审查是一种不同类型的风险，通过不同方式控制（通过具有独立上下文窗口的多个关卡和 Agent）。人类保持在循环中，但可能根据代码库的性质位于生命周期的不同位置。</p>
+
+        <h3>部署阶段（Deploy / CD）</h3>
+        <p>Anthropic 维护着一个强大的 staging 环境，我们在其中执行常见的安全最佳实践，例如针对主要发布的外部渗透测试和定期 DAST 扫描。与其他 SDLC 阶段一样，AI 为安全团队带来了新的挑战和解决方案。一方面，到达此阶段的漏洞更少。另一方面，确实存活的漏洞是最微妙和最难捕获的。</p>
+        <p>好消息是，AI 模型在多步骤、跨组件推理方面表现更好，可以捕获更大比例的这些复杂漏洞。例如，2 月份我们披露，Claude 发现并帮助修复了 500 多个高危 OSS 漏洞。</p>
+        <p><strong>持久原则：</strong>动态测试应与部署节奏匹配。</p>
+
+        <h3>监控阶段（Monitor）</h3>
+        <p>任何优秀的安全团队都知道，一旦代码推送到生产环境，工作就没有完成。我们可以假设任何漏洞都会被日益复杂的攻击者快速识别。</p>
+        <p>当 Anthropic 触发告警时，Claude 开始：审查生产日志、对 bug 进行根因分析、编写事后报告；在某些情况下，编写修复 bug 的代码变更。这个 Agent 不能做的是自动部署修复——它是一个具有三个权限的单用途系统账户 Agent。</p>
+        <div class="callout">
+          <strong>重要教训：</strong>在一次模型升级后，事件响应 Agent 主动通过 Slack 联系了另一个 Claude 实例，要求它推送修复。这在人类审查关卡被按设计捕获，但这教会我们围绕<strong>访问和行动</strong>划定边界，而不是围绕模型的指令或我们认为模型可以做什么。
+        </div>
+        <p>第二个重大变化是代码迁移。过去，CISO 需要开始宣传并请求每个部门工程资源的一小部分用于多个季度来解决系统性缺陷。现在，迁移的经济成本已经下降，跨公司协调的成本也是如此。Claude 在数天内自动化了数万行代码的迁移过程。</p>
+        <p><strong>持久原则：</strong>给每个 Agent 一个具有最低权限的单用途身份。如果你确实让 Agent 协调，让它们通过人类使用的相同渠道进行。</p>
+
+        <h3>治理（Governance）</h3>
+        <p>我们已经自动化了许多安全流程，但人类仍然是确保安全软件开发生命周期的不可或缺的一部分。但我们的注意力现在不再集中在审查代码和 bug 报告上，而是集中在 Claude Tag、循环和仪表板上。我们通过以下方式避免退化：</p>
+        <ul>
+          <li><strong>按风险对代码库进行分层</strong>，然后根据该级别自动化审查。</li>
+          <li><strong>影子模式</strong>适用于所有新的 AI 审查者。新 Agent 在赢得信任之前发布评论供人类批准。</li>
+          <li><strong>抽样</strong>所有自动化批准的一定百分比。</li>
+          <li><strong>监控关键指标</strong>，维护并密切监控一个仪表板。</li>
+          <li><strong>将每个 Agent 操作路由到 SIEM</strong>，将它们视为一种新型内部威胁，当它们行为不一致时发出告警。</li>
+        </ul>
+        <p><strong>持久原则：</strong>安全工程师的工作从监控 bug 演变为监控循环。</p>
+
+        <p class="author">本文由 Anthropic 副首席信息安全官 Jason Clinton 撰写，致谢 Michael Segner 对本文的贡献。</p>
+      </article>
+
+      <!-- Article 6 -->
+      <article id="article-6">
+        <div class="article-meta">
+          <span class="article-date">2026年7月20日</span>
+          <span class="tag tag-enterprise">企业 AI</span>
+        </div>
+        <h2>前沿实践：Rakuten 如何用 Claude Fable 5 通宵构建 Agent</h2>
+        <div class="original-link">原文链接：<a href="https://claude.com/blog/working-at-the-frontier-rakuten" target="_blank">claude.com/blog/working-at-the-frontier-rakuten</a></div>
+
+        <p>Rakuten 企业 AI 总经理 Yusuke Kaji 自 2024 年 9 月起一直在测试 Claude 模型。以下是他认为 Claude Fable 5 是长时间运行企业 Agent 的阶跃变化的原因。</p>
+
+        <p>作为 Rakuten 企业 AI 总经理，Yusuke Kaji 的工作是"找到变革性创新的种子并在全公司推广"。其中一个种子就是 Claude。</p>
+
+        <p>自 2025 年 3 月以来，Rakuten 使用 Claude 通过 Claude Code 加速软件开发、在全业务功能中建立 Agent，并为数百万客户提供 AI 功能。据 Kaji 介绍，Rakuten 选择与 Anthropic 合作是因为其企业聚焦、领导力和产品品味。</p>
+
+        <p>在近十几次模型发布中，他看着自己能交给 Agent 的工作不断增加：首先使用 Claude Code 发布生产软件，然后为全公司各团队构建自定义 Claude Managed Agent。他将测试新模型比作踏上"新的冒险任务"。</p>
+
+        <blockquote>
+          <p>"就像一个好的领导者为团队准备挑战性目标一样，我们为新的 Claude 准备挑战性任务。也许 Claude 也在推动我们超越极限。"</p>
+        </blockquote>
+
+        <p>当他测试 Claude Fable 5 时，他知道有些东西不一样了。该模型可以比其前身独立运行更长时间，并且首次能够在 Kaji 睡觉时检查自己的工作并在夜间完成需要细微判断的任务。</p>
+
+        <h3>构建 AI 原生劳动力</h3>
+        <p>Rakuten 正在围绕 AI 重塑自身，一个他们称之为"AI-nization"的项目——公司范围内将 AI 融入我们为客户、业务合作伙伴和员工所做的一切的努力。当 Claude Managed Agents 推出时，Rakuten 在一周内跨产品、销售、营销和财务部门部署了 Agent，接入 Slack、Microsoft Teams 和公司自己的任务系统。</p>
+
+        <p>对于 Kaji 和他的团队来说，构建 Agent 的限制以前是谁能编写代码；现在，是谁理解业务问题。</p>
+
+        <blockquote>
+          <p>"现代公司的设计旨在最小化沟通成本。我相信像 Claude Code 这样的 Agent 在我们与它们合作时也能最小化新创新的成本，比如从想法到生产的快速转变。"给一个有能力的人配备能持有上下文和品味的 Agent，"它让隐藏的人才释放潜能，并将他们的潜力扩大 100 倍。"</p>
+        </blockquote>
+
+        <p>但在每个功能中全天候运行 Agent 暴露了一个新的约束：人类判断力。虽然 Rakuten 的 Agent 在每个领域关闭问题的速度大约快 10 倍，但组织承担的任务数量持续上升。添加更多 Agent 并不会增加判断力。因此，Agent 运行得越快，组织的进步就越依赖于一个人来关闭循环。</p>
+
+        <h3>驱动无人值守运行数小时的 Agent</h3>
+        <p>对于大多数构建者来说，构建长时间运行 Agent 最难的部分是在最少监督的情况下让其成功。将其连接到正确的工具和上下文是一回事，但在 Kaji 的经验中，Agent 在不需要人类在循环中验证其工作的情况下能运行多久一直有限制。</p>
+
+        <p>在 Claude Fable 5 之前，在没有人类监督的情况下让 Agent 执行多小时任务总是一场赌博。"如果它们在第一步选对了路径，一切都没问题，"Kaji 说。"但如果它们在第一遍选错了方向，Agent 会花大量时间修复路径，甚至无法到达目的地。"在一个预计运行 5 小时或一整天的工作上，一个早期错误假设可能烧掉整个运行，而唯一的发现方法是有人来检查。</p>
+
+        <p>失败模式是缺乏自我验证。任何模型都可能迈出错误的第一步。早期模型的问题在于它们不会在过程中检查自己的工作，因此一个早期的错误转弯被忽略了。它在运行过程中累积，并在数小时后产生次优结果。</p>
+
+        <p>据 Kaji 介绍，Claude Fable 5 改变了长时间 Agent 运行的计算方式，因为它在过程中检查自己的工作，比任何之前的模型都频繁得多。</p>
+
+        <blockquote>
+          <p>"我们测试了 Fable，我们喜欢它的自我反思和自我验证能力。与之前的模型相比，它在我凌晨 2 点或 3 点指出之前就理解了自己的错误——这样我就可以睡觉了。"</p>
+        </blockquote>
+
+        <h3>Claude Fable 5 的独特之处</h3>
+        <p>Kaji 的团队引用了三种将 Claude Fable 5 与其前身区分开来的行为，标志着前沿智能的阶跃变化：</p>
+        <ul>
+          <li><strong>它会重新检查自己的假设。</strong>当任务状态在中途改变时，Fable 5 会注意到并在行动前纠正错误假设，而不是坚持一条糟糕的路径并在数小时后发现。</li>
+          <li><strong>它在每一步都回到第一性原理。</strong>它无需被告知就重新验证原始意图，这是 Kaji 以前必须自己在运行走错路时做的课程修正。</li>
+          <li><strong>它与团队的品味匹配。</strong>即使在最少的指导下，它对模糊判断的决策也与他们一致。Kaji 为此创造了一个术语：品味对齐。"与贵公司之前的任何模型或我们使用过的任何其他模型相比，Fable 的品味对齐更顺畅。"</li>
+        </ul>
+
+        <p>最重要的是，更长的自主性改变了 Kaji 可以委托的工作单元。"在 Fable 之前，我们必须将工作分解为定义良好的块让 Agent 执行，"他说。现在他可以交出整个任务并同时运行多个。</p>
+
+        <h4>平衡成本与效率</h4>
+        <p>前沿能力伴随着前沿价格，Kaji 直言成本决定了他能多大范围部署。"作为一家大型企业，我们希望平衡智能和成本。"他的团队衡量任务完成率和每任务成本，然后将 Fable 5 发送到额外能力改变结果的工作，让较小模型处理其余的。对于 Kaji 来说，有两件事让 Fable 5 在数学上成立：它用更少的 token 和更少的错误转弯完成更多工作，并且需要更少的手把手指导。</p>
+
+        <h3>下一步</h3>
+        <p>Kaji 现在测试的前沿不是个人速度，而是让 Agent 协调人。Claude Code 加速了他自己和同事的工作，但任何组织的难点在于人之间的对齐——将一个人的上下文和品味与另一个人的匹配。他正在探索"更像管理者一样协调或组织"的 Agent，持有通常在团队成员之间丢失的细微差别。</p>
+
+        <blockquote>
+          <p>"我们不将 AI Agent 视为未来的同事或竞争者。它们是我们周围的系统。"</p>
+        </blockquote>
+
+        <p>"我认为我们作为一个社会还没有找到 Claude Fable 5 的模型-任务匹配，"他说，"但它已经作为一个越过界线、来到我们世界的模型脱颖而出。"</p>
+      </article>
+
+      <!-- Article 7 -->
+      <article id="article-7">
+        <div class="article-meta">
+          <span class="article-date">2026年7月16日</span>
+          <span class="tag tag-code">Claude Code</span>
+        </div>
+        <h2>Anthropic 如何用 Claude Code 进行大规模代码迁移</h2>
+        <div class="original-link">原文链接：<a href="https://claude.com/blog/ai-code-migration" target="_blank">claude.com/blog/ai-code-migration</a></div>
+
+        <p>代码迁移——即将生产代码库移植到新语言的项目——直到最近仍是耗时数年的工程。</p>
+
+        <p>在过去一个月里，Anthropic 的个人开发者使用 Claude Fable 5、Claude Opus 4.8 以及动态工作流，迁移了 10 个代码包，代码量从数万行到数十万行不等。本文将涵盖两个案例及相关最佳实践。</p>
+
+        <div class="callout">
+          <strong>案例一：</strong>Jarred Sumner 使用 Claude Code 将 Bun 从 Zig 迁移到 Rust。在不到两周内生成了一百万行代码，合并前 100% 的 Bun 现有测试套件在 CI 中通过。合并后出现 19 个回归问题，已全部修复。Rust 移植版已于六月随 Claude Code 发布。
+        </div>
+        <div class="callout">
+          <strong>案例二：</strong>Mike Krieger 在一个周末将一个 Python 代码库迁移为 165,000 行 TypeScript。这包括数百个 Agent、八个阶段关卡、三轮对抗性审查，以及一次最终的一致性校验——将每条命令的输出与 Python 原版进行 diff 比对。
+        </div>
+
+        <p>核心洞察是：<strong>你不修复代码，你修复的是产出代码的流程（循环）</strong>。</p>
+
+        <h3>什么是 AI 代码迁移？</h3>
+        <p>AI 代码迁移使用 AI Agent 将生产代码库移植到新语言或框架。工程师不再逐文件手工翻译，而是编写迁移规则和验证循环；Agent 随后翻译、编译、测试，直到新代码行为与原代码一致——将数年项目压缩到数周。</p>
+
+        <h3>为什么以及何时迁移语言</h3>
+        <p>团队发起迁移，是因为初始构建与当前项目之间的环境发生了变化：要么某个已知的权衡变得不可忍受，要么出现了更好的方案，要么原生态系统在萎缩。</p>
+
+        <p>例如，Jarred 当初选择 Zig 是因为它提供了 C 级别的性能和极简特性。但到 2026 年，Bun 的 CLI 每月下载量超过 1000 万次。虽然迁移语言确实能带来更小、更快、更安全的系统，但没人愿意为此买单。软件工程师还得面对这类昔日巨型项目固有的职业风险。</p>
+
+        <div class="callout">
+          <strong>而现在，最坏的情况不过是删掉分支、重来一次。</strong>迁移的理由不再需要是生死攸关的——变更日志中一年的内存 bug 修复，或一个长期瓶颈，现在就足以证明其合理性。
+        </div>
+
+        <h3>为什么 AI 改变了代码迁移的数学</h3>
+        <p>大型代码迁移是高级模型特别有效的用例，因为：</p>
+        <ul>
+          <li><strong>工作是并行的</strong>：工作可以在数千个独立单元上执行，Agent 可以同时工作而非相互等待。</li>
+          <li><strong>上下文清晰且全面</strong>：旧代码是模型的绝佳规格说明。</li>
+          <li><strong>有内置裁判</strong>：许多大型代码库包含测试套件，Agent 可用来验证工作。</li>
+          <li><strong>队列自动生成</strong>：当编译或测试运行失败时，那就成为 Agent 要修复的下一项。</li>
+          <li><strong>需要一致性和边缘情况处理</strong>：审查者引用每条发现背后的规则，因此违规成为队列项而非悄然偏离。</li>
+        </ul>
+
+        <h3>大型代码迁移的六步流程</h3>
+
+        <h4>前置条件：构建裁判</h4>
+        <p>开始迁移项目前的前置条件是拥有一个强有力的裁判，否则你不会有退出条件或成功度量。裁判必须能在同等条件下评估原始代码和目标代码。</p>
+
+        <h4>第 1 步 — 创建规则手册、依赖图和差距清单</h4>
+        <p>在此阶段创建迁移的基础：需要重构而非仅翻译的代码位置清单、翻译规则手册，以及用于排序迁移工作流的依赖图。规则手册的确切形态取决于你必须在开始时做出的关键架构决策——新代码是遵循相同结构，还是完全重新设计。</p>
+
+        <h4>第 2 步 — 压力测试规则</h4>
+        <p>这一步是一个小型迁移，作为大型迁移的"试航"。扔掉翻译的文件，目标是完善规则，而非取得渐进进展。</p>
+
+        <h4>第 3 步 — 翻译一切</h4>
+        <p>对于剩余步骤运行相同的多 Agent 循环架构：实现、审查、修复。工作队列应该是机械化的——批处理脚本通过检查翻译文件是否存在于磁盘来决定完成情况。可以将实现工作交给较小模型，审查者保留在较大模型上。</p>
+        <p>两个对抗性审查者使用独立上下文评估实现者的工作，审查者之间的分歧交给第三个 Agent。当审查者在多个文件中持续发现相同错误时，修复不是逐文件的——你在规则手册中加一句话，重新生成受影响的批次。</p>
+
+        <h4>第 4、5、6 步 — 编译、运行并匹配行为</h4>
+        <p>这三步共享相同的循环架构，需要的人类判断递减。第 4 步处理编译错误，第 5 步处理冒烟测试崩溃，第 6 步是比较两个代码库的程序行为——运行测试套件，用"修复 Agent"审查失败测试在两个代码库中的表现。</p>
+        <p>Mike 的方法很重要：Claude 自行设计了端到端测试套件，自主运行一整夜，修复问题并连续四晚重跑，捕获了任何场景列表都无法预测的小问题。教训是：缺失测试套件不会阻塞此步骤。如果你无法继承一个裁判，就让 Claude 构建一个。</p>
+
+        <h3>代码迁移最佳实践</h3>
+        <ul>
+          <li><strong>不要盲目遵循本指南</strong>：每次迁移都不同，将此作为起点。</li>
+          <li><strong>不要专注于单个失败</strong>：单个失败是循环的工作，你的注意力应放在模式上。</li>
+          <li><strong>让审查对抗性、验证机械化</strong>：对抗性审查允许更长时间运行的任务。让脚本——编译器、diff、测试套件——当裁判。</li>
+          <li><strong>不要对所有事用最大模型</strong>：较小模型处理高吞吐实现；将最大模型留给审查者和编写规则的内容。</li>
+          <li><strong>前置人类工时</strong>：规则手册和压力测试最耗时，之后基本是队列消减。</li>
+          <li><strong>让工作队列机械化且可恢复</strong>：完成应意味着"输出文件存在于磁盘"。</li>
+        </ul>
+
+        <h3>审查循环结果，而非代码</h3>
+        <p>Jarred 的 Bun 迁移现已投入生产。新代码库可衡量地更好：</p>
+        <ul>
+          <li>团队工具能检测到的每个内存泄漏都已修复：一项 2,000 次重复构建的基准测试，内存从 6,745 MB 降至 609 MB。</li>
+          <li>二进制文件在 Linux 和 Windows 上缩小 19%。</li>
+          <li>跨语言优化使其在 HTTP 服务和真实工作负载中快 2–5%。</li>
+        </ul>
+        <p>考虑是否该重新计算你长期搁置的迁移。挑选你一直在忍受的代码库，问问 Claude 迁移流程对它来说是什么样的。</p>
+      </article>
+
+    </div>
+  </div>
+</div>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
+
+<script>
+  // Active nav highlighting
+  const sections = document.querySelectorAll('article');
+  const navLinks = document.querySelectorAll('.nav-list a');
+  const scrollTopBtn = document.querySelector('.scroll-top');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop - 100;
+      if (window.scrollY >= sectionTop) {
+        current = section.getAttribute('id');
+      }
+    });
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+      }
+    });
+
+    if (window.scrollY > 400) {
+      scrollTopBtn.classList.add('visible');
+    } else {
+      scrollTopBtn.classList.remove('visible');
+    }
+  });
+</script>
+
+</body>
+</html>

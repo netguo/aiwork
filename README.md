@@ -25,6 +25,27 @@ AI 技术选型与研究报告合集。
 | [RAG 框架选型报告（初版）](rag-framework/rag-framework-selection-report.html) | 从 Top 200 中筛选 RAG 框架，推荐 LangChain 内置 RAG + RAGFlow 分层方案 | 2026-07-28 |
 | [RAG Top5 完善对比报告](rag-framework/rag-top5-comparison-report.html) | 重新从 GitHub 搜索 Top5 RAG 框架（RAGFlow / LlamaIndex / LightRAG / GraphRAG / Haystack），8 维度评分，推荐 RAGFlow + LightRAG 分层组合 | 2026-07-28 |
 
+### AI 知识沉淀
+
+| 报告 | 说明 | 日期 |
+|------|------|------|
+| [AI 知识沉淀指南](ai-knowledge/ai-knowledge-sedimentation-guide.html) | 调研 GitHub 109 个 AI 记忆/知识持久化项目，精选 8 个开源方案（Mem0/Khoj/Letta/Memori/memvid/EverOS/memsearch/claude-obsidian），设计 3 条自建路径 | 2026-07-28 |
+
+### 风控 AI 项目
+
+| 报告 | 说明 | 日期 |
+|------|------|------|
+| [风控 AI 项目搜索与分类报告](risk-control/risk-control-ai-projects.html) | 16 组关键词搜索 GitHub，筛选 59 个风控相关 AI 项目，分 10 大类 | 2026-07-28 |
+| [大模型风控项目深度对比](risk-control/fraud-credit-risk-llm-projects.html) | 14 组 LLM 关键词搜索，筛选 15 个 LLM/Agent 相关风控项目，6 个关键项目深度调研 | 2026-07-28 |
+
+### Claude 博客
+
+| 报告 | 说明 | 日期 |
+|------|------|------|
+| [Claude 博客中文翻译](claude-blog/claude-blog-zh.html) | 最新 7 篇 Claude 博客全文中文翻译，带侧边栏导航 | 2026-08-01 |
+| [Claude 博客精华速读](claude-blog/claude-blog-summary.html) | 8 篇博客提炼：每篇一句话总结 + 核心要点 + 8 大跨篇主题 + 实践清单 | 2026-08-04 |
+| [构建高效人-Agent 团队（精读）](claude-blog/building-effective-human-agent-teams-zh.html) | Kristen Swanson 单篇详细翻译，含 7 张配套 SVG 可视化图表 | 2026-08-01 |
+
 ## 选型结论
 
 | 维度 | 推荐 | 理由 |
@@ -32,9 +53,24 @@ AI 技术选型与研究报告合集。
 | Agent 基座 | LangChain + LangGraph | 纯框架定位、分层架构、MIT 协议、行业事实标准 |
 | RAG 生产层 | RAGFlow (86K Star) | DeepDoc 文档解析最强、UI 完善、引用溯源、多租户 |
 | RAG 增强层 | LightRAG (38K Star) | 图+向量双层检索、极轻量、EMNLP 2025 论文背书 |
+| AI 记忆层 | Mem0 (62K Star) | 通用记忆层，插件式集成，1-2 天可落地 |
+| 风控数据层 | 基础设施层切入 | API+MCP 暴露，按量计费引流 + 效果分润变现 |
+
+## 仓库结构
+
+```
+aiwork/
+├── github-analysis/    # GitHub Star 排名与分类
+├── agent-framework/    # Agent 框架选型
+├── rag-framework/      # RAG 框架选型
+├── ai-knowledge/       # AI 知识沉淀工具
+├── risk-control/       # 风控 AI 项目调研
+├── claude-blog/        # Claude 官方博客翻译
+└── README.md           # 索引
+```
 
 ## 技术栈
 
-- 数据来源：GitHub Search API
+- 数据来源：GitHub Search API、WebFetch
 - 报告格式：独立 HTML 文件，浏览器直接打开即可查看
 - 生成工具：WorkBuddy AI 助手

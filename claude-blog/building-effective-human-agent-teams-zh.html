@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>构建高效的人-Agent 团队 — Anthropic 经验分享（中文翻译）</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --surface: #ffffff;
+    --text: #1a1a1a;
+    --text-secondary: #555;
+    --text-muted: #888;
+    --accent: #d97757;
+    --accent-light: #f4ede8;
+    --accent-dark: #b85f3f;
+    --border: #e5e2dd;
+    --code-bg: #f5f3f0;
+    --sidebar-bg: #f0eee9;
+    --lesson-1: #4a90d9;
+    --lesson-2: #50a14f;
+    --lesson-3: #c9a227;
+    --lesson-4: #d97757;
+    --callout-bg: #f0f7ff;
+    --callout-border: #d0e3ff;
+    --quote-bg: #fdf6f0;
+    --quote-border: #d97757;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; overflow-y: auto;
+    z-index: 100;
+  }
+  .sidebar-header { padding: 0 24px 24px; border-bottom: 1px solid var(--border); }
+  .sidebar-header h1 { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .sidebar-header p { font-size: 12px; color: var(--text-muted); }
+  .sidebar-header .source { margin-top: 12px; font-size: 12px; }
+  .sidebar-header .source a { color: var(--accent); text-decoration: none; }
+  .nav-list { list-style: none; padding: 16px 0; }
+  .nav-list a {
+    display: block; padding: 10px 24px;
+    text-decoration: none; color: var(--text-secondary);
+    font-size: 13px; line-height: 1.5;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-list a:hover { background: rgba(0,0,0,0.03); color: var(--text); border-left-color: var(--accent); }
+  .nav-list a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; border-left-color: var(--accent); }
+  .nav-list .nav-date { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px; }
+  .nav-list .nav-title { font-size: 13px; }
+
+  /* Main */
+  .main { flex: 1; margin-left: 280px; }
+  .main-inner { max-width: 820px; margin: 0 auto; padding: 60px 48px 120px; }
+
+  /* Page header */
+  .page-header { text-align: center; margin-bottom: 60px; padding-bottom: 40px; border-bottom: 2px solid var(--border); }
+  .page-header h1 { font-size: 34px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; line-height: 1.3; }
+  .page-header .subtitle { font-size: 16px; color: var(--text-muted); margin-bottom: 16px; }
+  .page-header .meta { font-size: 13px; color: var(--text-muted); }
+  .page-header .meta a { color: var(--accent); text-decoration: none; }
+
+  /* Sections */
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  section h2 {
+    font-size: 26px; font-weight: 700;
+    margin-bottom: 8px; padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  section h2 .lesson-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 50%;
+    font-size: 18px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+  section h3 { font-size: 20px; font-weight: 700; margin-top: 32px; margin-bottom: 12px; }
+  section h4 { font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 10px; }
+  section p { margin-bottom: 16px; }
+  section ul, section ol { margin-bottom: 16px; padding-left: 24px; }
+  section li { margin-bottom: 8px; }
+  section strong { font-weight: 700; }
+  section code { font-family: "SF Mono", "Fira Code", monospace; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: #c7254e; }
+
+  blockquote {
+    border-left: 3px solid var(--quote-border);
+    padding: 16px 24px; margin: 20px 0;
+    background: var(--quote-bg);
+    border-radius: 0 8px 8px 0;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+  blockquote p { margin-bottom: 0; }
+
+  .callout {
+    background: var(--callout-bg);
+    border: 1px solid var(--callout-border);
+    border-radius: 8px; padding: 16px 20px;
+    margin: 20px 0; font-size: 14px;
+  }
+  .callout strong { color: #1967d2; }
+
+  .practice-box {
+    background: #f8f6f3;
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .practice-box .practice-title {
+    font-weight: 700; font-size: 15px;
+    margin-bottom: 12px; color: var(--accent-dark);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .practice-box ul { margin-bottom: 0; }
+
+  .author {
+    font-style: italic; color: var(--text-muted);
+    font-size: 14px; margin-top: 24px;
+    padding-top: 16px; border-top: 1px solid var(--border);
+  }
+
+  .questions-box {
+    background: var(--accent-light);
+    border-radius: 12px; padding: 32px;
+    margin: 40px 0;
+  }
+  .questions-box h3 { margin-top: 0; color: var(--accent-dark); }
+  .questions-box ol { padding-left: 24px; }
+  .questions-box li { margin-bottom: 12px; font-size: 15px; }
+
+  /* SVG illustrations */
+  .illustration {
+    margin: 32px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .illustration svg { max-width: 100%; height: auto; }
+  .illustration .caption {
+    font-size: 13px; color: var(--text-muted);
+    margin-top: 12px; font-style: italic;
+  }
+
+  .scroll-top {
+    position: fixed; bottom: 32px; right: 32px;
+    width: 44px; height: 44px;
+    background: var(--accent); color: white;
+    border: none; border-radius: 50%;
+    cursor: pointer; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(217,119,87,0.3);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s; z-index: 200;
+  }
+  .scroll-top.visible { opacity: 1; pointer-events: auto; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .main-inner { padding: 40px 20px 80px; }
+    .page-header h1 { font-size: 24px; }
+    section h2 { font-size: 20px; }
+  }
+
+  /* Print styles - fix PDF rendering */
+  @media print {
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    body {
+      background: #ffffff;
+      color: #000000;
+      font-size: 12pt;
+      line-height: 1.75;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .layout { display: block; min-height: auto; }
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .main-inner { max-width: none; margin: 0; padding: 0; }
+    .page-header { text-align: left; margin-bottom: 30px; padding-bottom: 20px; }
+    .page-header h1 { font-size: 22pt; }
+    section { margin-bottom: 24px; page-break-inside: avoid; }
+    section h2 { font-size: 16pt; }
+    section h3 { font-size: 13pt; }
+    section h4 { font-size: 11pt; }
+    section p, section li { font-size: 11pt; }
+    .illustration { page-break-inside: avoid; margin: 20px 0; padding: 16px; border: 1px solid #ccc; background: #fff; }
+    .illustration svg { max-width: 100%; height: auto; }
+    .callout { border: 1px solid #ccc; }
+    .practice-box { border: 1px solid #ccc; }
+    .questions-box { border: 1px solid #ccc; }
+    .scroll-top { display: none; }
+    blockquote { border-left: 3px solid #666; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h1>构建高效的人-Agent 团队</h1>
+      <p>Anthropic 经验分享 · 中文详译</p>
+      <div class="source">原文：<a href="https://claude.com/blog/building-effective-human-agent-teams" target="_blank">claude.com/blog</a></div>
+    </div>
+    <ul class="nav-list">
+      <li><a href="#intro"><span class="nav-date">引言</span><span class="nav-title">从单人到多人协作</span></a></li>
+      <li><a href="#what-is"><span class="nav-date">概念</span><span class="nav-title">什么是多人 Agent？</span></a></li>
+      <li><a href="#lesson-1"><span class="nav-date">经验一</span><span class="nav-title">公开工作，给予充分上下文</span></a></li>
+      <li><a href="#lesson-2"><span class="nav-date">经验二</span><span class="nav-title">明确角色与合适工具</span></a></li>
+      <li><a href="#lesson-3"><span class="nav-date">经验三</span><span class="nav-title">设定北极星目标</span></a></li>
+      <li><a href="#lesson-4"><span class="nav-date">经验四</span><span class="nav-title">随时间逐步建立信任</span></a></li>
+      <li><a href="#questions"><span class="nav-date">自检</span><span class="nav-title">五个关键问题</span></a></li>
+      <li><a href="#forward"><span class="nav-date">总结</span><span class="nav-title">前进方向</span></a></li>
+    </ul>
+  </nav>
+
+  <div class="main">
+    <div class="main-inner">
+
+      <header class="page-header">
+        <h1>构建高效的人-Agent 团队</h1>
+        <p class="subtitle">来自 Anthropic 的经验分享</p>
+        <p class="meta">
+          原文作者：Kristen Swanson（Anthropic 教育团队） · 2026年6月24日<br>
+          原文链接：<a href="https://claude.com/blog/building-effective-human-agent-teams" target="_blank">claude.com/blog/building-effective-human-agent-teams</a><br>
+          翻译时间：2026年8月1日
+        </p>
+      </header>
+
+      <!-- 引言 -->
+      <section id="intro">
+        <h2>引言：从"单人"到"多人"的协作演进</h2>
+        <p>我们与 AI 协作的方式正在从一种"单人"体验演变为"多人"体验——人类和 Agent 作为一个团队共同实现共享目标。本文将分享这种新工作方式的实际案例。</p>
+
+        <p>过去，使用 AI 意味着一个人面对一个聊天窗口。随着 AI 处理复杂、长时间运行任务（如编码、研究和财务分析）的能力不断增强，出现了许多新的使用方式——从终端和 IDE 到电子表格和演示文稿——但工作本质上仍然是"单人"体验：一个人与一个 Agent 协作完成个人任务。</p>
+
+        <p>随着 <strong>Claude Tag</strong> 等工具的发布，这种情况正在改变。现在，人类和 Agent 可以在同一个工作空间中协作，为团队共享的目标服务。工作现在更像一场<strong>多人游戏</strong>——团队中的人类制定策略，Claude 执行工作。</p>
+
+        <p>这涉及一些新的工作方式。在 Anthropic，过去几个月我们一直在测试使人-Agent 团队成功所需的技术。在本文中，我们将解释什么是"多人 Agent"，以及我们从中获得的经验教训。</p>
+
+        <!-- 图示：单人 vs 多人协作 -->
+        <div class="illustration">
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- 左侧：单人模式 -->
+            <text x="160" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#888">过去：单人模式</text>
+            <rect x="40" y="40" width="240" height="160" rx="12" fill="#f5f3f0" stroke="#e5e2dd" stroke-width="1.5"/>
+            <!-- 人 -->
+            <circle cx="100" cy="90" r="20" fill="#4a90d9"/>
+            <text x="100" y="95" text-anchor="middle" font-size="12" fill="white" font-weight="700">人</text>
+            <!-- 双向箭头 -->
+            <path d="M 140 90 L 200 90 M 200 90 L 192 85 M 200 90 L 192 95 M 140 90 L 148 85 M 140 90 L 148 95" stroke="#999" stroke-width="2" fill="none"/>
+            <!-- AI -->
+            <rect x="200" y="70" width="60" height="40" rx="8" fill="#d97757"/>
+            <text x="230" y="95" text-anchor="middle" font-size="11" fill="white" font-weight="700">AI</text>
+            <text x="160" y="145" text-anchor="middle" font-size="12" fill="#666">一个人 ↔ 一个 Agent</text>
+            <text x="160" y="165" text-anchor="middle" font-size="12" fill="#666">完成个人任务</text>
+            <text x="160" y="185" text-anchor="middle" font-size="11" fill="#aaa">聊天窗口体验</text>
+
+            <!-- 箭头分隔 -->
+            <path d="M 310 110 L 360 110 M 360 110 L 350 105 M 360 110 L 350 115" stroke="#d97757" stroke-width="2.5" fill="none"/>
+
+            <!-- 右侧：多人模式 -->
+            <text x="540" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#d97757">现在：多人协作模式</text>
+            <rect x="380" y="40" width="320" height="160" rx="12" fill="#fdf6f0" stroke="#d97757" stroke-width="1.5"/>
+            <!-- 三个人 -->
+            <circle cx="420" cy="80" r="16" fill="#4a90d9"/>
+            <text x="420" y="84" text-anchor="middle" font-size="10" fill="white" font-weight="700">人1</text>
+            <circle cx="420" cy="120" r="16" fill="#4a90d9"/>
+            <text x="420" y="124" text-anchor="middle" font-size="10" fill="white" font-weight="700">人2</text>
+            <circle cx="420" cy="160" r="16" fill="#4a90d9"/>
+            <text x="420" y="164" text-anchor="middle" font-size="10" fill="white" font-weight="700">人3</text>
+            <!-- 连接线 -->
+            <line x1="440" y1="80" x2="510" y2="100" stroke="#ccc" stroke-width="1.5"/>
+            <line x1="440" y1="120" x2="510" y2="120" stroke="#ccc" stroke-width="1.5"/>
+            <line x1="440" y1="160" x2="510" y2="140" stroke="#ccc" stroke-width="1.5"/>
+            <!-- 共享工作空间 -->
+            <rect x="510" y="75" width="80" height="90" rx="10" fill="#d97757" opacity="0.15"/>
+            <rect x="510" y="75" width="80" height="90" rx="10" fill="none" stroke="#d97757" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <text x="550" y="110" text-anchor="middle" font-size="11" fill="#d97757" font-weight="700">共享</text>
+            <text x="550" y="126" text-anchor="middle" font-size="11" fill="#d97757" font-weight="700">工作空间</text>
+            <text x="550" y="145" text-anchor="middle" font-size="10" fill="#d97757">Slack</text>
+            <!-- Agent -->
+            <rect x="620" y="80" width="55" height="30" rx="6" fill="#50a14f"/>
+            <text x="647" y="99" text-anchor="middle" font-size="10" fill="white" font-weight="700">Agent A</text>
+            <rect x="620" y="120" width="55" height="30" rx="6" fill="#50a14f"/>
+            <text x="647" y="139" text-anchor="middle" font-size="10" fill="white" font-weight="700">Agent B</text>
+            <line x1="590" y1="95" x2="618" y2="95" stroke="#50a14f" stroke-width="1.5"/>
+            <line x1="590" y1="135" x2="618" y2="135" stroke="#50a14f" stroke-width="1.5"/>
+            <text x="540" y="185" text-anchor="middle" font-size="12" fill="#666">人类制定策略，Agent 执行工作</text>
+          </svg>
+          <p class="caption">图 1：AI 协作模式从"单人对单 Agent"向"人-Agent 团队"的演进</p>
+        </div>
+      </section>
+
+      <!-- 什么是多人 Agent -->
+      <section id="what-is">
+        <h2>什么是"多人 Agent"？</h2>
+        <p>"多人 Agent"是我们用来指代<strong>同时与多个不同人类协作</strong>的 AI 模型的术语。与常规 Agent 类似，它们有自己的记忆和技能。但在其他方面有很大不同——它们拥有自己的凭证，并且存在于工作发生的地方。在 Anthropic，那就是 Slack 等团队协作工具内部。</p>
+
+        <p>以下是一个人类-Agent 团队在 Slack 中共同分析数据集的示例场景：</p>
+
+        <!-- 图示：Slack 中的人-Agent 团队协作 -->
+        <div class="illustration">
+          <svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg">
+            <!-- Slack 风格界面 -->
+            <rect x="20" y="10" width="680" height="260" rx="12" fill="#ffffff" stroke="#e5e2dd" stroke-width="1.5"/>
+            <!-- 顶部栏 -->
+            <rect x="20" y="10" width="680" height="36" rx="12" fill="#4a154b"/>
+            <rect x="20" y="34" width="680" height="12" fill="#4a154b"/>
+            <text x="40" y="33" font-size="13" fill="white" font-weight="700"># 数据分析项目</text>
+            <text x="660" y="33" font-size="11" fill="#ecb22e" text-anchor="end">3 人 · 2 Agent</text>
+
+            <!-- 消息1：人类 -->
+            <circle cx="50" cy="68" r="14" fill="#4a90d9"/>
+            <text x="50" y="72" text-anchor="middle" font-size="9" fill="white" font-weight="700">人</text>
+            <text x="72" y="64" font-size="11" fill="#1a1a1a" font-weight="700">Sarah（产品经理）</text>
+            <text x="72" y="78" font-size="11" fill="#555">大家好，能帮我看下 Q3 用户留存数据吗？</text>
+            <text x="72" y="92" font-size="11" fill="#555">我想了解哪些功能留存效果最好。</text>
+
+            <!-- 消息2：Agent A -->
+            <rect x="36" y="105" width="28" height="26" rx="6" fill="#50a14f"/>
+            <text x="50" y="122" text-anchor="middle" font-size="9" fill="white" font-weight="700">A</text>
+            <text x="72" y="113" font-size="11" fill="#1a1a1a" font-weight="700">Claude（数据分析 Agent）</text>
+            <text x="72" y="127" font-size="11" fill="#555">已从 BigQuery 拉取 Q3 留存数据。初步发现：</text>
+            <text x="72" y="141" font-size="11" fill="#555">• "批量导出"功能 7 日留存率最高（68%）</text>
+            <text x="72" y="155" font-size="11" fill="#555">• "API 集成"功能次之（55%）</text>
+
+            <!-- 消息3：人类 -->
+            <circle cx="50" cy="175" r="14" fill="#d97757"/>
+            <text x="50" y="179" text-anchor="middle" font-size="9" fill="white" font-weight="700">人</text>
+            <text x="72" y="171" font-size="11" fill="#1a1a1a" font-weight="700">Mike（工程师）</text>
+            <text x="72" y="185" font-size="11" fill="#555">@Claude 能对比下"批量导出"的用户路径吗？</text>
+
+            <!-- 消息4：Agent B -->
+            <rect x="36" y="198" width="28" height="26" rx="6" fill="#c9a227"/>
+            <text x="50" y="215" text-anchor="middle" font-size="9" fill="white" font-weight="700">B</text>
+            <text x="72" y="206" font-size="11" fill="#1a1a1a" font-weight="700">Claude（研究综合 Agent）</text>
+            <text x="72" y="220" font-size="11" fill="#555">已生成用户路径分析报告。关键发现：</text>
+            <text x="72" y="234" font-size="11" fill="#555">导出功能用户中有 72% 先使用了"自定义仪表盘"。</text>
+            <text x="72" y="248" font-size="11" fill="#555">建议优化仪表盘→导出的引导流程。</text>
+
+            <text x="360" y="264" text-anchor="middle" font-size="10" fill="#aaa">人类在共享频道中与多个 Agent 协作，每个 Agent 有不同角色</text>
+          </svg>
+          <p class="caption">图 2：人类-Agent 团队在 Slack 中共同分析数据集的示例</p>
+        </div>
+
+        <p>要让 Agent 有效地参与团队频道，它们需要特定的能力：</p>
+        <ul>
+          <li><strong>持久记忆</strong>——这样它们可以记住目标并据此调整执行方向</li>
+          <li><strong>不绑定人类的凭证</strong>——这样它们可以在安全、可预测的护栏内运行</li>
+          <li><strong>持续广泛的信息访问权限</strong>——这样它们可以学习组织的运作方式并采取行动以服务团队目标</li>
+        </ul>
+        <p>这些能力构成了 Agent 在多人类团队中有效参与所需的技术基础。然而，使人-Agent 团队<strong>成功</strong>需要的远不止这些：团队还需要特定的工作方式和共享规范。</p>
+      </section>
+
+      <!-- Lesson 1 -->
+      <section id="lesson-1">
+        <h2><span class="lesson-num" style="background:var(--lesson-1)">1</span>公开工作并给予 Agent 广泛上下文</h2>
+
+        <p>Anthropic 的团队主动且开放地共享信息。当 Agent 在团队中时，这一点尤为重要，因为 Agent 的理解完全建立在团队可搜索的文本之上：Slack、代码、文档和会议记录。<strong>私人消息、走廊谈话和受限文档无法为 Agent 提供上下文。</strong></p>
+
+        <blockquote>
+          <p>对于 Agent 来说，如果没有被写下来且可访问，它就不存在。</p>
+        </blockquote>
+
+        <p>我们不是逐个文档或逐个 Slack 频道地决定哪些信息应对 Agent 可用，而是使用适用于整个 Slack 工作空间以及会议记录和文档库的<strong>明确定义的安全边界</strong>。在安全边界内，上下文流向每位队友——无论是人类还是 AI。</p>
+
+        <p>这不仅增加了 Agent 和人类可获取的信息量，还减少了关于什么可以与谁共享的混淆。人类和 Agent 都难以驾驭逐项共享的软边界：<em>这个频道应该是公开还是私密的？我能把这个文档分享给那个人吗？这个 Agent 被允许看到那个对话吗？</em>少量清晰的、工作空间级别的边界消除了日常工作中的决策疲劳。</p>
+
+        <!-- 图示：安全边界模型 -->
+        <div class="illustration">
+          <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- 左侧：逐项共享（混乱） -->
+            <text x="160" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#c5221f">逐项共享：混乱</text>
+            <rect x="30" y="40" width="260" height="150" rx="10" fill="#fce8e6" stroke="#c5221f" stroke-width="1" stroke-dasharray="3,3"/>
+            <circle cx="60" cy="75" r="12" fill="#4a90d9"/><text x="60" y="79" text-anchor="middle" font-size="8" fill="white">人</text>
+            <rect cx="100" cy="75" width="30" height="20" rx="4" fill="#50a14f"/><text x="115" y="89" text-anchor="middle" font-size="8" fill="white">AI</text>
+            <line x1="72" y1="75" x2="98" y2="75" stroke="#c5221f" stroke-width="1" stroke-dasharray="2,2"/>
+            <text x="140" y="80" font-size="9" fill="#c5221f">✗?</text>
+            <circle cx="60" cy="115" r="12" fill="#4a90d9"/>
+            <rect x="98" y="105" width="30" height="20" rx="4" fill="#50a14f"/>
+            <line x1="72" y1="115" x2="98" y2="115" stroke="#c5221f" stroke-width="1" stroke-dasharray="2,2"/>
+            <text x="140" y="120" font-size="9" fill="#c5221f">✗?</text>
+            <circle cx="60" cy="155" r="12" fill="#4a90d9"/>
+            <rect x="98" y="145" width="30" height="20" rx="4" fill="#50a14f"/>
+            <line x1="72" y1="155" x2="98" y2="155" stroke="#c5221f" stroke-width="1" stroke-dasharray="2,2"/>
+            <text x="180" y="80" font-size="9" fill="#c5221f">谁能看？</text>
+            <text x="180" y="100" font-size="9" fill="#c5221f">什么能分享？</text>
+            <text x="180" y="120" font-size="9" fill="#c5221f">Agent 能看吗？</text>
+            <text x="180" y="150" font-size="9" fill="#c5221f">→ 决策疲劳</text>
+
+            <!-- 右侧：安全边界模型（清晰） -->
+            <text x="540" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="#137333">安全边界模型：清晰</text>
+            <rect x="370" y="40" width="340" height="150" rx="10" fill="#e6f4ea" stroke="#137333" stroke-width="2"/>
+            <text x="540" y="58" text-anchor="middle" font-size="11" fill="#137333" font-weight="700">安全边界内：信息自由流动</text>
+            <circle cx="410" cy="85" r="12" fill="#4a90d9"/><text x="410" y="89" text-anchor="middle" font-size="8" fill="white">人</text>
+            <circle cx="450" cy="85" r="12" fill="#4a90d9"/><text x="450" y="89" text-anchor="middle" font-size="8" fill="white">人</text>
+            <rect x="490" y="75" width="30" height="20" rx="4" fill="#50a14f"/><text x="505" y="89" text-anchor="middle" font-size="8" fill="white">AI</text>
+            <rect x="530" y="75" width="30" height="20" rx="4" fill="#50a14f"/><text x="545" y="89" text-anchor="middle" font-size="8" fill="white">AI</text>
+            <circle cx="590" cy="85" r="12" fill="#4a90d9"/><text x="590" y="89" text-anchor="middle" font-size="8" fill="white">人</text>
+            <rect x="630" y="75" width="30" height="20" rx="4" fill="#50a14f"/><text x="645" y="89" text-anchor="middle" font-size="8" fill="white">AI</text>
+            <!-- 双向连接 -->
+            <line x1="422" y1="85" x2="438" y2="85" stroke="#137333" stroke-width="1.5"/>
+            <line x1="462" y1="85" x2="488" y2="85" stroke="#137333" stroke-width="1.5"/>
+            <line x1="520" y1="85" x2="528" y2="85" stroke="#137333" stroke-width="1.5"/>
+            <line x1="560" y1="85" x2="578" y2="85" stroke="#137333" stroke-width="1.5"/>
+            <line x1="602" y1="85" x2="628" y2="85" stroke="#137333" stroke-width="1.5"/>
+            <text x="540" y="125" text-anchor="middle" font-size="10" fill="#137333">所有人和 Agent 都能访问</text>
+            <text x="540" y="140" text-anchor="middle" font-size="10" fill="#137333">边界内的一切信息</text>
+            <text x="540" y="165" text-anchor="middle" font-size="9" fill="#137333">→ 零决策疲劳，上下文最大化</text>
+          </svg>
+          <p class="caption">图 3：逐项共享的混乱 vs 安全边界模型的清晰</p>
+        </div>
+
+        <h3>高透明度的回报</h3>
+        <p>高度透明是有回报的。例如：</p>
+        <ul>
+          <li>能读取团队会议决策的 Agent 不会建议已被降低优先级的任务或项目</li>
+          <li>有权访问超出自身团队范围产品规格的 Agent 可以推荐已为他人成功的模式</li>
+          <li>由于 Agent 阅读大量文本的速度远快于人类，它们经常浮现人类可能遗漏的相关工作</li>
+        </ul>
+        <p>我们严重依赖 Agent 来在繁忙、快速变化的行业中保持信息灵通和协调一致。</p>
+
+        <div class="practice-box">
+          <div class="practice-title">📌 在 Anthropic，公开工作的具体做法：</div>
+          <ul>
+            <li>在公司层面选择少数安全边界，创建与之匹配的工作空间和文档共享设置</li>
+            <li>将新通信频道默认设为组织内公开，确保决策每次都记录在频道、文档和会议记录中</li>
+            <li>撰写工件和会议记录时确保 Agent 能找到它们，因为 Agent 现在是团队文档的主要消费者</li>
+            <li>确保 AI 获得完成工作所需的正确工具和信息</li>
+          </ul>
+        </div>
+
+        <p>默认信息内部公开可能需要文化转变。但是，有上下文和没有上下文的人-Agent 团队之间的差异太明显，不容忽视。</p>
+
+        <p>当然，某些交互是敏感的，需要在单个人类和 AI 之间保持私密。对于这些情况，使用 Claude Tag 可以向 @Claude 发送直接消息，或者使用现有的 Claude.ai 和 Claude Cowork 应用程序。这些工具通过您的个人 MCP 连接器让 Claude 访问私人信息，同时确保对话和分享给 Agent 的内容保持私密。</p>
+      </section>
+
+      <!-- Lesson 2 -->
+      <section id="lesson-2">
+        <h2><span class="lesson-num" style="background:var(--lesson-2)">2</span>每个人类和 Agent 都有明确定义的角色和合适的工具</h2>
+
+        <p>人-Agent 团队共享一份花名册、一套工件和一个工作空间。Agent 拥有自己的凭证、技能和工具访问权限。不同的 Agent 也承担不同的角色：例如，一个可能负责项目的数据分析，另一个持有并执行设计标准，第三个运行研究综合。</p>
+
+        <p>当项目启动时，人类与 Agent 聊天以确定分配哪些角色，以及人类和 Agent 将如何协作。</p>
+
+        <p>一旦人类和 Agent 的职责明确，一个 Agent 可能会启动其他 Agent，以确保特定任务由具有正确记忆和适当访问权限的 Agent 处理。重要的是，它们需要访问完成任务所需的所有工具：处理数据分析的 Agent 可能需要访问 BigQuery，执行 QA 的 Agent 可能需要访问 Playwright MCP。</p>
+
+        <!-- 图示：团队花名册 -->
+        <div class="illustration">
+          <svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg">
+            <text x="360" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1a1a">人-Agent 团队花名册示例</text>
+            <!-- 人类角色 -->
+            <rect x="20" y="45" width="220" height="80" rx="10" fill="#e8f0fe" stroke="#4a90d9" stroke-width="1.5"/>
+            <circle cx="50" cy="75" r="16" fill="#4a90d9"/><text x="50" y="79" text-anchor="middle" font-size="10" fill="white" font-weight="700">人</text>
+            <text x="76" y="68" font-size="12" fill="#1a1a1a" font-weight="700">Sarah · 产品经理</text>
+            <text x="76" y="84" font-size="11" fill="#555">设定目标与优先级</text>
+            <text x="76" y="100" font-size="11" fill="#555">最终决策与审查</text>
+            <text x="76" y="116" font-size="10" fill="#888">工具：Figma, Linear</text>
+
+            <rect x="20" y="140" width="220" height="80" rx="10" fill="#e8f0fe" stroke="#4a90d9" stroke-width="1.5"/>
+            <circle cx="50" cy="170" r="16" fill="#4a90d9"/><text x="50" y="174" text-anchor="middle" font-size="10" fill="white" font-weight="700">人</text>
+            <text x="76" y="163" font-size="12" fill="#1a1a1a" font-weight="700">Mike · 工程师</text>
+            <text x="76" y="179" font-size="11" fill="#555">代码审查与架构</text>
+            <text x="76" y="195" font-size="11" fill="#555">关键决策把关</text>
+            <text x="76" y="211" font-size="10" fill="#888">工具：GitHub, VS Code</text>
+
+            <!-- Agent 角色 -->
+            <rect x="270" y="45" width="210" height="80" rx="10" fill="#e6f4ea" stroke="#50a14f" stroke-width="1.5"/>
+            <rect x="290" y="65" width="30" height="24" rx="5" fill="#50a14f"/><text x="305" y="82" text-anchor="middle" font-size="10" fill="white" font-weight="700">AI</text>
+            <text x="330" y="68" font-size="12" fill="#1a1a1a" font-weight="700">数据分析 Agent</text>
+            <text x="330" y="84" font-size="11" fill="#555">数据拉取与分析</text>
+            <text x="330" y="100" font-size="11" fill="#555">指标跟踪与报告</text>
+            <text x="330" y="116" font-size="10" fill="#888">工具：BigQuery MCP</text>
+
+            <rect x="270" y="140" width="210" height="80" rx="10" fill="#fef7e0" stroke="#c9a227" stroke-width="1.5"/>
+            <rect x="290" y="160" width="30" height="24" rx="5" fill="#c9a227"/><text x="305" y="177" text-anchor="middle" font-size="10" fill="white" font-weight="700">AI</text>
+            <text x="330" y="163" font-size="12" fill="#1a1a1a" font-weight="700">设计标准 Agent</text>
+            <text x="330" y="179" font-size="11" fill="#555">执行设计规范</text>
+            <text x="330" y="195" font-size="11" fill="#555">UI 一致性检查</text>
+            <text x="330" y="211" font-size="10" fill="#888">工具：Figma MCP</text>
+
+            <rect x="510" y="45" width="190" height="80" rx="10" fill="#fce8e6" stroke="#d97757" stroke-width="1.5"/>
+            <rect x="530" y="65" width="30" height="24" rx="5" fill="#d97757"/><text x="545" y="82" text-anchor="middle" font-size="10" fill="white" font-weight="700">AI</text>
+            <text x="570" y="68" font-size="12" fill="#1a1a1a" font-weight="700">QA Agent</text>
+            <text x="570" y="84" font-size="11" fill="#555">自动化测试</text>
+            <text x="570" y="100" font-size="11" fill="#555">回归检测</text>
+            <text x="570" y="116" font-size="10" fill="#888">工具：Playwright</text>
+
+            <rect x="510" y="140" width="190" height="80" rx="10" fill="#f3e8ff" stroke="#8b5cf6" stroke-width="1.5"/>
+            <rect x="530" y="160" width="30" height="24" rx="5" fill="#8b5cf6"/><text x="545" y="177" text-anchor="middle" font-size="10" fill="white" font-weight="700">AI</text>
+            <text x="570" y="163" font-size="12" fill="#1a1a1a" font-weight="700">发布管理 Agent</text>
+            <text x="570" y="179" font-size="11" fill="#555">发布流程编排</text>
+            <text x="570" y="195" font-size="11" fill="#555">部署状态跟踪</text>
+            <text x="570" y="211" font-size="10" fill="#888">工具：CI/CD MCP</text>
+
+            <text x="360" y="245" text-anchor="middle" font-size="11" fill="#888">每个成员（人类或 Agent）都有明确角色、职责范围和所需工具访问权限</text>
+          </svg>
+          <p class="caption">图 4：一个典型的人-Agent 团队花名册，每个人类和 Agent 都有清晰的角色定义</p>
+        </div>
+
+        <p>清晰的角色和职责为人-Agent 团队的成功奠定基础。人类通常在 Agent 工作的相同线程中工作，但他们持有只有人类才能持有的角色。这确保一切协调一致，且人类判断应用于最重要的决策。没有清晰的角色，人们最终会在旁边运行个人 AI 舰队，重复工作并割裂团队的上下文。指标跟踪是一个常见案例：多人 Agent 可以一次性完成工作并让所有人看到相同的数字。</p>
+
+        <blockquote>
+          <p>Claude Agent 分担代码库的日常维护工作——分类反馈、规划、编写代码、审查变更和报告状态。每个 Agent 拥有明确的任务，按自己的计划工作；人类设定目标并审查产出。</p>
+        </blockquote>
+
+        <div class="practice-box">
+          <div class="practice-title">📌 在 Anthropic，明确定义角色的具体做法：</div>
+          <ul>
+            <li><strong>达成一致的任务集：</strong>团队的人类和 Agent 就谁做什么达成一致</li>
+            <li><strong>在相同共享线程中工作：</strong>人类和 Agent 在同一线程中协作，任何人都可以从其他人中断的地方继续</li>
+            <li><strong>拥有正确的工具访问：</strong>人类和 Agent 都拥有完成各自工作所需的正确工具</li>
+            <li><strong>描述 Agent 的角色和范围：</strong>明确每个 Agent 负责什么、不负责什么</li>
+          </ul>
+        </div>
+
+        <h3>工程团队创建花名册的实践</h3>
+        <p>Anthropic 的一个工程团队开始创建花名册来明确人类和 Agent 角色，因为这使推动工作变得更容易且更具体。早期见效的做法包括：</p>
+        <ul>
+          <li><strong>特定角色帮助人类轻松追踪任务责任所在</strong>——无论是在个人任务还是整个团队职责集中</li>
+          <li><strong>编写技能文件来定义特定 Agent 的角色</strong>——使专业化变得容易，并允许公司各处的人快速启动同类型的其他 Agent</li>
+          <li><strong>当项目变得更复杂时添加新 Agent 聚焦新领域</strong>——例如，他们添加了一个发布管理 Agent 来处理新软件发布</li>
+        </ul>
+        <p>这些方法让人类对人-Agent 团队的心理模型随着 Agent 数量增长而扩展。</p>
+      </section>
+
+      <!-- Lesson 3 -->
+      <section id="lesson-3">
+        <h2><span class="lesson-num" style="background:var(--lesson-3)">3</span>设定北极星目标，让 Agent 更主动</h2>
+
+        <p>虽然 Anthropic 的一些 Agent 只是完成分配的任务，但最重要的 Agent 会<strong>主动建议新项目和工作流</strong>。这通常发生在已经给予 Agent 丰富上下文和清晰角色的团队中，再添加一个指南：<strong>北极星</strong>。</p>
+
+        <p>北极星是雄心勃勃、影响广泛的目标，帮助团队决定哪些任务和工作流是正确的。在 Anthropic，<strong>人类总是设定北极星</strong>，将其扎根于业务使命和目标中。</p>
+
+        <!-- 图示：北极星模型 -->
+        <div class="illustration">
+          <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- 北极星 -->
+            <polygon points="360,20 368,45 394,45 373,60 381,85 360,70 339,85 347,60 326,45 352,45" fill="#c9a227" stroke="#b08d1a" stroke-width="1"/>
+            <text x="360" y="105" text-anchor="middle" font-size="13" fill="#c9a227" font-weight="700">北极星目标</text>
+            <text x="360" y="120" text-anchor="middle" font-size="11" fill="#888">由人类设定，扎根于业务使命</text>
+
+            <!-- 向下辐射的箭头 -->
+            <line x1="360" y1="125" x2="200" y2="155" stroke="#c9a227" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <line x1="360" y1="125" x2="360" y2="155" stroke="#c9a227" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <line x1="360" y1="125" x2="520" y2="155" stroke="#c9a227" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+            <!-- Agent 团队 -->
+            <rect x="140" y="155" width="120" height="35" rx="8" fill="#50a14f"/><text x="200" y="177" text-anchor="middle" font-size="11" fill="white" font-weight="700">Agent A</text>
+            <rect x="300" y="155" width="120" height="35" rx="8" fill="#50a14f"/><text x="360" y="177" text-anchor="middle" font-size="11" fill="white" font-weight="700">Agent B</text>
+            <rect x="460" y="155" width="120" height="35" rx="8" fill="#50a14f"/><text x="520" y="177" text-anchor="middle" font-size="11" fill="white" font-weight="700">Agent C</text>
+
+            <text x="200" y="200" text-anchor="middle" font-size="9" fill="#137333">主动建议</text>
+            <text x="200" y="212" text-anchor="middle" font-size="9" fill="#137333">新工作流</text>
+            <text x="360" y="200" text-anchor="middle" font-size="9" fill="#137333">主动建议</text>
+            <text x="360" y="212" text-anchor="middle" font-size="9" fill="#137333">新工作流</text>
+            <text x="520" y="200" text-anchor="middle" font-size="9" fill="#137333">主动建议</text>
+            <text x="520" y="212" text-anchor="middle" font-size="9" fill="#137333">新工作流</text>
+          </svg>
+          <p class="caption">图 5：北极星目标引导 Agent 主动建议新工作流</p>
+        </div>
+
+        <p>一旦北极星以书面形式清晰表达，人类就与团队中的 Agent 分享。然后，重要的是，人类选择哪些 Agent 应该主动建议新工作流来帮助实现这一长期目标。（不太可能团队中的每个 Agent 都具备主动成功建议工作所需的前提技能和信任。）</p>
+
+        <h3>示例</h3>
+        <p>一个内部工具团队的北极星是"让产品上手更有帮助"，看到一个 Agent 主动推荐了上手流程错误消息的文案修订。这些更改在接下来的一周可衡量地提高了上手成功率。</p>
+
+        <div class="practice-box">
+          <div class="practice-title">📌 在 Anthropic，设定北极星的具体做法：</div>
+          <ul>
+            <li><strong>人类讨论、辩论并记录</strong>人-Agent 团队的雄心勃勃的北极星目标——扎根于公司使命和业务目标</li>
+            <li><strong>与团队中的 Agent 分享北极星</strong>，并明确命名哪些 Agent 可以主动推荐新工作流</li>
+            <li><strong>保护日历上的高保真人类时间</strong>，会议现在聚焦于最重要的工作</li>
+          </ul>
+        </div>
+
+        <p>清晰的北极星为 Agent 提供了一致的工作方向和主动支持团队工作的有意义机会。</p>
+      </section>
+
+      <!-- Lesson 4 -->
+      <section id="lesson-4">
+        <h2><span class="lesson-num" style="background:var(--lesson-4)">4</span>随时间逐步建立信任</h2>
+
+        <p>Anthropic 的团队根据 Agent 展示的可靠性按比例授予自主权，然后有意识地扩展。工程师已成功派遣团队中的 Agent 独立处理了 <strong>500 个 bug 修复</strong>，但事情最初肯定不是这样。</p>
+
+        <!-- 图示：信任渐进模型 -->
+        <div class="illustration">
+          <svg viewBox="0 0 720 180" xmlns="http://www.w3.org/2000/svg">
+            <!-- 阶梯式上升 -->
+            <rect x="30" y="130" width="140" height="40" rx="6" fill="#fce8e6" stroke="#c5221f" stroke-width="1.5"/>
+            <text x="100" y="148" text-anchor="middle" font-size="12" fill="#c5221f" font-weight="700">阶段 1：手动审查</text>
+            <text x="100" y="162" text-anchor="middle" font-size="10" fill="#c5221f">人类审查每个决策</text>
+
+            <rect x="190" y="105" width="140" height="40" rx="6" fill="#fef7e0" stroke="#c9a227" stroke-width="1.5"/>
+            <text x="260" y="123" text-anchor="middle" font-size="12" fill="#c9a227" font-weight="700">阶段 2：引导验证</text>
+            <text x="260" y="137" text-anchor="middle" font-size="10" fill="#c9a227">Agent 用验证者检查</text>
+
+            <rect x="350" y="75" width="140" height="40" rx="6" fill="#e8f0fe" stroke="#4a90d9" stroke-width="1.5"/>
+            <text x="420" y="93" text-anchor="middle" font-size="12" fill="#4a90d9" font-weight="700">阶段 3：受监督自主</text>
+            <text x="420" y="107" text-anchor="middle" font-size="10" fill="#4a90d9">抽样审查 + 反思</text>
+
+            <rect x="510" y="40" width="180" height="40" rx="6" fill="#e6f4ea" stroke="#137333" stroke-width="1.5"/>
+            <text x="600" y="58" text-anchor="middle" font-size="12" fill="#137333" font-weight="700">阶段 4：完全自主</text>
+            <text x="600" y="72" text-anchor="middle" font-size="10" fill="#137333">500+ bug 修复独立完成</text>
+
+            <!-- 箭头 -->
+            <path d="M 170 140 L 188 125" stroke="#888" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+            <path d="M 330 115 L 348 95" stroke="#888" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+            <path d="M 490 85 L 508 60" stroke="#888" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0,0 8,3 0,6" fill="#888"/>
+              </marker>
+            </defs>
+
+            <text x="360" y="172" text-anchor="middle" font-size="11" fill="#888">信任随可靠性证明逐步增长，自主权随信任扩展</text>
+          </svg>
+          <p class="caption">图 6：信任渐进模型——从手动审查到完全自主的四个阶段</p>
+        </div>
+
+        <p>当新人类同事加入团队时，需要时间来评估他们的能力并发展强健的工作惯例。通常需要多个反馈周期来外化所有关于如何最好完成任务的隐性信息。对于 Agent 也是如此。用户需要尝试给 Agent 许多不同任务，以便学习：</p>
+        <ul>
+          <li>Agent 的能力是什么</li>
+          <li>如何清晰描述目标</li>
+          <li>需要什么技能文件</li>
+          <li>哪些提示最能引发期望行为</li>
+        </ul>
+        <p>还需要随着模型变化和改进重新测试任务。提示可能需要重新措辞，曾经有用的护栏可能会限制更智能的模型追求更有创造性的解决方案。</p>
+
+        <h3>工作验证</h3>
+        <p>我们发现的值得注意的是，最好的长期运行 Agent 有许多不同方式在人类查看之前验证自己的工作。代码有测试（当然），但大多数其他工作也可以被验证——例如，技术文档可以有应用于它们的评分标准和风格指南。当人类设定标准并确保分配给 Agent 的所有工作都可以被审查时，质量保持高水平，不会偏离原始意图。</p>
+
+        <div class="callout">
+          <strong>"Doer-Verifier" Agent 架构：</strong>给一个 Agent 做任务的工作，另一个 Agent 检查第一个 Agent 的工作。这种模式让对抗性审查长时间运行，通常值得 token 消耗。
+        </div>
+
+        <!-- 图示：Doer-Verifier 架构 -->
+        <div class="illustration">
+          <svg viewBox="0 0 720 140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Doer -->
+            <rect x="80" y="30" width="140" height="60" rx="10" fill="#e6f4ea" stroke="#50a14f" stroke-width="2"/>
+            <text x="150" y="55" text-anchor="middle" font-size="14" fill="#137333" font-weight="700">Doer Agent</text>
+            <text x="150" y="72" text-anchor="middle" font-size="11" fill="#555">执行任务</text>
+            <text x="150" y="86" text-anchor="middle" font-size="11" fill="#555">生成代码/文档</text>
+
+            <!-- 箭头 -->
+            <path d="M 220 60 L 300 60" stroke="#888" stroke-width="2" fill="none" marker-end="url(#arrow2)"/>
+
+            <!-- Verifier -->
+            <rect x="300" y="30" width="140" height="60" rx="10" fill="#fef7e0" stroke="#c9a227" stroke-width="2"/>
+            <text x="370" y="55" text-anchor="middle" font-size="14" fill="#b06000" font-weight="700">Verifier Agent</text>
+            <text x="370" y="72" text-anchor="middle" font-size="11" fill="#555">独立审查</text>
+            <text x="370" y="86" text-anchor="middle" font-size="11" fill="#555">用评分标准验证</text>
+
+            <!-- 通过/不通过 -->
+            <path d="M 440 50 L 500 35" stroke="#137333" stroke-width="2" fill="none" marker-end="url(#arrow2)"/>
+            <path d="M 440 70 L 500 85" stroke="#c5221f" stroke-width="2" fill="none" marker-end="url(#arrowred)"/>
+
+            <rect x="500" y="20" width="100" height="30" rx="6" fill="#e6f4ea" stroke="#137333" stroke-width="1.5"/>
+            <text x="550" y="40" text-anchor="middle" font-size="11" fill="#137333" font-weight="700">✓ 通过</text>
+
+            <rect x="500" y="75" width="100" height="30" rx="6" fill="#fce8e6" stroke="#c5221f" stroke-width="1.5"/>
+            <text x="550" y="95" text-anchor="middle" font-size="11" fill="#c5221f" font-weight="700">✗ 返回修复</text>
+
+            <!-- 回到 Doer 的箭头 -->
+            <path d="M 550 105 Q 550 130 150 130 Q 150 120 150 90" stroke="#c5221f" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arrowred)"/>
+
+            <defs>
+              <marker id="arrow2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0,0 8,3 0,6" fill="#888"/>
+              </marker>
+              <marker id="arrowred" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0,0 8,3 0,6" fill="#c5221f"/>
+              </marker>
+            </defs>
+          </svg>
+          <p class="caption">图 7：Doer-Verifier 架构——一个 Agent 执行，另一个独立验证，形成闭环</p>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-title">📌 在 Anthropic，随时间建立信任的具体做法：</div>
+          <ul>
+            <li><strong>在开始时手动审查 Agent 工作</strong>——审查质量、提供反馈，并设计任务验证检查清单</li>
+            <li><strong>告诉 Agent 使用"验证者"Agent 来检查其工作</strong>作为任务的一部分</li>
+            <li><strong>在循环中建立反思</strong>——要求 Agent 审查自己的失误，使工作随时间改进</li>
+            <li><strong>追踪每个 Agent 在哪些类型任务上赢得了自主权</strong>，并在重复成功后按任务类型扩展范围</li>
+          </ul>
+        </div>
+
+        <h3>实践案例：工程领导者的积压工作处理</h3>
+        <p>一位 Anthropic 的工程领导者接手了一个有大量积压工作的新团队。为了处理它，他邀请了几个人类和几个 Agent 来帮助他整理积压并优先处理最重要的内容。</p>
+
+        <h4>第一组 Agent：分类与评分</h4>
+        <ul>
+          <li>阅读积压中的所有项目</li>
+          <li>弄清楚是否有人在处理这些项目</li>
+          <li>为任何无人认领的项目分配复杂度评分</li>
+        </ul>
+
+        <h4>第二组 Agent：代码变更</h4>
+        <ul>
+          <li>从列表中读取，筛选到中低复杂度项目</li>
+          <li>创建代码变更</li>
+        </ul>
+
+        <p>在开始时，人类审查 Agent 做出的每个决策，并标记任何需要人类输入的。然后人类教 Agent 直接向人类浮现这些决策，确保有艰难权衡的决策总是有人类参与。</p>
+
+        <h4>每周报告与持续改进</h4>
+        <p>领导者和他的团队每周要求 Agent 编制一份周报，包括"教训和失误"，以便 Agent 跟踪错误并避免未来再次发生。随着时间推移，领导者能够给 Agent 越来越复杂的代码更改，并花更少时间指导 Agent 的日常任务。</p>
+
+        <h4>Agent 独立后的沟通优化</h4>
+        <p>一旦 Agent 更加独立，领导者教练它们将人类注意力视为稀缺资源：</p>
+        <ul>
+          <li>批量问题以便一次性回答</li>
+          <li>重复关键上下文以让人快速上手</li>
+          <li>限制每个人类一次看到多少内容</li>
+        </ul>
+
+        <p>帮助 Agent 良好沟通确保它们保持有用和高效。一些人团队中有专门角色的 Agent，唯一职责是决定如何批量化和只提升最重要的通信给人类团队成员。其他人设定护栏围绕 Agent 每天应该做多少工作，以便人类能够有意义地参与工作。这样的护栏确保：</p>
+        <ul>
+          <li>人类保持对他们重要的技能</li>
+          <li>需要人类审查的项目数量保持可持续</li>
+        </ul>
+      </section>
+
+      <!-- 五个问题 -->
+      <section id="questions">
+        <h2>需要问的问题</h2>
+        <p>在为人-Agent 团队奠定基础时，请考虑以下问题：</p>
+
+        <div class="questions-box">
+          <h3>🔑 团队自检清单</h3>
+          <ol>
+            <li><strong>信息可访问性：</strong>Agent 和人类需要的所有信息和访问权限是否都公开且可广泛搜索？</li>
+            <li><strong>角色清晰度：</strong>你能写下团队花名册（人类和 Agent），并说出每个成员负责什么吗？</li>
+            <li><strong>工具适配：</strong>团队中每个人类和 Agent 是否都有执行工作所需的正确工具访问权限？</li>
+            <li><strong>质量验证：</strong>你是否有评分标准或测试供人类和 Agent 验证关键工作产品？</li>
+            <li><strong>方向一致：</strong>你的团队是否有每个人都可以参考的清晰北极星？</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- 前进方向 -->
+      <section id="forward">
+        <h2>前进方向</h2>
+        <p>这些模式都不新——至少对人类来说不新。强有力的北极星、清晰的角色、强健的文档、共享的质量标准以及从错误中学习的空间，是我们几十年来已知的健康团队习惯。<strong>Agent 只是让不跳过这些基础变得更加重要。</strong></p>
+
+        <p>从 Agent 中获得最多的团队，是那些最有意识地应用这些基本原理的团队。</p>
+
+        <div class="callout">
+          <strong>开始构建多人 Agent：</strong>使用 <a href="https://code.claude.com/docs/en/agent-teams" target="_blank">Claude Code 中的 Agent 团队</a> 或 <a href="https://support.claude.com/en/articles/15594475-what-is-claude-tag" target="_blank">Claude Tag</a> 开始构建。
+        </div>
+
+        <p class="author">
+          本文作者：Kristen Swanson（Anthropic 教育团队）。<br>
+          致谢：Matt Bell、Erik Olesund、Hasnain Lakhani、Shale Craig、Nolan Caudill、Mike Schiraldi、Aleks Todorova 和 Molly Vorwerck 对本文的贡献。
+        </p>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
+
+<script>
+  const sections = document.querySelectorAll('section');
+  const navLinks = document.querySelectorAll('.nav-list a');
+  const scrollTopBtn = document.querySelector('.scroll-top');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop - 100;
+      if (window.scrollY >= sectionTop) {
+        current = section.getAttribute('id');
+      }
+    });
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+      }
+    });
+    if (window.scrollY > 400) {
+      scrollTopBtn.classList.add('visible');
+    } else {
+      scrollTopBtn.classList.remove('visible');
+    }
+  });
+</script>
+
+</body>
+</html>

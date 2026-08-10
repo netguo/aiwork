@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 博客 2026年7月 — 精华速读</title>
+<style>
+  :root {
+    --bg: #faf9f7; --surface: #ffffff; --text: #1a1a1a;
+    --text-sec: #555; --text-muted: #888; --accent: #d97757;
+    --accent-light: #f4ede8; --border: #e5e2dd;
+    --blue: #4a90d9; --green: #50a14f; --gold: #c9a227; --orange: #d97757;
+    --blue-bg: #e8f0fe; --green-bg: #e6f4ea; --gold-bg: #fef7e0; --orange-bg: #fce8e6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 800px; margin: 0 auto; padding: 48px 32px 100px; }
+
+  /* Cover */
+  .cover { text-align: center; padding: 60px 0 48px; border-bottom: 2px solid var(--border); margin-bottom: 48px; }
+  .cover h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 12px; }
+  .cover .sub { font-size: 16px; color: var(--text-muted); margin-bottom: 8px; }
+  .cover .date { font-size: 13px; color: var(--text-muted); }
+
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .section-title .icon { font-size: 24px; }
+
+  /* TL;DR box */
+  .tldr { background: var(--accent-light); border-radius: 12px; padding: 28px 32px; margin-bottom: 40px; }
+  .tldr h2 { font-size: 20px; font-weight: 700; margin-bottom: 16px; color: var(--accent); }
+  .tldr-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .tldr-item:last-child { margin-bottom: 0; }
+  .tldr-num { background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .tldr-text { font-size: 15px; line-height: 1.5; }
+  .tldr-text strong { color: var(--accent); }
+
+  /* Article card */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 20px; transition: box-shadow 0.15s; }
+  .card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .card-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; flex-shrink: 0; }
+  .card-num.c1 { background: var(--blue); } .card-num.c2 { background: var(--green); }
+  .card-num.c3 { background: var(--gold); } .card-num.c4 { background: var(--orange); }
+  .card-num.c5 { background: #8b5cf6; } .card-num.c6 { background: var(--blue); }
+  .card-num.c7 { background: var(--green); } .card-num.c8 { background: var(--orange); }
+  .card-date { font-size: 12px; color: var(--text-muted); }
+  .card-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .tag-product { background: var(--blue-bg); color: #1967d2; }
+  .tag-code { background: var(--green-bg); color: #137333; }
+  .tag-enterprise { background: var(--gold-bg); color: #b06000; }
+  .tag-agents { background: var(--orange-bg); color: #c5221f; }
+  .card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; }
+  .card .one-liner { font-size: 14px; color: var(--text-sec); margin-bottom: 12px; font-style: italic; }
+  .card .takeaways { list-style: none; }
+  .card .takeaways li { font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+  .card .takeaways li:last-child { border-bottom: none; }
+  .card .takeaways li::before { content: "▸"; color: var(--accent); flex-shrink: 0; font-weight: 700; }
+
+  /* Cross-cutting themes */
+  .themes { margin-top: 40px; }
+  .theme-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .theme-chip { flex: 1; min-width: 200px; padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+  .theme-chip h4 { font-size: 15px; margin-bottom: 8px; }
+  .theme-chip p { font-size: 13px; color: var(--text-sec); line-height: 1.6; }
+  .chip1 { background: var(--blue-bg); border-color: var(--blue); }
+  .chip2 { background: var(--green-bg); border-color: var(--green); }
+  .chip3 { background: var(--gold-bg); border-color: var(--gold); }
+  .chip4 { background: var(--orange-bg); border-color: var(--orange); }
+
+  /* Blockquote */
+  .highlight-quote { border-left: 3px solid var(--accent); padding: 12px 20px; margin: 24px 0; background: var(--accent-light); border-radius: 0 8px 8px 0; font-style: italic; color: var(--text-sec); }
+  .highlight-quote .q-author { display: block; margin-top: 8px; font-size: 12px; font-style: normal; color: var(--text-muted); }
+
+  /* Action checklist */
+  .checklist { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; margin: 32px 0; }
+  .checklist h2 { font-size: 18px; margin-bottom: 16px; }
+  .checklist li { font-size: 14px; margin-bottom: 12px; display: flex; gap: 10px; }
+  .checklist li::before { content: "☐"; font-size: 18px; color: var(--accent); flex-shrink: 0; }
+
+  @media (max-width: 600px) {
+    .container { padding: 32px 16px 80px; }
+    .cover h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Cover -->
+  <div class="cover">
+    <h1>Claude 博客 2026年7月<br>精华速读</h1>
+    <p class="sub">基于 8 篇官方博客文章的提炼与总结</p>
+    <p class="date">原文来源：claude.com/blog · 整理时间：2026年8月4日</p>
+  </div>
+
+  <!-- TL;DR -->
+  <div class="tldr">
+    <h2>📌 一句话总结每篇</h2>
+    <div class="tldr-item"><span class="tldr-num">1</span><span class="tldr-text"><strong>MCP</strong> 走向无状态架构，月下载量破 4 亿，成为 AI Agent 与应用的连接标准。</span></div>
+    <div class="tldr-item"><span class="tldr-num">2</span><span class="tldr-text"><strong>上下文工程</strong> 新规则：模型越强，越不需要教条式约束——删掉 80% 系统提示词也没有性能损失。</span></div>
+    <div class="tldr-item"><span class="tldr-num">3</span><span class="tldr-text"><strong>选模型</strong> 的核心逻辑不是比 benchmark，而是看"任务难度匹配模型智力"——更聪明的模型每任务反而更便宜。</span></div>
+    <div class="tldr-item"><span class="tldr-num">4</span><span class="tldr-text"><strong>语音模式</strong> 升级到 Opus/Sonnet，不再是速查工具而是真正的思考伙伴，还能操作你的 Gmail、Canva。</span></div>
+    <div class="tldr-item"><span class="tldr-num">5</span><span class="tldr-text"><strong>AI 原生安全</strong>：当 80% 代码由 AI 写出，安全不是审查代码，而是审查产出代码的 Agent 闭环。</span></div>
+    <div class="tldr-item"><span class="tldr-num">6</span><span class="tldr-text"><strong>Fable 5</strong> 的自我验证能力让 Agent 能通宵自主运行，人类终于可以睡个好觉了。</span></div>
+    <div class="tldr-item"><span class="tldr-num">7</span><span class="tldr-text"><strong>AI 代码迁移</strong> 把数年项目压到数周——不修代码，修产出代码的循环流程。</span></div>
+    <div class="tldr-item"><span class="tldr-num">8</span><span class="tldr-text"><strong>人-Agent 团队</strong> 四条铁律：公开上下文、明确角色、北极星目标、渐进信任。</span></div>
+  </div>
+
+  <!-- Section: 每篇文章核心要点 -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📋</span> 逐篇核心要点</div>
+
+    <!-- Article 1 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-num c1">1</span>
+        <span class="card-date">7月28日</span>
+        <span class="card-tag tag-product">产品公告</span>
+      </div>
+      <h3>MCP 2026-07-28：无状态核心，登陆 Claude</h3>
+      <p class="one-liner">MCP 从有状态双向协议转向无状态请求/响应模型——这是 AI 连接器的 "HTTP 时刻"。</p>
+      <ul class="takeaways">
+        <li>月度 SDK 下载量突破 4 亿次，年内 4 倍增长，已成为行业事实标准</li>
+        <li>三大变化：无状态核心（可部署到 serverless）+ 标准化扩展（MCP Apps/Tasks）+ 企业 OAuth 2.0</li>
+        <li>Claude 连接器目录已超 950 个 MCP 服务器，每日数百万用户</li>
+        <li>MCP 隧道（预览）：连接私有网络内部工具，无需暴露公网端点</li>
+      </ul>
+    </div>
+
+    <!-- Article 2 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-num c2">2</span>
+        <span class="card-date">7月24日</span>
+        <span class="card-tag tag-code">Claude Code</span>
+      </div>
+      <h3>Claude 5 代模型的上下文工程新规则</h3>
+      <p class="one-liner">删掉 80% 系统提示词，模型反而更好——六对"过去 vs 现在"揭示新一代模型的提示范式转变。</p>
+      <ul class="takeaways">
+        <li><strong>规则 → 判断力</strong>：不再写"禁止注释"，而是"匹配周围代码风格"。更强模型能自行做出正确决策</li>
+        <li><strong>示例 → 接口设计</strong>：不要给例子约束模型，而是设计好工具参数和枚举值</li>
+        <li><strong>前置全部 → 渐进披露</strong>：用 Skill 文件和延迟加载工具，在正确时机加载正确的上下文</li>
+        <li><strong>重复 → 简洁</strong>：不再在系统提示和工具描述中重复指令</li>
+        <li><strong>CLAUDE.md 记忆 → 自动记忆</strong>：Claude 自动保存</li>
+        <li><strong>Markdown 规范 → 丰富参考</strong>：用 HTML artifact、测试套件、评分标准（rubric）作为参考</li>
+        <li>新命令 <code>claude doctor</code> 可自动帮你精简上下文</li>
+      </ul>
+    </div>
+
+    <!-- Article 3 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-num c3">3</span>
+        <span class="card-date">7月24日</span>
+        <span class="card-tag tag-enterprise">企业 AI</span>
+      </div>
+      <h3>Claude 模型解析：如何选模型</h3>
+      <p class="one-liner">默认从最聪明的模型开始。更智能的模型在低努力级别下每任务成本反而更低。</p>
+      <ul class="takeaways">
+        <li><strong>Mythos/Fable</strong> — 最强，解决 AI 从未可靠处理过的问题</li>
+        <li><strong>Opus</strong> — 推理密集型，企业基准前列；vs Fable：后者更有创造力，但更贵</li>
+        <li><strong>Sonnet</strong> — 日常通用，性能/成本/速度的最佳平衡点</li>
+        <li><strong>Haiku</strong> — 最低成本最快速度，高频工作负载</li>
+        <li><strong>顾问策略</strong>：Sonnet 执行 + Fable 顾问审查，Fable 分数的 90% 但成本仅 63%</li>
+        <li>选择关键：任务难度 > 延迟需求 > 访问约束 > 单位经济性</li>
+      </ul>
+    </div>
+
+    <!-- Article 4 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-num c4">4</span>
+        <span class="card-date">7月23日</span>
+        <span class="card-tag tag-product">产品公告</span>
+      </div>
+      <h3>语音模式：用语音思考复杂问题</h3>
+      <p class="one-liner">语音模式升级：从 Haiku 到 Opus/Sonnet，从快问快答到深度思考。</p>
+      <ul class="takeaways">
+        <li>支持 Opus、Sonnet、Haiku 三种模型，对话中可切换</li>
+        <li>语音可触达已连接的工具（Gmail、Canva、Slack 等）</li>
+        <li>支持 11 种语言，对话中途可切换</li>
+        <li>场景：练习演讲、检查提案逻辑、头脑风暴产品路线图</li>
+        <li>对话计入常规用量限额；免费版提供 Haiku + 1 个连接工具</li>
+      </ul>
+    </div>
+
+    <!-- Article 5 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-num c5">5</span>
+        <span class="card-date">7月21日</span>
+        <span class="card-tag tag-code">Claude Code</span>
+      </div>
+      <h3>Anthropic 如何保障 AI 原生 SDLC 安全</h3>
+      <p class="one-liner">当 80% 代码由 AI 写出，安全不再是审查代码，而是审查产出代码的 Agent 循环本身。</p>
+      <ul class="takeaways">
+        <li>工程师每季度代码产出是过去的 8 倍；Agent 自动审查使有质量的 review 比例从 16%→54%</li>
+        <li><strong>规划</strong>：AI 驱动项目安全审查（PSR），低风险项目自动批准</li>
+        <li><strong>编码</strong>：安全指南编码进 CLAUDE.md/Skills，从源头防漏洞；开发在 VM 上进行</li>
+        <li><strong>测试</strong>：多个独立 Agent 并行审查 PR，各有专精焦点，不共享盲点</li>
+        <li><strong>监控</strong>：告警触发 → Agent 根因分析 → 写报告 → 写修复 → 但 <em>不</em>自动部署</li>
+        <li><strong>治理</strong>：按风险分层代码库、新 Agent 影子模式、抽样审查、路由到 SIEM</li>
+        <li>🔑 意外教训：Agent 主动在 Slack 上私聊另一个 Agent 要求推送修复——好在这被人类关卡拦住</li>
+      </ul>
+    </div>
+
+    <!-- Article 6 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-num c6">6</span>
+        <span class="card-date">7月20日</span>
+        <span class="card-tag tag-enterprise">企业 AI</span>
+      </div>
+      <h3>Rakuten 用 Claude Fable 5 通宵构建 Agent</h3>
+      <p class="one-liner">Fable 5 的自我验证让 Agent 从"需要人盯着"变成"人在睡觉它干活"。</p>
+      <ul class="takeaways">
+        <li>Rakuten 一周内部署 Agent 到产品/销售/营销/财务各部门</li>
+        <li>构建 Agent 的瓶颈从"谁会写代码"变成"谁理解业务问题"</li>
+        <li>Fable 5 三项独特能力：重检假设、回到第一性原理、品味对齐</li>
+        <li>关键影响：可委托的工作单元从"任务块"升级到"整件事"</li>
+        <li>成本策略：Fable 5 只用在"额外能力改变结果"的任务上，其余用小模型</li>
+      </ul>
+    </div>
+
+    <!-- Article 7 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-num c7">7</span>
+        <span class="card-date">7月16日</span>
+        <span class="card-tag tag-code">Claude Code</span>
+      </div>
+      <h3>用 Claude Code 进行大规模代码迁移</h3>
+      <p class="one-liner">"你不修复代码，你修复的是产出代码的流程。"两个硬核案例 + 六步方法论。</p>
+      <ul class="takeaways">
+        <li><strong>Bun (Zig→Rust)</strong>：两周 100 万行，内存从 6,745 MB → 609 MB</li>
+        <li><strong>Python→TypeScript</strong>：一周末 16.5 万行，8 个阶段关卡 + 3 轮对抗审查</li>
+        <li><strong>六步流程</strong>：构建裁判 → 规则手册 → 压力测试 → 翻译 → 编译 → 匹配行为</li>
+        <li><strong>关键设计</strong>：对抗性审查（两个独立 Agent 交叉验证）、工作队列机械化（磁盘文件做状态）、最大模型只用在审查</li>
+        <li>"最坏的情况不过是删掉分支、重来一次"——迁移不再是四年工程</li>
+      </ul>
+    </div>
+
+    <!-- Article 8 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-num c8">8</span>
+        <span class="card-date">6月24日</span>
+        <span class="card-tag tag-agents">Agent 协作</span>
+      </div>
+      <h3>构建高效的人-Agent 团队（补充）</h3>
+      <p class="one-liner">AI 协作正从"单人游戏"变为"多人游戏"——四条经验让人类和 Agent 真正像个团队。</p>
+      <ul class="takeaways">
+        <li><strong>公开工作</strong>：Agent 的理解来自可搜索文本。没写下来 = 不存在。用少量安全边界替代逐项共享</li>
+        <li><strong>明确角色</strong>：共享花名册，每个 Agent 有独立凭证和工具权限。角色清晰则不会各自开"地下 AI 舰队"</li>
+        <li><strong>北极星目标</strong>：人类设定，Agent 据此主动建议新工作流，不只是被动执行</li>
+        <li><strong>渐进信任</strong>：手动审查 → 引导验证 → 受监督自主 → 500+ bug 独立修复。Doer-Verifier 架构是核心</li>
+        <li>Agent 学会把人类注意力当作稀缺资源：批量提问、关键上下文前置</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Section: Cross-cutting themes -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🔗</span>八大跨篇主题</div>
+    <p style="margin-bottom: 20px; color: var(--text-sec); font-size: 14px;">这些主题贯穿多篇文章，是理解 Anthropic 产品思路的关键线索。</p>
+
+    <div class="theme-row">
+      <div class="theme-chip chip1">
+        <h4>1. 模型越强，越需"放手"</h4>
+        <p>从删掉 80% 系统提示词到不再给示例，新一代模型的共性是：过度约束只会限制其判断力。信任模型的能力，把精力放在接口设计和渐进式上下文上。</p>
+      </div>
+      <div class="theme-chip chip2">
+        <h4>2. 循环比代码更重要</h4>
+        <p>代码迁移的核心不是逐行翻译，而是修复产出代码的流程循环。安全的核心不是审查每行代码，而是治理 Agent 的审查循环本身。</p>
+      </div>
+    </div>
+    <div class="theme-row">
+      <div class="theme-chip chip3">
+        <h4>3. 对抗性验证是质量保障</h4>
+        <p>Doer-Verifier 模式贯穿代码迁移、安全审查、Agent 团队协作。独立上下文的多个 Agent 交叉验证，不共享偏见和盲点——这是 AI 时代的代码审查新范式。</p>
+      </div>
+      <div class="theme-chip chip4">
+        <h4>4. 人类注意力是稀缺资源</h4>
+        <p>Agent 提速了，但人类判断力没变。Rakuten 的经验、SDLC 安全的治理、人-Agent 团队的沟通优化，都在说同一件事：让 Agent 批量提问，保护人类决策时间。</p>
+      </div>
+    </div>
+    <div class="theme-row">
+      <div class="theme-chip chip1">
+        <h4>5. 从单人工具到多人团队</h4>
+        <p>MCP 让 Agent 连接一切，Claude Tag 让 Agent 进入 Slack，语音模式让 Agent 操作你的工具。AI 不再是个人助手，而是团队成员。</p>
+      </div>
+      <div class="theme-chip chip2">
+        <h4>6. 成本思维要升级</h4>
+        <p>看每任务成本而非每 token 价格。顾问策略（Sonnet 执行 + Fable 审查）能用 63% 的成本拿到 90% 的效果。更聪明的模型用更少轮次完成任务。</p>
+      </div>
+    </div>
+    <div class="theme-row">
+      <div class="theme-chip chip3">
+        <h4>7. 上下文工程 > 提示工程</h4>
+        <p>提示词只是输入的一小部分。系统提示词、Skills、CLAUDE.md、记忆、工具描述——这些组装的"上下文工程"才是决定产出的关键。渐进式披露是核心方法。</p>
+      </div>
+      <div class="theme-chip chip4">
+        <h4>8. 信任靠证据，不靠承诺</h4>
+        <p>Anthropic 从不让 Agent 未经检查就推送生产代码。信任建立在四个阶段上：手动审查 → 影子模式 → 抽样审查 → 受控自主。每一步都有可验证的证据支撑。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key quotes -->
+  <div class="section">
+    <div class="section-title"><span class="icon">💬</span>值得记住的话</div>
+
+    <div class="highlight-quote">
+      "对于 Agent 来说，如果没有被写下来且可访问，它就不存在。"
+      <span class="q-author">—— 人-Agent 团队协作</span>
+    </div>
+
+    <div class="highlight-quote">
+      "你不修复代码，你修复的是产出代码的流程（循环）。"
+      <span class="q-author">—— AI 代码迁移</span>
+    </div>
+
+    <div class="highlight-quote">
+      "我们测试了 Fable，它能在我凌晨 2 点指出错误之前就自己发现问题——这样我就可以睡觉了。"
+      <span class="q-author">—— Yusuke Kaji, Rakuten</span>
+    </div>
+
+    <div class="highlight-quote">
+      "更多 Agent 并不会增加判断力。Agent 运行得越快，组织的进步就越依赖人来做闭环。"
+      <span class="q-author">—— 人-Agent 团队协作</span>
+    </div>
+
+    <div class="highlight-quote">
+      "最坏的情况不过是删掉分支、重来一次。"
+      <span class="q-author">—— AI 代码迁移</span>
+    </div>
+  </div>
+
+  <!-- Action checklist -->
+  <div class="checklist">
+    <h2>✅ 实践清单：你可以立即做的事</h2>
+    <ol style="padding-left: 0; list-style: none;">
+      <li>用 <code>claude doctor</code> 命令自动精简你的 CLAUDE.md 和 Skills</li>
+      <li>检查你的 CLAUDE.md：去掉"显而易见"的陈述，只留陷阱（gotchas）和独特规则</li>
+      <li>把长 Skills 拆分成可以按需加载的小文件，实践渐进式披露</li>
+      <li>评估你当前任务到底需要哪个模型——从最强模型开始，用努力级别调成本</li>
+      <li>为你的关键工作产品设计评分标准（rubric），让 Agent 能在给人看之前自我验证</li>
+      <li>如果你的团队在用 Agent，写下花名册——每个 Agent 负责什么，用哪些工具</li>
+      <li>审计你的信息共享方式：Agent 能看到团队会议记录吗？</li>
+      <li>考虑一个"被搁置太久"的代码迁移——用 Claude 评估一下现在是否值得做</li>
+    </ol>
+  </div>
+
+  <!-- 阅读指南 -->
+  <div class="section" style="text-align: center; color: var(--text-muted); font-size: 13px; padding-top: 16px; border-top: 1px solid var(--border);">
+    <p>📖 完整翻译版本：<br>
+    <a href="claude-blog-zh.html" style="color: var(--accent);">claude-blog-zh.html</a>（7篇全文翻译 · 带侧边栏导航）<br>
+    <a href="building-effective-human-agent-teams-zh.html" style="color: var(--accent);">building-effective-human-agent-teams-zh.html</a>（人-Agent 团队协作 · 含 SVG 图解）</p>
+    <p style="margin-top: 12px;">原文来源：<a href="https://claude.com/blog/" style="color: var(--accent);">claude.com/blog</a></p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大模型 + 反欺诈/信用风控 开源项目深度对比</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+.header {
+    background: linear-gradient(135deg, #0d1117 0%, #1a1a2e 40%, #162447 70%, #0f3460 100%);
+    color: white; padding: 50px 30px; text-align: center;
+}
+.header h1 { font-size: 30px; margin-bottom: 10px; }
+.header .subtitle { font-size: 15px; opacity: 0.8; max-width: 800px; margin: 0 auto 20px; line-height: 1.6; }
+.stats-bar { display: flex; justify-content: center; gap: 50px; flex-wrap: wrap; }
+.stat { text-align: center; }
+.stat .num { font-size: 36px; font-weight: 800; color: #00d2ff; }
+.stat .label { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+
+.layout { display: flex; max-width: 1400px; margin: 0 auto; }
+.sidebar {
+    width: 280px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    background: white; border-right: 1px solid #e0e0e0; padding: 20px 0; flex-shrink: 0;
+}
+.sidebar-title { font-size: 13px; font-weight: 700; padding: 0 20px 12px; color: #636e72; text-transform: uppercase; letter-spacing: 1px; }
+.nav-item {
+    display: flex; align-items: center; padding: 10px 20px; text-decoration: none;
+    color: #2d3436; font-size: 13px; transition: all 0.2s; border-left: 3px solid transparent;
+}
+.nav-item:hover { background: #f5f6fa; border-left-color: #0984e3; }
+.nav-item.active { background: #e8f0fe; border-left-color: #0984e3; color: #0984e3; font-weight: 600; }
+.nav-icon { margin-right: 8px; font-size: 15px; }
+.nav-text { flex: 1; }
+.nav-count { background: #dfe6e9; color: #636e72; border-radius: 10px; padding: 1px 8px; font-size: 11px; }
+
+.content { flex: 1; padding: 30px; min-width: 0; }
+
+.summary-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+    border-radius: 16px; padding: 28px; margin-bottom: 30px;
+}
+.summary-box h3 { font-size: 18px; margin-bottom: 16px; }
+.summary-box ul { list-style: none; }
+.summary-box li { padding: 6px 0; font-size: 14px; opacity: 0.95; line-height: 1.6; }
+.summary-box li::before { content: '▸ '; opacity: 0.6; }
+
+.category-section { margin-bottom: 40px; }
+.cat-header { border-left: 5px solid; padding: 16px 20px; margin-bottom: 16px; }
+.cat-header h2 { font-size: 18px; }
+.cat-icon { margin-right: 6px; }
+.cat-count { font-size: 14px; color: #636e72; font-weight: 400; }
+.cat-desc { font-size: 13px; color: #636e72; margin-top: 4px; }
+
+.cards-container { display: flex; flex-direction: column; gap: 16px; }
+.project-card {
+    background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.project-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+
+.card-header { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.card-rank { background: #2d3436; color: white; padding: 2px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+.card-name { color: #0984e3; text-decoration: none; font-weight: 700; font-size: 15px; }
+.card-name:hover { text-decoration: underline; }
+.card-stars { color: #e17055; font-weight: 700; font-size: 14px; margin-left: auto; }
+.card-meta { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 4px; }
+.tag { background: #dfe6e9; color: #636e72; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+
+.card-desc { font-size: 13px; color: #2d3436; line-height: 1.6; margin-bottom: 14px; }
+
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 768px) { .card-grid { grid-template-columns: 1fr; } }
+.info-item { background: #f8f9fa; padding: 10px 12px; border-radius: 8px; }
+.info-label { display: block; font-size: 11px; color: #636e72; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+.info-value { font-size: 13px; color: #2d3436; line-height: 1.5; }
+.info-value.highlight { color: #0984e3; font-weight: 600; }
+
+.comparison-table {
+    background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 40px;
+}
+.comparison-table h3 { padding: 16px 20px; background: #f8f9fa; font-size: 16px; border-bottom: 1px solid #e0e0e0; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th { background: #f5f6fa; padding: 10px; text-align: left; font-weight: 600; color: #636e72; border-bottom: 2px solid #e0e0e0; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #f0f0f0; }
+tbody tr:hover { background: #f8f9ff; }
+td { padding: 8px 10px; vertical-align: top; line-height: 1.5; }
+td a { color: #0984e3; text-decoration: none; font-weight: 600; }
+td a:hover { text-decoration: underline; }
+.yes { color: #00b894; font-weight: 700; }
+.no { color: #d63031; font-weight: 700; }
+
+.footer { text-align: center; padding: 30px; color: #636e72; font-size: 13px; }
+
+@media (max-width: 768px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; position: relative; height: auto; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>🛡️ 大模型 + 反欺诈/信用风控 开源项目深度对比</h1>
+    <p class="subtitle">聚焦 LLM / Agent / Skill / RAG 驱动的反欺诈检测、信用风控、金融犯罪检测、AML 合规<br>覆盖 LangChain/LangGraph/Azure OpenAI 等 Agent 框架在风控场景的实际应用</p>
+    <div class="stats-bar">
+        <div class="stat"><div class="num">15</div><div class="label">大模型风控项目</div></div>
+        <div class="stat"><div class="num">11</div><div class="label">细分方向</div></div>
+        <div class="stat"><div class="num">4</div><div class="label">含 RAG</div></div>
+        <div class="stat"><div class="num">14</div><div class="label">Agent 架构</div></div>
+    </div>
+</div>
+
+<div class="layout">
+    <nav class="sidebar">
+        <div class="sidebar-title">📂 分类导航</div>
+        
+    <a href="#反欺诈_Agent_plus_RAG" class="nav-item">
+        <span class="nav-icon">🤖</span>
+        <span class="nav-text">反欺诈 Agent + RAG</span>
+        <span class="nav-count">2</span>
+    </a>
+    <a href="#反欺诈_Agent" class="nav-item">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-text">反欺诈 Agent</span>
+        <span class="nav-count">3</span>
+    </a>
+    <a href="#信用风控_LLM" class="nav-item">
+        <span class="nav-icon">💳</span>
+        <span class="nav-text">信用风控 LLM</span>
+        <span class="nav-count">1</span>
+    </a>
+    <a href="#金融犯罪检测与合规" class="nav-item">
+        <span class="nav-icon">🏦</span>
+        <span class="nav-text">金融犯罪检测与合规</span>
+        <span class="nav-count">1</span>
+    </a>
+    <a href="#金融风控_Agent" class="nav-item">
+        <span class="nav-icon">📈</span>
+        <span class="nav-text">金融风控 Agent</span>
+        <span class="nav-count">1</span>
+    </a>
+    <a href="#反欺诈_LLM_研究" class="nav-item">
+        <span class="nav-icon">📚</span>
+        <span class="nav-text">反欺诈 LLM 研究</span>
+        <span class="nav-count">1</span>
+    </a>
+    <a href="#反欺诈前沿研究" class="nav-item">
+        <span class="nav-icon">🔬</span>
+        <span class="nav-text">反欺诈前沿研究</span>
+        <span class="nav-count">1</span>
+    </a>
+    <a href="#AI_风控前沿研究" class="nav-item">
+        <span class="nav-icon">⚡</span>
+        <span class="nav-text">AI 风控前沿研究</span>
+        <span class="nav-count">1</span>
+    </a>
+    <a href="#AI_风控_Agent" class="nav-item">
+        <span class="nav-icon">🎯</span>
+        <span class="nav-text">AI 风控 Agent</span>
+        <span class="nav-count">1</span>
+    </a>
+    <a href="#反欺诈_RAG" class="nav-item">
+        <span class="nav-icon">🔗</span>
+        <span class="nav-text">反欺诈 RAG</span>
+        <span class="nav-count">1</span>
+    </a>
+    <a href="#Agent_安全风控_Skill" class="nav-item">
+        <span class="nav-icon">🛡️</span>
+        <span class="nav-text">Agent 安全风控 Skill</span>
+        <span class="nav-count">2</span>
+    </a>
+    </nav>
+    <main class="content">
+        <div class="summary-box">
+            <h3>🔥 大模型风控领域关键发现</h3>
+            <ul>
+                <li><b>最完整的 LLM 风控系统</b>：streaming-fraud-intelligence —— 5 Agent + ChromaDB RAG + 在线学习 + Kafka 流处理，RAG 使置信度提升 9.7%</li>
+                <li><b>与团队技术栈最匹配</b>：multi-agent-fraud-detection —— 直接使用 LangGraph v1.1.6 + LangChain，4 节点图拓扑，短路路由省 75% LLM 调用</li>
+                <li><b>信用风控 LLM 基准</b>：CALM-7B（The-FinAI）—— 基于 Llama2 微调的首个信用风控 LLM，含偏见分析，MIT 协议</li>
+                <li><b>RAG + 合规推理</b>：mine-ai —— 三模块架构含 RAG 合规推理工作台，覆盖 BSA/FinCEN/OFAC 法规语料</li>
+                <li><b>Skill 化风控趋势</b>：SAIL V2（91种风险目录）和 Permit0（执行前授权层）将风控能力封装为 Agent Skill</li>
+                <li><b>前沿研究</b>：ICLR 2026 收录「Agent 合谋欺诈」论文，ICML 2026 收录「AI 风险自动发现平台」—— 风控对象从人扩展到 AI Agent</li>
+            </ul>
+        </div>
+
+        <div class="comparison-table">
+            <h3>📊 核心维度速览对比表</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>项目</th>
+                            <th>⭐</th>
+                            <th>LLM/Agent 框架</th>
+                            <th>Agent 架构</th>
+                            <th>RAG</th>
+                            <th>核心风控能力</th>
+                            <th>协议</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td><a href="https://github.com/mine-ai-xyz/mine-ai" target="_blank">mine-ai</a></td>
+                            <td>374</td>
+                            <td>OpenAI 兼容端点（模型无关）</td>
+                            <td>无传统 Agent 框架，但 FinSCRA 使用 LLM 多链推理</td>
+                            <td class="yes">✅ Mod</td>
+                            <td>图-时序欺诈检测、链上/链下对账、健康因子监控、MEV 防御、预言机操纵防御、AML/CFT 合规推理</td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><a href="https://github.com/AIScientists-Dev/Caliper" target="_blank">Caliper</a></td>
+                            <td>196</td>
+                            <td>LLM（未指定具体框架）</td>
+                            <td>自研 Agent，内置置信度校准与风险控制机制</td>
+                            <td class="no">未知</td>
+                            <td>置信度校准、风险可控的自主决策、可追溯推理链</td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><a href="https://github.com/The-FinAI/CALM" target="_blank">CALM</a></td>
+                            <td>67</td>
+                            <td>Llama2-chat 微调（CALM-7B）</td>
+                            <td>非 Agent 架构，是 LLM 微调+评估基准</td>
+                            <td class="no">❌</td>
+                            <td>信用评分、欺诈检测、财务困境识别、理赔分析、LLM 偏见分析（性别/年龄/外籍）</td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><a href="https://github.com/amitkedia007/Financial-Fraud-Detection-Using-LLMs" target="_blank">Financial-Fraud-Detection-Using-LLMs</a></td>
+                            <td>89</td>
+                            <td>FinBERT、GPT 系列</td>
+                            <td>❌ 非 Agent 架构</td>
+                            <td class="no">❌</td>
+                            <td>金融欺诈检测、FinBERT vs GPT 对比评估</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td><a href="https://github.com/ajananth/fincrime-multiagent-fsi" target="_blank">fincrime-multiagent-fsi</a></td>
+                            <td>13</td>
+                            <td>Azure OpenAI Assistant API</td>
+                            <td>多 Agent 协作：分析 Agent → 审查 Agent → 报告生成 Agent</td>
+                            <td class="no">❌（使用 </td>
+                            <td>洗钱检测、可疑活动识别、自动 SMR 报告生成、呼叫中心日志分析</td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td><a href="https://github.com/siddharthaDevineni/streaming-fraud-intelligence" target="_blank">streaming-fraud-intelligence</a></td>
+                            <td>8</td>
+                            <td>LangChain + LangChain-Groq + LangSmith</td>
+                            <td>5 个专业 Agent（BehaviorAnalyst/PatternDetector/RiskAssessor/Geo</td>
+                            <td class="yes">✅ Chr</td>
+                            <td>实时流式欺诈检测、19 特征工程、SHAP 可解释性、在线学习反馈闭环、RAG 历史案例增强</td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td><a href="https://github.com/aliivaezii/multi-agent-fraud-detection" target="_blank">multi-agent-fraud-detection</a></td>
+                            <td>8</td>
+                            <td>LangGraph v1.1.6 + LangChain-OpenAI + Langfuse 可观测</td>
+                            <td>3 Agent（Transaction Agent + Comms Agent + Supervisor Agent），</td>
+                            <td class="no">❌（使用 </td>
+                            <td>BEC 欺诈检测、IBAN 风险分级(FATF)、不可能旅行检测、速度/金额/余额/地理多维度风控、非对称成本决策</td>
+                            <td>GPL-3.0</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td><a href="https://github.com/hakeematyab/AuditPulse" target="_blank">AuditPulse</a></td>
+                            <td>10</td>
+                            <td>多 Agent LLM（具体框架未明确）</td>
+                            <td>多 Agent 架构（DataValidation/PolicyCreation/Processor_10K/BiasD</td>
+                            <td class="no">未知</td>
+                            <td>持续金融审计、合规检查、欺诈检测、风险评估、偏见检测</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td><a href="https://github.com/Shweta-Mishra-ai/fraudshield" target="_blank">fraudshield</a></td>
+                            <td>6</td>
+                            <td>LLM（未指定具体框架）+ RAG</td>
+                            <td>非 Agent 架构，是 ML+规则+图+RAG 混合系统</td>
+                            <td class="yes">✅ RAG</td>
+                            <td>亚毫秒级评估(<0.3ms)、1h/24h 滑动窗口、9 条行为欺诈规则、图环检测欺诈团伙、PII 哈希保护</td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td><a href="https://github.com/zheng977/MutiAgent4Fraud" target="_blank">MutiAgent4Fraud</a></td>
+                            <td>45</td>
+                            <td>多 LLM Agent</td>
+                            <td>多 Agent 合谋实验框架</td>
+                            <td class="no">❌</td>
+                            <td>AI Agent 合谋欺诈检测、金融欺诈风险评估</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td><a href="https://github.com/CosmosYi/AutoControl-Arena" target="_blank">AutoControl-Arena</a></td>
+                            <td>113</td>
+                            <td>LLM 驱动的风险发现</td>
+                            <td>自动化风险发现 Agent</td>
+                            <td class="no">❌</td>
+                            <td>AI 系统风险自动发现、前沿 AI 风险评估</td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td><a href="https://github.com/karlmehta/trustmodel" target="_blank">trustmodel</a></td>
+                            <td>12</td>
+                            <td>LLM（模型无关设计）</td>
+                            <td>评估 Agent + 监控 Agent + 治理 Agent</td>
+                            <td class="no">❌</td>
+                            <td>10 维度信任评分、AI 行为监控、治理合规</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td>13</td>
+                            <td><a href="https://github.com/tdlhl/RAGFormer" target="_blank">RAGFormer</a></td>
+                            <td>6</td>
+                            <td>RAG + Transformer</td>
+                            <td>❌ 非 Agent 架构</td>
+                            <td class="yes">✅ RAG</td>
+                            <td>语义+拓扑特征融合的欺诈检测</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td>14</td>
+                            <td><a href="https://github.com/permit0-ai/permit0" target="_blank">permit0</a></td>
+                            <td>201</td>
+                            <td>Agent 框架无关（可集成任意 Agent）</td>
+                            <td>执行前拦截 + 权限策略 + 审批工作流</td>
+                            <td class="no">❌</td>
+                            <td>Agent 动作权限控制、执行前风控审批、敏感操作拦截</td>
+                            <td>MIT</td>
+                        </tr>
+                        <tr>
+                            <td>15</td>
+                            <td><a href="https://github.com/pillar-labs/sail-skill" target="_blank">sail-skill</a></td>
+                            <td>136</td>
+                            <td>Agent Skill 架构（可集成 Claude Code / Copilot 等）</td>
+                            <td>Skill 化风控——91 种风险检查能力封装为可调用技能</td>
+                            <td class="no">❌</td>
+                            <td>91 种 AI/Agent 风险目录、安全 AI 生命周期管理、风险检查 Skill 化</td>
+                            <td>MIT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        
+    <section id="反欺诈_Agent_plus_RAG" class="category-section">
+        <div class="cat-header" style="border-left-color: #e74c3c">
+            <h2><span class="cat-icon">🤖</span> 反欺诈 Agent + RAG <span class="cat-count">(2)</span></h2>
+            <p class="cat-desc">LLM Agent + RAG 结合的实时欺诈检测系统，多 Agent 协作 + 历史案例检索增强</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#6</span>
+                <a href="https://github.com/siddharthaDevineni/streaming-fraud-intelligence" target="_blank" class="card-name">siddharthaDevineni/streaming-fraud-intelligence</a>
+                <span class="card-stars">⭐ 8</span>
+                <div class="card-meta">
+                    <span class="tag">Java/Python</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2026-05</span>
+                </div>
+            </div>
+            <p class="card-desc">自进化欺诈检测系统：Kafka Streams 实时流 + XGBoost + LangChain 5-Agent + ChromaDB RAG + River 在线学习，每笔交易 10 次 LLM 调用，三层协作</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">LangChain + LangChain-Groq + LangSmith</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">5 个专业 Agent（BehaviorAnalyst/PatternDetector/RiskAssessor/GeographicAnalyst/TemporalAnalyst），三阶段协作：并行分析→辩论→共识</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">✅ ChromaDB + sentence-transformers all-MiniLM-L6-v2，双查询检索历史欺诈案例</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">实时流式欺诈检测、19 特征工程、SHAP 可解释性、在线学习反馈闭环、RAG 历史案例增强</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">最完整的 LLM 风控系统：5 Agent + RAG + 在线学习 + 流处理 + 可观测性，RAG 使置信度提升 9.7%</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">实时支付欺诈检测、账户接管检测、卡片测试攻击、电商交易风控、自进化风控系统</span></div>
+            </div>
+        </div>
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#9</span>
+                <a href="https://github.com/Shweta-Mishra-ai/fraudshield" target="_blank" class="card-name">Shweta-Mishra-ai/fraudshield</a>
+                <span class="card-stars">⭐ 6</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2026-06</span>
+                </div>
+            </div>
+            <p class="card-desc">企业级实时 AI 反欺诈平台：Pathway 实时流 + XGBoost + Isolation Forest + 9 条规则 + 图环检测，RAG over AML 合规规则提供 LLM 可解释性，亚毫秒级延迟</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">LLM（未指定具体框架）+ RAG</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">非 Agent 架构，是 ML+规则+图+RAG 混合系统</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">✅ RAG over AML & 合规规则，LLM 生成可解释的欺诈决策报告</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">亚毫秒级评估(<0.3ms)、1h/24h 滑动窗口、9 条行为欺诈规则、图环检测欺诈团伙、PII 哈希保护</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">最低延迟的 RAG 风控平台（<0.3ms/交易），图环检测+RAG 可解释性组合</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">信用卡实时风控、数字支付平台、AML 合规审计、欺诈团伙检测</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="反欺诈_Agent" class="category-section">
+        <div class="cat-header" style="border-left-color: #e67e22">
+            <h2><span class="cat-icon">🔍</span> 反欺诈 Agent <span class="cat-count">(3)</span></h2>
+            <p class="cat-desc">多 Agent 协作的欺诈/金融犯罪检测系统，LangGraph/Azure OpenAI 编排</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#5</span>
+                <a href="https://github.com/ajananth/fincrime-multiagent-fsi" target="_blank" class="card-name">ajananth/fincrime-multiagent-fsi</a>
+                <span class="card-stars">⭐ 13</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2024-04</span>
+                </div>
+            </div>
+            <p class="card-desc">基于 Azure OpenAI Assistant API 的多 Agent 框架，用于检测洗钱等金融犯罪，从呼叫中心日志识别可疑活动并自动生成可疑交易报告(SMR)</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">Azure OpenAI Assistant API</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">多 Agent 协作：分析 Agent → 审查 Agent → 报告生成 Agent</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌（使用 LLM 直接推理）</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">洗钱检测、可疑活动识别、自动 SMR 报告生成、呼叫中心日志分析</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">微软 Azure 生态多 Agent 风控示例，从非结构化对话日志中提取风控信号</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">银行呼叫中心风控、AML 可疑交易报告自动化</span></div>
+            </div>
+        </div>
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#7</span>
+                <a href="https://github.com/aliivaezii/multi-agent-fraud-detection" target="_blank" class="card-name">aliivaezii/multi-agent-fraud-detection</a>
+                <span class="card-stars">⭐ 8</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">GPL-3.0</span>
+                    <span class="tag">更新: 2026-04</span>
+                </div>
+            </div>
+            <p class="card-desc">LangGraph 多 Agent BEC 欺诈检测管道，4 节点图拓扑，确定性特征工程+LLM 推理混合架构，10 类风控特征，6 种欺诈模式识别</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">LangGraph v1.1.6 + LangChain-OpenAI + Langfuse 可观测性</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">3 Agent（Transaction Agent + Comms Agent + Supervisor Agent），条件短路路由(CRS≥0.90 跳过专家 Agent 省 75% LLM 调用)</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌（使用 SCoT Prompt + few-shot 替代 RAG）</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">BEC 欺诈检测、IBAN 风险分级(FATF)、不可能旅行检测、速度/金额/余额/地理多维度风控、非对称成本决策</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">LangGraph 生产级参考实现，短路路由+模型分层(fast/strong)降低推理成本，非对称决策偏重 Recall</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">BEC 欺诈检测、支付重定向欺诈、银行实时风控、AML 合规、LangGraph 多 Agent 教学示例</span></div>
+            </div>
+        </div>
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#8</span>
+                <a href="https://github.com/hakeematyab/AuditPulse" target="_blank" class="card-name">hakeematyab/AuditPulse</a>
+                <span class="card-stars">⭐ 10</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">N/A</span>
+                    <span class="tag">更新: 2025-05</span>
+                </div>
+            </div>
+            <p class="card-desc">多 Agent LLM 驱动的持续金融审计系统，用于合规、欺诈检测和风险评估，利用公开财务数据提供实时审计洞察</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">多 Agent LLM（具体框架未明确）</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">多 Agent 架构（DataValidation/PolicyCreation/Processor_10K/BiasDetection/Evaluation 模块化）</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">未知</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">持续金融审计、合规检查、欺诈检测、风险评估、偏见检测</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">将 CI/CD 理念引入金融审计——nightly builds 式的持续审计</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">企业持续审计、合规自动化、财务欺诈检测</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="信用风控_LLM" class="category-section">
+        <div class="cat-header" style="border-left-color: #f39c12">
+            <h2><span class="cat-icon">💳</span> 信用风控 LLM <span class="cat-count">(1)</span></h2>
+            <p class="cat-desc">基于 LLM 微调的信用评分和风险评估模型</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#3</span>
+                <a href="https://github.com/The-FinAI/CALM" target="_blank" class="card-name">The-FinAI/CALM</a>
+                <span class="card-stars">⭐ 67</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2024-01</span>
+                </div>
+            </div>
+            <p class="card-desc">信用与风险评估 LLM 训练和评估基准。基于 Llama2-chat 微调的 CALM-7B，覆盖信用评分、欺诈检测、财务困境、理赔分析 4 大任务 9 个数据集 70K 样本</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">Llama2-chat 微调（CALM-7B）</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">非 Agent 架构，是 LLM 微调+评估基准</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">信用评分、欺诈检测、财务困境识别、理赔分析、LLM 偏见分析（性别/年龄/外籍）</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">首个信用风控 LLM 基准+微调模型，含偏见分析——学术界最权威的信用风控 LLM 研究</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">信用风控 LLM 研发、模型评估、偏见检测、学术研究</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="金融犯罪检测与合规" class="category-section">
+        <div class="cat-header" style="border-left-color: #2ecc71">
+            <h2><span class="cat-icon">🏦</span> 金融犯罪检测与合规 <span class="cat-count">(1)</span></h2>
+            <p class="cat-desc">AI 驱动的 AML/CFT 合规、支付安全、欺诈检测综合平台</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#1</span>
+                <a href="https://github.com/mine-ai-xyz/mine-ai" target="_blank" class="card-name">mine-ai-xyz/mine-ai</a>
+                <span class="card-stars">⭐ 374</span>
+                <div class="card-meta">
+                    <span class="tag">Python/Node.js</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2026-07</span>
+                </div>
+            </div>
+            <p class="card-desc">AI 驱动的支付安全、欺诈检测、AML/CFT 合规参考实现。三模块：图-时序欺诈检测模型(CNN-LSTM/CSSA/FinSCRA) + 生产级风险控制与对账 + LLM RAG 可解释合规推理</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">OpenAI 兼容端点（模型无关）</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">无传统 Agent 框架，但 FinSCRA 使用 LLM 多链推理</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">✅ Module 3 基于 RAG 的合规推理工作台，覆盖 BSA/FinCEN/OFAC 等法规语料</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">图-时序欺诈检测、链上/链下对账、健康因子监控、MEV 防御、预言机操纵防御、AML/CFT 合规推理</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">唯一覆盖检测→运营→合规三层且含 RAG 可解释推理的开源项目</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">学术研究、RegTech 开发、AML/CFT 合规推理、DeFi 风控工程</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="金融风控_Agent" class="category-section">
+        <div class="cat-header" style="border-left-color: #9b59b6">
+            <h2><span class="cat-icon">📈</span> 金融风控 Agent <span class="cat-count">(1)</span></h2>
+            <p class="cat-desc">内置风控机制的金融分析 AI Agent</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#2</span>
+                <a href="https://github.com/AIScientists-Dev/Caliper" target="_blank" class="card-name">AIScientists-Dev/Caliper</a>
+                <span class="card-stars">⭐ 196</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2026-07</span>
+                </div>
+            </div>
+            <p class="card-desc">AI 研究分析师，知道何时信任自己——校准的、风控的、可追溯的投资分析 Agent</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">LLM（未指定具体框架）</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">自研 Agent，内置置信度校准与风险控制机制</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">未知</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">置信度校准、风险可控的自主决策、可追溯推理链</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">将风控理念内嵌到 Agent 决策层——Agent 自评可信度再决定是否输出</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">投资研究、金融分析、需要可信输出的 AI Agent 场景</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="反欺诈_LLM_研究" class="category-section">
+        <div class="cat-header" style="border-left-color: #3498db">
+            <h2><span class="cat-icon">📚</span> 反欺诈 LLM 研究 <span class="cat-count">(1)</span></h2>
+            <p class="cat-desc">使用 LLM（FinBERT/GPT）进行欺诈检测的学术研究</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#4</span>
+                <a href="https://github.com/amitkedia007/Financial-Fraud-Detection-Using-LLMs" target="_blank" class="card-name">amitkedia007/Financial-Fraud-Detection-Using-LLMs</a>
+                <span class="card-stars">⭐ 89</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">N/A</span>
+                    <span class="tag">更新: 2024-06</span>
+                </div>
+            </div>
+            <p class="card-desc">使用 LLM（FinBERT、GPT）进行金融欺诈检测的论文项目，评估 LLM 在欺诈检测中的有效性</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">FinBERT、GPT 系列</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">❌ 非 Agent 架构</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">金融欺诈检测、FinBERT vs GPT 对比评估</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">直接对比金融专用 LLM (FinBERT) 与通用 LLM (GPT) 在欺诈检测中的表现</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">学术研究、LLM 欺诈检测能力评估</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="反欺诈前沿研究" class="category-section">
+        <div class="cat-header" style="border-left-color: #1abc9c">
+            <h2><span class="cat-icon">🔬</span> 反欺诈前沿研究 <span class="cat-count">(1)</span></h2>
+            <p class="cat-desc">AI Agent 合谋欺诈等前沿学术研究（ICLR/ICML 2026）</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#10</span>
+                <a href="https://github.com/zheng977/MutiAgent4Fraud" target="_blank" class="card-name">zheng977/MutiAgent4Fraud</a>
+                <span class="card-stars">⭐ 45</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">N/A</span>
+                    <span class="tag">更新: 2026-05</span>
+                </div>
+            </div>
+            <p class="card-desc">[ICLR 2026] 研究 AI Agent 在线合谋时的金融欺诈风险——多个 LLM Agent 协作实施金融欺诈的新兴威胁研究</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">多 LLM Agent</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">多 Agent 合谋实验框架</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">AI Agent 合谋欺诈检测、金融欺诈风险评估</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">ICLR 2026 论文，首个研究 Agent 合谋欺诈的学术工作——风控对象从人变成了 AI Agent</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">AI 安全研究、金融欺诈防御、Agent 安全治理</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="AI_风控前沿研究" class="category-section">
+        <div class="cat-header" style="border-left-color: #e84393">
+            <h2><span class="cat-icon">⚡</span> AI 风控前沿研究 <span class="cat-count">(1)</span></h2>
+            <p class="cat-desc">前沿 AI 风险自动发现平台（ICML 2026）</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#11</span>
+                <a href="https://github.com/CosmosYi/AutoControl-Arena" target="_blank" class="card-name">CosmosYi/AutoControl-Arena</a>
+                <span class="card-stars">⭐ 113</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2026-06</span>
+                </div>
+            </div>
+            <p class="card-desc">[ICML 2026] 前沿 AI 风险自动发现平台，自动化测试和发现 AI 系统中的风险</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">LLM 驱动的风险发现</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">自动化风险发现 Agent</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">AI 系统风险自动发现、前沿 AI 风险评估</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">ICML 2026 论文，从被动检测转向主动发现 AI 风险</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">AI 安全评估、AI 系统风控测试、前沿模型风险评估</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="AI_风控_Agent" class="category-section">
+        <div class="cat-header" style="border-left-color: #6c5ce7">
+            <h2><span class="cat-icon">🎯</span> AI 风控 Agent <span class="cat-count">(1)</span></h2>
+            <p class="cat-desc">对 AI 模型本身进行信任评分和风控的 Agent</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#12</span>
+                <a href="https://github.com/karlmehta/trustmodel" target="_blank" class="card-name">karlmehta/trustmodel</a>
+                <span class="card-stars">⭐ 12</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">N/A</span>
+                    <span class="tag">更新: 2026-05</span>
+                </div>
+            </div>
+            <p class="card-desc">为任何 AI 评分信任度——10 个信任维度的评估、监控和治理平台，免费 API</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">LLM（模型无关设计）</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">评估 Agent + 监控 Agent + 治理 Agent</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">10 维度信任评分、AI 行为监控、治理合规</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">将风控从交易层扩展到 AI 模型层——对 AI 本身做风控</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">AI 模型治理、可信 AI 评估、AI 行为监控</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="反欺诈_RAG" class="category-section">
+        <div class="cat-header" style="border-left-color: #00b894">
+            <h2><span class="cat-icon">🔗</span> 反欺诈 RAG <span class="cat-count">(1)</span></h2>
+            <p class="cat-desc">RAG 技术直接应用于欺诈检测特征工程</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#13</span>
+                <a href="https://github.com/tdlhl/RAGFormer" target="_blank" class="card-name">tdlhl/RAGFormer</a>
+                <span class="card-stars">⭐ 6</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">N/A</span>
+                    <span class="tag">更新: 2025-12</span>
+                </div>
+            </div>
+            <p class="card-desc">RAGFormer：学习语义属性和拓扑特征进行欺诈检测的 RAG 增强模型</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">RAG + Transformer</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">❌ 非 Agent 架构</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">✅ RAG 增强欺诈检测</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">语义+拓扑特征融合的欺诈检测</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">将 RAG 技术直接应用于欺诈检测的特征工程层</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">欺诈检测研究、RAG 在风控中的应用探索</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <section id="Agent_安全风控_Skill" class="category-section">
+        <div class="cat-header" style="border-left-color: #d63031">
+            <h2><span class="cat-icon">🛡️</span> Agent 安全风控 Skill <span class="cat-count">(2)</span></h2>
+            <p class="cat-desc">将风控能力封装为 Agent 可调用的 Skill，执行前风控审批</p>
+        </div>
+        <div class="cards-container">
+            
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#14</span>
+                <a href="https://github.com/permit0-ai/permit0" target="_blank" class="card-name">permit0-ai/permit0</a>
+                <span class="card-stars">⭐ 201</span>
+                <div class="card-meta">
+                    <span class="tag">TypeScript</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2026-07</span>
+                </div>
+            </div>
+            <p class="card-desc">阻止 AI Agent 做不该做的事——执行前动作授权层，在 Agent 执行敏感操作前进行权限检查和风控审批</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">Agent 框架无关（可集成任意 Agent）</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">执行前拦截 + 权限策略 + 审批工作流</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">Agent 动作权限控制、执行前风控审批、敏感操作拦截</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">风控前置——在 Agent 执行动作之前而非之后做风控检查</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">AI Agent 安全治理、自动化流程风控、合规审批</span></div>
+            </div>
+        </div>
+        <div class="project-card">
+            <div class="card-header">
+                <span class="card-rank">#15</span>
+                <a href="https://github.com/pillar-labs/sail-skill" target="_blank" class="card-name">pillar-labs/sail-skill</a>
+                <span class="card-stars">⭐ 136</span>
+                <div class="card-meta">
+                    <span class="tag">Python</span>
+                    <span class="tag">MIT</span>
+                    <span class="tag">更新: 2026-07</span>
+                </div>
+            </div>
+            <p class="card-desc">SAIL V2 安全 AI 生命周期 Agent Skill——91 种 AI/Agent 风险目录，将风控能力封装为 Agent 可调用的 Skill</p>
+            <div class="card-grid">
+                <div class="info-item"><span class="info-label">LLM/Agent 框架</span><span class="info-value">Agent Skill 架构（可集成 Claude Code / Copilot 等）</span></div>
+                <div class="info-item"><span class="info-label">Agent 架构</span><span class="info-value">Skill 化风控——91 种风险检查能力封装为可调用技能</span></div>
+                <div class="info-item"><span class="info-label">RAG</span><span class="info-value">❌</span></div>
+                <div class="info-item"><span class="info-label">风控能力</span><span class="info-value">91 种 AI/Agent 风险目录、安全 AI 生命周期管理、风险检查 Skill 化</span></div>
+                <div class="info-item"><span class="info-label">独特优势</span><span class="info-value highlight">将风控能力标准化为 Skill 包，Agent 可按需调用——风控即技能</span></div>
+                <div class="info-item"><span class="info-label">适用场景</span><span class="info-value">AI Agent 安全开发、Agent 风险自查、安全 AI 生命周期</span></div>
+            </div>
+        </div>
+        </div>
+    </section>
+
+        <div class="footer">
+            <p>数据来源：GitHub Search API + WebFetch 深度调研 · 2026-07-28 生成</p>
+            <p>搜索关键词：fraud detection LLM / fraud GPT / credit risk LLM agent / 反欺诈 大模型 / fraud detection langchain / fraud detection rag 等 14 组</p>
+        </div>
+    </main>
+</div>
+
+<script>
+const navItems = document.querySelectorAll('.nav-item');
+const sections = document.querySelectorAll('.category-section');
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+        if (window.scrollY >= sec.offsetTop - 100) current = sec.id;
+    });
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + current) item.classList.add('active');
+    });
+});
+</script>
+</body>
+</html>

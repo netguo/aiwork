@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 知识沉淀指南 — 开源方案与自建路径</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  line-height: 1.7;
+}
+
+/* Sidebar */
+#sidebar {
+  position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  overflow-y: auto; z-index: 100; padding: 20px 0;
+}
+#sidebar .logo {
+  color: #fff; font-size: 18px; font-weight: 700;
+  padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+#sidebar .logo span { color: #e94560; }
+#sidebar nav { padding: 15px 0; }
+#sidebar nav a {
+  display: block; color: rgba(255,255,255,0.7); text-decoration: none;
+  padding: 10px 20px; font-size: 14px; transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+#sidebar nav a:hover { color: #fff; background: rgba(255,255,255,0.05); border-left-color: #e94560; }
+#sidebar nav a.active { color: #fff; border-left-color: #e94560; background: rgba(233,69,96,0.1); }
+#sidebar nav a.sub { padding-left: 35px; font-size: 13px; }
+
+/* Main */
+#main { margin-left: 260px; padding: 30px 40px; max-width: 1100px; }
+
+.hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px; padding: 40px; margin-bottom: 30px;
+  color: #fff; position: relative; overflow: hidden;
+}
+.hero::after {
+  content: ""; position: absolute; right: -20px; top: -20px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+}
+.hero h1 { font-size: 28px; margin-bottom: 10px; position: relative; z-index: 1; }
+.hero p { font-size: 15px; opacity: 0.9; max-width: 700px; position: relative; z-index: 1; }
+.hero .meta { margin-top: 15px; font-size: 13px; opacity: 0.7; }
+
+section { margin-bottom: 40px; }
+section h2 {
+  font-size: 22px; color: #1a1a2e; margin-bottom: 20px;
+  padding-bottom: 10px; border-bottom: 2px solid #e94560;
+  display: flex; align-items: center; gap: 8px;
+}
+section h2 .icon { font-size: 26px; }
+
+/* Problem statement */
+.problem-box {
+  background: #fff; border-radius: 12px; padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.problem-box p { margin-bottom: 12px; color: #444; }
+.problem-box .pain-points {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px; margin-top: 15px;
+}
+.pain-point {
+  background: #fff5f5; border-left: 4px solid #e94560;
+  padding: 12px 15px; border-radius: 0 8px 8px 0; font-size: 14px;
+}
+
+/* Search bar */
+.search-bar {
+  position: sticky; top: 0; background: #f0f2f5;
+  padding: 15px 0; z-index: 50; margin-bottom: 20px;
+}
+.search-bar input {
+  width: 100%; padding: 12px 20px; font-size: 15px;
+  border: 2px solid #ddd; border-radius: 10px; outline: none;
+  transition: border-color 0.2s;
+}
+.search-bar input:focus { border-color: #e94560; }
+
+/* Project cards */
+.projects-grid { display: flex; flex-direction: column; gap: 20px; }
+.project-card {
+  background: #fff; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.project-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); transform: translateY(-2px); }
+.project-header { padding: 20px 25px; border-bottom: 1px solid #f0f0f0; }
+.project-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.project-title-row h3 { font-size: 20px; color: #1a1a2e; }
+.project-tagline { color: #666; font-size: 14px; margin-top: 5px; font-style: italic; }
+.repo-link {
+  display: inline-block; margin-top: 8px; font-size: 13px;
+  color: #e94560; text-decoration: none; font-family: monospace;
+}
+.repo-link:hover { text-decoration: underline; }
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 600;
+}
+.badge-stars { background: #fff3cd; color: #856404; }
+.badge-license { background: #d4edda; color: #155724; }
+.project-body { padding: 20px 25px; }
+.project-desc { color: #444; margin-bottom: 15px; font-size: 14px; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+.info-item { background: #f8f9fa; padding: 10px 15px; border-radius: 8px; }
+.info-label { display: block; font-size: 12px; color: #888; margin-bottom: 3px; }
+.info-value { font-size: 13px; color: #333; }
+.highlights h4 { font-size: 15px; margin-bottom: 8px; color: #1a1a2e; }
+.highlights ul { list-style: none; }
+.highlights li {
+  padding: 6px 0 6px 22px; position: relative; font-size: 14px; color: #444;
+}
+.highlights li::before {
+  content: ""; position: absolute; left: 0; top: 12px;
+  width: 8px; height: 8px; border-radius: 50%; background: #e94560;
+}
+
+/* Comparison table */
+.comparison-wrap { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+table.comparison { width: 100%; border-collapse: collapse; background: #fff; min-width: 700px; }
+table.comparison th {
+  background: #1a1a2e; color: #fff; padding: 12px 15px;
+  text-align: left; font-size: 14px; font-weight: 600;
+}
+table.comparison td { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+table.comparison tr:hover { background: #f8f9fa; }
+table.comparison tr:last-child td { border-bottom: none; }
+
+/* Approach cards */
+.approach {
+  background: #fff; border-radius: 12px; padding: 25px;
+  margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-top: 4px solid #e94560;
+}
+.approach h3 { font-size: 18px; margin-bottom: 10px; color: #1a1a2e; }
+.approach .approach-desc { color: #555; margin-bottom: 15px; font-size: 14px; }
+.approach .approach-pros {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;
+}
+.approach .pro-tag {
+  background: #d4edda; color: #155724; padding: 3px 10px;
+  border-radius: 12px; font-size: 12px;
+}
+pre {
+  background: #1a1a2e; color: #e0e0e0; padding: 20px;
+  border-radius: 10px; overflow-x: auto; font-size: 13px;
+  line-height: 1.5; font-family: "Fira Code", "SF Mono", Consolas, monospace;
+}
+pre .comment { color: #6c7a89; }
+
+/* Roadmap */
+.roadmap { display: flex; flex-direction: column; gap: 20px; }
+.roadmap-phase {
+  background: #fff; border-radius: 12px; padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative;
+  border-left: 5px solid #667eea;
+}
+.roadmap-phase .phase-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.phase-badge {
+  background: #667eea; color: #fff; padding: 4px 12px;
+  border-radius: 12px; font-size: 13px; font-weight: 600;
+}
+.phase-timeline { font-size: 13px; color: #888; }
+.roadmap-phase h3 { font-size: 18px; color: #1a1a2e; margin-bottom: 10px; }
+.roadmap-phase ul { list-style: none; }
+.roadmap-phase li { padding: 5px 0 5px 22px; position: relative; font-size: 14px; color: #444; }
+.roadmap-phase li::before {
+  content: ""; position: absolute; left: 0; top: 10px;
+  width: 8px; height: 8px; border-radius: 2px; background: #667eea;
+}
+
+/* Architecture */
+.arch-box {
+  background: #fff; border-radius: 12px; padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.arch-flow {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  justify-content: center; padding: 20px 0;
+}
+.arch-node {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff; padding: 12px 20px; border-radius: 10px;
+  font-size: 14px; font-weight: 600; text-align: center;
+  min-width: 120px;
+}
+.arch-arrow { color: #999; font-size: 20px; }
+.arch-storage {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;
+}
+.arch-store {
+  background: #f8f9fa; border: 2px dashed #667eea; border-radius: 10px;
+  padding: 15px; text-align: center;
+}
+.arch-store .store-name { font-weight: 700; color: #1a1a2e; font-size: 15px; }
+.arch-store .store-desc { font-size: 12px; color: #888; margin-top: 5px; }
+
+/* Footer */
+.footer {
+  text-align: center; padding: 30px; color: #888; font-size: 13px;
+}
+
+/* Search filtering */
+.hidden { display: none !important; }
+.search-highlight { background: #fff3cd; padding: 0 2px; border-radius: 2px; }
+
+@media (max-width: 768px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="logo">AI <span>知识沉淀</span> 指南</div>
+  <nav>
+    <a href="#problem" class="active">问题背景</a>
+    <a href="#search-bar">搜索项目</a>
+    <a href="#projects">开源方案 (8)</a>
+    <a href="#projects" class="sub">Mem0</a>
+    <a href="#projects" class="sub">Khoj</a>
+    <a href="#projects" class="sub">Letta</a>
+    <a href="#projects" class="sub">Memori</a>
+    <a href="#projects" class="sub">memvid</a>
+    <a href="#projects" class="sub">EverOS</a>
+    <a href="#projects" class="sub">memsearch</a>
+    <a href="#projects" class="sub">claude-obsidian</a>
+    <a href="#comparison">对比表</a>
+    <a href="#architecture">架构设计</a>
+    <a href="#self-build">自建方案 (3)</a>
+    <a href="#self-build" class="sub">A: Mem0 插件式</a>
+    <a href="#self-build" class="sub">B: LangGraph 流水线</a>
+    <a href="#self-build" class="sub">C: MCP 统一服务</a>
+    <a href="#roadmap">实施路线图</a>
+    <a href="#summary">推荐总结</a>
+  </nav>
+</div>
+
+<div id="main">
+
+<div class="hero">
+  <h1>AI 知识沉淀指南</h1>
+  <p>用各种 AI Agent 搜索的问题不再遗忘 — 8 个开源方案 + 3 条自建路径，构建你的 AI 对话知识中枢</p>
+  <div class="meta">生成时间: 2026-07-31 20:07 | 基于 GitHub 109 个相关项目调研</div>
+</div>
+
+<!-- Problem -->
+<section id="problem">
+  <h2><span class="icon">&#128162;</span> 问题背景：AI 对话的"健忘症"</h2>
+  <div class="problem-box">
+    <p>你每天都在用各种 AI Agent（Claude Code、Cursor、ChatGPT、各种自建 Agent）搜索和解决各种问题。但一个普遍的痛点是：</p>
+    <p style="font-size: 16px; font-weight: 600; color: #e94560;">搜索后的问题没有沉淀，过段时间就忘了。</p>
+    <div class="pain-points">
+      <div class="pain-point"><strong>痛点 1：</strong>不同 AI 工具的对话历史互相隔离，无法共享</div>
+      <div class="pain-point"><strong>痛点 2：</strong>有价值的发现和结论散落在各处，没有统一沉淀</div>
+      <div class="pain-point"><strong>痛点 3：</strong>下次遇到类似问题时，无法回忆之前的解决方案</div>
+      <div class="pain-point"><strong>痛点 4：</strong>团队的知识无法通过 AI 对话自动积累</div>
+    </div>
+    <p style="margin-top: 15px;">本指南调研了 GitHub 上 109 个相关开源项目，精选 8 个最值得关注的方案，并提供 3 条从简单到完整的自建路径，帮助你构建 AI 对话知识沉淀系统。</p>
+  </div>
+</section>
+
+<!-- Search -->
+<div class="search-bar" id="search-bar">
+  <input type="text" id="searchInput" placeholder="搜索项目名称、技术栈、特点... (如: Mem0, 向量, LangChain, 自托管)">
+</div>
+
+<!-- Projects -->
+<section id="projects">
+  <h2><span class="icon">&#128269;</span> 开源方案：8 个精选项目</h2>
+  <div class="projects-grid" id="projectsGrid">
+    
+    <div class="project-card" data-category="project" data-name="mem0" data-stars="622">
+      <div class="project-header">
+        <div class="project-title-row">
+          <h3>Mem0</h3>
+          <span class="badge badge-stars">62.2K stars</span>
+          <span class="badge badge-license">Apache-2.0</span>
+        </div>
+        <div class="project-tagline">Universal Memory Layer for AI Agents</div>
+        <a href="https://github.com/mem0ai/mem0" class="repo-link" target="_blank">mem0ai/mem0</a>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">为 AI 助手提供通用记忆层的开源项目。支持 Claude Code、Cursor、Windsurf 等主流 AI 工具，通过自动提取、存储和召回对话中的关键信息，实现跨会话的持久记忆。</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">技术栈</span>
+            <span class="info-value">Python, FastAPI, PostgreSQL/Redis, Qdrant/ChromaDB</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">适用场景</span>
+            <span class="info-value">希望立即给现有 AI 工具加上记忆能力的用户；需要跨工具共享记忆的场景</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署难度</span>
+            <span class="info-value">低 — pip install mem0ai 即可使用</span>
+          </div>
+        </div>
+        <div class="highlights">
+          <h4>核心亮点</h4>
+          <ul><li>多级记忆架构：短期记忆 + 长期记忆 + 实体记忆</li><li>语义检索 + BM25 + 实体图谱混合召回，LoCoMo 基准测试得分 92.5</li><li>原生支持 Claude Code / Cursor / Windsurf / LangChain / CrewAI / AutoGen</li><li>可自托管（Docker），也提供云端 API</li><li>自动从对话中提取事实性记忆，无需手动标注</li></ul>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="project-card" data-category="project" data-name="khoj" data-stars="361">
+      <div class="project-header">
+        <div class="project-title-row">
+          <h3>Khoj</h3>
+          <span class="badge badge-stars">36.1K stars</span>
+          <span class="badge badge-license">AGPL-3.0</span>
+        </div>
+        <div class="project-tagline">Self-hostable AI Second Brain</div>
+        <a href="https://github.com/khoj-ai/khoj" class="repo-link" target="_blank">khoj-ai/khoj</a>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">可自托管的 AI 第二大脑。将你的笔记、文档、对话统一存储和检索，支持桌面、Web、移动端、Obsidian 插件等多平台访问。内置 RAG 引擎和向量检索。</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">技术栈</span>
+            <span class="info-value">Python/Django, PostgreSQL, pgvector, React</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">适用场景</span>
+            <span class="info-value">希望完全自控数据的个人知识管理；需要多平台访问的场景</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署难度</span>
+            <span class="info-value">中 — Docker Compose 部署，需配置 PostgreSQL</span>
+          </div>
+        </div>
+        <div class="highlights">
+          <h4>核心亮点</h4>
+          <ul><li>完全自托管，数据隐私有保障</li><li>Django + PostgreSQL + pgvector 后端，稳定可靠</li><li>支持 Markdown / PDF / Notion / Obsidian 等多种数据源</li><li>桌面客户端 + Web + 移动端 + Obsidian 插件全覆盖</li><li>内置 AI 对话，可自动关联历史搜索和笔记</li></ul>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="project-card" data-category="project" data-name="letta (memgpt)" data-stars="240">
+      <div class="project-header">
+        <div class="project-title-row">
+          <h3>Letta (MemGPT)</h3>
+          <span class="badge badge-stars">24.0K stars</span>
+          <span class="badge badge-license">Apache-2.0</span>
+        </div>
+        <div class="project-tagline">Stateful Agent Framework with 3-Tier Memory</div>
+        <a href="https://github.com/letta-ai/letta" class="repo-link" target="_blank">letta-ai/letta</a>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">MemGPT 的继任者，提供分层记忆架构的 AI Agent 框架。核心记忆（当前对话）、召回记忆（历史搜索）、归档记忆（长期存储）三层结构，模拟人类记忆机制。</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">技术栈</span>
+            <span class="info-value">Python, PostgreSQL, pgvector, FastAPI</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">适用场景</span>
+            <span class="info-value">需要最深度记忆架构的 Agent 开发；研究型项目</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署难度</span>
+            <span class="info-value">中高 — 需理解记忆分层概念，配置 PostgreSQL + pgvector</span>
+          </div>
+        </div>
+        <div class="highlights">
+          <h4>核心亮点</h4>
+          <ul><li>3 层记忆架构：Core Memory（核心记忆）/ Recall Memory（召回记忆）/ Archival Memory（归档记忆）</li><li>基于 PostgreSQL + pgvector，支持 128K 超长上下文</li><li>Agent 自主决定何时读写记忆，实现自进化</li><li>提供 REST API + Python SDK + 可视化界面</li><li>源自 UC Berkeley MemGPT 论文，学术基础扎实</li></ul>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="project-card" data-category="project" data-name="memori" data-stars="157">
+      <div class="project-header">
+        <div class="project-title-row">
+          <h3>Memori</h3>
+          <span class="badge badge-stars">15.7K stars</span>
+          <span class="badge badge-license">Apache-2.0</span>
+        </div>
+        <div class="project-tagline">Agent-Native Memory with 8-Category Extraction</div>
+        <a href="https://github.com/MemoriLabs/Memori" class="repo-link" target="_blank">MemoriLabs/Memori</a>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">专为 AI Agent 设计的原生记忆系统。通过 3 层归因模型和 8 类结构化信息提取，将对话中的知识自动分类、存储和召回。原生支持 LangChain。</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">技术栈</span>
+            <span class="info-value">Rust, Python, LangChain, Qdrant</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">适用场景</span>
+            <span class="info-value">使用 LangChain 技术栈的团队；需要结构化知识提取的场景</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署难度</span>
+            <span class="info-value">低中 — pip install memori，LangChain 集成只需几行代码</span>
+          </div>
+        </div>
+        <div class="highlights">
+          <h4>核心亮点</h4>
+          <ul><li>8 类结构化提取：偏好、事实、事件、关系、指令、摘要、上下文、反馈</li><li>3 层归因模型：事实层 + 事件层 + 摘要层</li><li>LoCoMo 基准测试 87% 准确率，仅需 2.8% 上下文窗口</li><li>Rust 核心引擎，高性能低延迟</li><li>原生 LangChain / LangGraph 集成，即插即用</li></ul>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="project-card" data-category="project" data-name="memvid" data-stars="161">
+      <div class="project-header">
+        <div class="project-title-row">
+          <h3>memvid</h3>
+          <span class="badge badge-stars">16.1K stars</span>
+          <span class="badge badge-license">MIT</span>
+        </div>
+        <div class="project-tagline">Video-Based Memory, No Vector DB Needed</div>
+        <a href="https://github.com/memvid/memvid" class="repo-link" target="_blank">memvid/memvid</a>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">创新性地将记忆编码为视频文件，无需向量数据库即可存储和检索海量记忆。通过视频压缩技术实现极低成本的长期记忆存储。</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">技术栈</span>
+            <span class="info-value">Python, OpenCV, FAISS（可选）</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">适用场景</span>
+            <span class="info-value">不想维护向量数据库的场景；需要超低成本存储海量记忆</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署难度</span>
+            <span class="info-value">低 — pip install memvid-lib，无需额外基础设施</span>
+          </div>
+        </div>
+        <div class="highlights">
+          <h4>核心亮点</h4>
+          <ul><li>零依赖：无需 Qdrant / Pinecone / Weaviate 等向量数据库</li><li>将记忆编码为 MP4 视频文件，单文件可存百万级记忆</li><li>OCR + 语义检索混合召回，准确率高</li><li>存储成本极低，适合海量长期记忆</li><li>API 简单：from memvid import MemvidEncoder</li></ul>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="project-card" data-category="project" data-name="everos" data-stars="117">
+      <div class="project-header">
+        <div class="project-title-row">
+          <h3>EverOS</h3>
+          <span class="badge badge-stars">11.7K stars</span>
+          <span class="badge badge-license">MIT</span>
+        </div>
+        <div class="project-tagline">Markdown-Native Portable Memory</div>
+        <a href="https://github.com/EverMind-AI/EverOS" class="repo-link" target="_blank">EverMind-AI/EverOS</a>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">以 Markdown 为核心的便携式记忆系统。所有记忆都以纯文本 Markdown 文件存储，可读性强、可移植、无锁定。支持跨 Agent 共享和版本控制。</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">技术栈</span>
+            <span class="info-value">Python/Node.js, Markdown, 文件系统</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">适用场景</span>
+            <span class="info-value">喜欢 Markdown 工作流的用户；需要版本控制记忆的场景</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署难度</span>
+            <span class="info-value">低 — npm install 或 pip install，配置 Markdown 目录即可</span>
+          </div>
+        </div>
+        <div class="highlights">
+          <h4>核心亮点</h4>
+          <ul><li>100% Markdown 存储，人类可读、Git 可追踪</li><li>零数据库依赖，文件系统即存储</li><li>支持跨 Agent 共享同一记忆目录</li><li>内置去重、合并、质量评分</li><li>可随项目目录移动，真正便携</li></ul>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="project-card" data-category="project" data-name="memsearch" data-stars="24">
+      <div class="project-header">
+        <div class="project-title-row">
+          <h3>memsearch</h3>
+          <span class="badge badge-stars">2.4K stars</span>
+          <span class="badge badge-license">MIT</span>
+        </div>
+        <div class="project-tagline">Unified Memory via MCP Protocol</div>
+        <a href="https://github.com/zilliztech/memsearch" class="repo-link" target="_blank">zilliztech/memsearch</a>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">由 Zilliz（Milvus 团队）开发的统一记忆搜索工具，基于 MCP（Model Context Protocol）协议，让不同 AI Agent 共享同一记忆库。</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">技术栈</span>
+            <span class="info-value">Python, Milvus/Zilliz, MCP Protocol</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">适用场景</span>
+            <span class="info-value">使用多个 AI 工具且希望共享记忆的场景；MCP 生态用户</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署难度</span>
+            <span class="info-value">中 — 需部署 MCP Server + Milvus（或用 Zilliz Cloud）</span>
+          </div>
+        </div>
+        <div class="highlights">
+          <h4>核心亮点</h4>
+          <ul><li>基于 MCP 协议，支持 Claude Desktop / Cursor / VS Code 等</li><li>Milvus / Zilliz Cloud 向量检索后端</li><li>统一记忆接口，一个记忆库服务多个 Agent</li><li>自动从对话中提取和索引记忆</li><li>支持时间范围 + 语义混合检索</li></ul>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="project-card" data-category="project" data-name="claude-obsidian" data-stars="102">
+      <div class="project-header">
+        <div class="project-title-row">
+          <h3>claude-obsidian</h3>
+          <span class="badge badge-stars">10.2K stars</span>
+          <span class="badge badge-license">MIT</span>
+        </div>
+        <div class="project-tagline">Claude Code + Obsidian Auto-Organizing</div>
+        <a href="https://github.com/AgriciDaniel/claude-obsidian" class="repo-link" target="_blank">AgriciDaniel/claude-obsidian</a>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">将 Claude Code 的对话自动整理到 Obsidian 知识库中。每次 AI 对话结束后，自动提取关键信息并按主题分类存入 Obsidian，形成可搜索的知识图谱。</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">技术栈</span>
+            <span class="info-value">TypeScript, Obsidian API, Claude Code</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">适用场景</span>
+            <span class="info-value">已使用 Obsidian 的 Claude Code 用户；希望对话自动转化为笔记</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">部署难度</span>
+            <span class="info-value">低 — 安装插件，配置 Obsidian 库路径即可</span>
+          </div>
+        </div>
+        <div class="highlights">
+          <h4>核心亮点</h4>
+          <ul><li>Claude Code 对话 → Obsidian 笔记自动转换</li><li>按主题/标签/时间自动分类组织</li><li>利用 Obsidian 的双向链接构建知识图谱</li><li>支持全文搜索 + 标签筛选 + 图谱可视化</li><li>完全本地化，数据不离开你的设备</li></ul>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</section>
+
+<!-- Comparison -->
+<section id="comparison">
+  <h2><span class="icon">&#128202;</span> 方案对比表</h2>
+  <div class="comparison-wrap">
+    <table class="comparison">
+      <thead>
+        <tr>
+          <th>项目</th>
+          <th>Stars</th>
+          <th>License</th>
+          <th>部署难度</th>
+          <th>最佳场景</th>
+          <th>链接</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+      <tr>
+        <td><strong>Mem0</strong></td>
+        <td>62.2K</td>
+        <td>Apache-2.0</td>
+        <td>低 — pip install mem0ai 即可使用</td>
+        <td>希望立即给现有 AI 工具加上记忆能力的用户；需要跨工具共享记忆的场景</td>
+        <td><a href="https://github.com/mem0ai/mem0" target="_blank" style="color:#fff;">Link</a></td>
+      </tr>
+      <tr>
+        <td><strong>Khoj</strong></td>
+        <td>36.1K</td>
+        <td>AGPL-3.0</td>
+        <td>中 — Docker Compose 部署，需配置 PostgreSQL</td>
+        <td>希望完全自控数据的个人知识管理；需要多平台访问的场景</td>
+        <td><a href="https://github.com/khoj-ai/khoj" target="_blank" style="color:#fff;">Link</a></td>
+      </tr>
+      <tr>
+        <td><strong>Letta (MemGPT)</strong></td>
+        <td>24.0K</td>
+        <td>Apache-2.0</td>
+        <td>中高 — 需理解记忆分层概念，配置 PostgreSQL + pgvector</td>
+        <td>需要最深度记忆架构的 Agent 开发；研究型项目</td>
+        <td><a href="https://github.com/letta-ai/letta" target="_blank" style="color:#fff;">Link</a></td>
+      </tr>
+      <tr>
+        <td><strong>Memori</strong></td>
+        <td>15.7K</td>
+        <td>Apache-2.0</td>
+        <td>低中 — pip install memori，LangChain 集成只需几行代码</td>
+        <td>使用 LangChain 技术栈的团队；需要结构化知识提取的场景</td>
+        <td><a href="https://github.com/MemoriLabs/Memori" target="_blank" style="color:#fff;">Link</a></td>
+      </tr>
+      <tr>
+        <td><strong>memvid</strong></td>
+        <td>16.1K</td>
+        <td>MIT</td>
+        <td>低 — pip install memvid-lib，无需额外基础设施</td>
+        <td>不想维护向量数据库的场景；需要超低成本存储海量记忆</td>
+        <td><a href="https://github.com/memvid/memvid" target="_blank" style="color:#fff;">Link</a></td>
+      </tr>
+      <tr>
+        <td><strong>EverOS</strong></td>
+        <td>11.7K</td>
+        <td>MIT</td>
+        <td>低 — npm install 或 pip install，配置 Markdown 目录即可</td>
+        <td>喜欢 Markdown 工作流的用户；需要版本控制记忆的场景</td>
+        <td><a href="https://github.com/EverMind-AI/EverOS" target="_blank" style="color:#fff;">Link</a></td>
+      </tr>
+      <tr>
+        <td><strong>memsearch</strong></td>
+        <td>2.4K</td>
+        <td>MIT</td>
+        <td>中 — 需部署 MCP Server + Milvus（或用 Zilliz Cloud）</td>
+        <td>使用多个 AI 工具且希望共享记忆的场景；MCP 生态用户</td>
+        <td><a href="https://github.com/zilliztech/memsearch" target="_blank" style="color:#fff;">Link</a></td>
+      </tr>
+      <tr>
+        <td><strong>claude-obsidian</strong></td>
+        <td>10.2K</td>
+        <td>MIT</td>
+        <td>低 — 安装插件，配置 Obsidian 库路径即可</td>
+        <td>已使用 Obsidian 的 Claude Code 用户；希望对话自动转化为笔记</td>
+        <td><a href="https://github.com/AgriciDaniel/claude-obsidian" target="_blank" style="color:#fff;">Link</a></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section id="architecture">
+  <h2><span class="icon">&#128736;</span> 知识沉淀架构设计</h2>
+  <div class="arch-box">
+    <p style="margin-bottom: 15px; color: #555;">一个完整的 AI 知识沉淀系统包含 5 个核心环节：从多源对话捕获 → 知识提取 → 质量去重 → 多层存储 → 智能召回。</p>
+    <div class="arch-flow">
+      <div class="arch-node">对话捕获<br><small>Claude/Cursor/Agent</small></div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-node">知识提取<br><small>8类结构化</small></div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-node">质检去重<br><small>评分+去重</small></div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-node">多层存储<br><small>向量+图谱+结构</small></div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-node">智能召回<br><small>下次对话注入</small></div>
+    </div>
+    <div class="arch-storage">
+      <div class="arch-store">
+        <div class="store-name">RAGFlow (文档级)</div>
+        <div class="store-desc">DeepDoc 解析 + 向量检索，适合长文档和报告</div>
+      </div>
+      <div class="arch-store">
+        <div class="store-name">LightRAG (图谱级)</div>
+        <div class="store-desc">知识图谱 + 向量双检索，适合关联推理</div>
+      </div>
+      <div class="arch-store">
+        <div class="store-name">PostgreSQL (结构化)</div>
+        <div class="store-desc">结构化事实存储，精确查询 + 时间范围检索</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Self-build Approaches -->
+<section id="self-build">
+  <h2><span class="icon">&#128736;</span> 自建方案：3 条路径</h2>
+
+  <div class="approach">
+    <h3>方案 A：Mem0 插件式 — 最快上手</h3>
+    <p class="approach-desc">直接使用 Mem0 的通用记忆层，5 分钟给现有 AI 工具加上跨会话记忆能力。无需改动现有代码架构。</p>
+    <div class="approach-pros">
+      <span class="pro-tag">零代码改动</span>
+      <span class="pro-tag">支持 Claude Code / Cursor</span>
+      <span class="pro-tag">可自托管</span>
+      <span class="pro-tag">1-2 天落地</span>
+    </div>
+    <pre><code>from mem0 import Memory
+import os
+
+# 初始化（可自托管或用云端）
+os.environ["MEM0_API_KEY"] = "your-api-key"
+memory = Memory()
+
+# 保存对话记忆
+memory.add(
+    "用户正在研究 LangChain + LangGraph 作为 Agent 框架，"
+    "RAGFlow + LightRAG 作为 RAG 引擎。",
+    user_id="netguo",
+    metadata={"source": "claude-code", "topic": "tech-selection"}
+)
+
+# 召回相关记忆
+results = memory.search("团队选了什么 Agent 框架", user_id="netguo")
+for r in results:
+    print(f"[{r['score']}] {r['memory']}")</code></pre>
+  </div>
+
+  <div class="approach">
+    <h3>方案 B：LangGraph 知识沉淀流水线 — 团队级</h3>
+    <p class="approach-desc">基于团队已有 LangChain + LangGraph + RAGFlow + LightRAG 技术栈，构建完整的知识沉淀流水线。5 个节点的 StateGraph 实现捕获→提取→质检→存储→召回的全链路自动化。</p>
+    <div class="approach-pros">
+      <span class="pro-tag">复用已有技术栈</span>
+      <span class="pro-tag">8 类知识自动分类</span>
+      <span class="pro-tag">RAGFlow + LightRAG 双存储</span>
+      <span class="pro-tag">1-2 周落地</span>
+    </div>
+    <pre><code>from langgraph.graph import StateGraph, END
+from typing import TypedDict, List
+import json
+
+class SedimentationState(TypedDict):
+    raw_dialog: str
+    agent_source: str
+    extracted_facts: List[str]
+    quality_scores: List[float]
+    stored_count: int
+    recall_context: str
+
+def capture_node(state):
+    """捕获 AI 对话内容"""
+    return {"raw_dialog": state["raw_dialog"],
+            "agent_source": state["agent_source"]}
+
+def extract_node(state):
+    """LLM 提取 8 类结构化知识"""
+    prompt = f"""从以下对话中提取关键知识，分类为：
+    1.偏好 2.事实 3.事件 4.关系 5.指令 6.摘要 7.上下文 8.反馈
+    对话: {state['raw_dialog']}
+    输出 JSON 格式的知识列表。"""
+    # 调用 LLM 提取
+    facts = llm_extract(prompt)  # 实际调用 LangChain LLM
+    return {"extracted_facts": facts}
+
+def quality_node(state):
+    """去重 + 质量评分"""
+    facts = state["extracted_facts"]
+    # 去重：与已有知识做语义相似度比较
+    unique_facts = deduplicate(facts)
+    # 质量评分：完整性 + 新颖性 + 可靠性
+    scores = [score_fact(f) for f in unique_facts]
+    return {"quality_scores": scores, "extracted_facts": unique_facts}
+
+def store_node(state):
+    """写入 RAGFlow + LightRAG + 结构化数据库"""
+    for fact, score in zip(state["extracted_facts"],
+                           state["quality_scores"]):
+        if score > 0.6:  # 质量阈值
+            ragflow_store(fact)        # 文档级 RAG
+            lightrag_insert(fact)      # 图谱级 RAG
+            memory_db_save(fact)       # 结构化存储
+    return {"stored_count": len(state["extracted_facts"])}
+
+def recall_node(state):
+    """下次对话时注入相关记忆"""
+    context = memory_search(state["raw_dialog"])
+    return {"recall_context": context}
+
+# 构建 LangGraph 工作流
+graph = StateGraph(SedimentationState)
+graph.add_node("capture", capture_node)
+graph.add_node("extract", extract_node)
+graph.add_node("quality", quality_node)
+graph.add_node("store", store_node)
+graph.add_node("recall", recall_node)
+graph.set_entry_point("capture")
+graph.add_edge("capture", "extract")
+graph.add_edge("extract", "quality")
+graph.add_edge("quality", "store")
+graph.add_edge("store", "recall")
+graph.add_edge("recall", END)
+app = graph.compile()</code></pre>
+  </div>
+
+  <div class="approach">
+    <h3>方案 C：MCP Memory Server — 全生态统一</h3>
+    <p class="approach-desc">构建 MCP（Model Context Protocol）协议的记忆服务，让所有 AI Agent（Claude Code、Cursor、自建 Agent）共享同一记忆库。真正的全生态 AI 知识中枢。</p>
+    <div class="approach-pros">
+      <span class="pro-tag">跨 Agent 共享</span>
+      <span class="pro-tag">MCP 标准协议</span>
+      <span class="pro-tag">团队级权限控制</span>
+      <span class="pro-tag">2-4 周落地</span>
+    </div>
+    <pre><code>from mcp.server import Server
+import asyncio
+
+server = Server("memory-sedimentation")
+
+@server.tool("save_conversation")
+async def save_conversation(dialog: str, agent_source: str):
+    """保存 AI 对话记忆，自动提取和存储"""
+    facts = await extract_facts(dialog)
+    for fact in facts:
+        await ragflow_store(fact, source=agent_source)
+        await lightrag_insert(fact)
+        await structured_save(fact, agent_source)
+    return {"status": "ok", "saved": len(facts)}
+
+@server.tool("recall_memory")
+async def recall_memory(query: str, top_k: int = 5):
+    """跨 Agent 召回相关记忆"""
+    # 向量召回
+    vec_results = await vector_search(query, top_k)
+    # 图谱召回
+    graph_results = await graph_search(query, top_k)
+    # 合并去重 + 重排序
+    merged = rerank(vec_results + graph_results)
+    return {"memories": merged}
+
+@server.tool("search_by_time")
+async def search_by_time(start: str, end: str, keyword: str):
+    """按时间范围搜索记忆"""
+    results = await time_range_query(start, end, keyword)
+    return {"results": results}
+
+# 所有 AI Agent 通过 MCP 协议共享同一记忆库
+# Claude Code / Cursor / 自建 Agent 都能读写同一套记忆</code></pre>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section id="roadmap">
+  <h2><span class="icon">&#128640;</span> 实施路线图</h2>
+  <div class="roadmap">
+    
+        <div class="roadmap-phase">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 1</span>
+            <span class="phase-timeline">1-2 天</span>
+          </div>
+          <h3>立即上手：Mem0 插件式记忆</h3>
+          <ul><li>pip install mem0ai，注册 API Key 或 Docker 自托管</li><li>在 Claude Code / Cursor 中配置 Mem0 插件</li><li>对话中的关键信息自动保存为记忆</li><li>下次对话时自动召回相关历史记忆</li><li>效果：AI 工具获得跨会话记忆，不再&#x27;健忘&#x27;</li></ul>
+        </div>
+        <div class="roadmap-phase">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 2</span>
+            <span class="phase-timeline">1-2 周</span>
+          </div>
+          <h3>团队级：LangGraph 知识沉淀流水线</h3>
+          <ul><li>基于团队已有 LangChain + LangGraph 技术栈</li><li>构建 5 节点 StateGraph：捕获 → 提取 → 质检 → 存储 → 召回</li><li>存储层对接 RAGFlow（文档级）+ LightRAG（图谱级）+ PostgreSQL（结构化）</li><li>8 类知识自动分类提取（偏好/事实/事件/关系/指令/摘要/上下文/反馈）</li><li>质量评分 + 去重机制，避免垃圾记忆堆积</li><li>效果：团队所有 AI 对话的知识自动沉淀为可检索的知识库</li></ul>
+        </div>
+        <div class="roadmap-phase">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 3</span>
+            <span class="phase-timeline">2-4 周</span>
+          </div>
+          <h3>全生态：MCP 统一记忆服务</h3>
+          <ul><li>构建 MCP Memory Server，提供统一记忆 API</li><li>save_conversation / recall_memory / search_by_time 等工具</li><li>所有 AI Agent 通过 MCP 协议共享同一记忆库</li><li>Claude Code / Cursor / 自建 Agent / 团队成员共享记忆</li><li>基于角色/项目的记忆隔离与权限控制</li><li>效果：全团队全生态的 AI 知识中枢，搜索不再遗忘</li></ul>
+        </div>
+  </div>
+</section>
+
+<!-- Summary -->
+<section id="summary">
+  <h2><span class="icon">&#11088;</span> 推荐总结</h2>
+  <div class="problem-box">
+    <p><strong>立即可用：</strong>Mem0 — 5 分钟给你的 AI 工具加上记忆，解决"健忘"问题</p>
+    <p><strong>个人自托管：</strong>Khoj — 完全自控的 AI 第二大脑，多平台访问</p>
+    <p><strong>最深度记忆：</strong>Letta — 3 层记忆架构，Agent 自主读写记忆，学术基础</p>
+    <p><strong>最佳 LangChain 集成：</strong>Memori — 8 类结构化提取，原生 LangChain 支持</p>
+    <p><strong>团队自建路径：</strong>方案 A (Mem0) → 方案 B (LangGraph 流水线) → 方案 C (MCP 统一服务)，渐进式构建，每步都可独立交付价值</p>
+    <p style="margin-top: 15px; padding: 15px; background: #f0f4ff; border-radius: 8px; color: #333;">
+      <strong>核心建议：</strong>先上 Mem0 解决当下"健忘"痛点，同时基于团队已有的 LangGraph + RAGFlow + LightRAG 技术栈构建知识沉淀流水线（方案 B），最终通过 MCP 协议实现全生态记忆共享（方案 C）。三步走，从个人到团队到全生态，逐步构建 AI 知识中枢。
+    </p>
+  </div>
+</section>
+
+<div class="footer">
+  <p>AI 知识沉淀指南 | 基于 GitHub 109 个项目调研 | 生成时间: 2026-07-31 20:07</p>
+  <p>数据来源: GitHub Search API | 架构设计基于 LangChain + LangGraph + RAGFlow + LightRAG 技术栈</p>
+</div>
+
+</div>
+
+<script>
+// Sidebar navigation
+const navLinks = document.querySelectorAll('#sidebar nav a:not(.sub)');
+const sections = document.querySelectorAll('section');
+navLinks.forEach(link => {
+  link.addEventListener('click', e => {
+    navLinks.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+// Scroll spy
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(sec => {
+    if (window.scrollY >= sec.offsetTop - 100) current = sec.id;
+  });
+  navLinks.forEach(link => {
+    link.classList.toggle('active',
+      link.getAttribute('href') === '#' + current);
+  });
+});
+
+// Search filtering
+const searchInput = document.getElementById('searchInput');
+const projectCards = document.querySelectorAll('.project-card');
+searchInput.addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  projectCards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    if (q === '' || text.includes(q)) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+});
+
+// Sub-nav click to search
+const subLinks = document.querySelectorAll('#sidebar nav a.sub');
+subLinks.forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const name = link.textContent.trim();
+    searchInput.value = name;
+    searchInput.dispatchEvent(new Event('input'));
+    document.getElementById('projects').scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+
+</body>
+</html>
