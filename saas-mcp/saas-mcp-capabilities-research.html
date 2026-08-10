@@ -305,7 +305,63 @@
 <li><strong>垂直行业是蓝海</strong>：把行业深度能力（法务、财税、医疗、制造）封装为 MCP，抢行业级卡位。</li>
 </ol>
 
-<h2>九、核心结论</h2>
+<h2>九、垂直领域中小 SaaS 的 MCP 发展</h2>
+<p>前文聚焦头部 SaaS 与大厂，本节专门看<strong>垂直领域的中小 SaaS</strong>——它们既不像 Notion/GitHub 有足够工程团队自建远程 server，也不像阿里腾讯有平台市场背书，但恰恰是 MCP 生态中"最被低估也最活跃"的一层。</p>
+
+<h3>9.1 国际垂直中小 SaaS 的 MCP 进展</h3>
+<p>垂直中小 SaaS 接入 MCP 的速度远超预期，且<strong>按行业成簇出现</strong>：</p>
+<table>
+<thead><tr><th>行业</th><th>代表公司</th><th>MCP 形态与进展</th></tr></thead>
+<tbody>
+<tr><td><strong>法律 CLM</strong></td><td>Concord</td><td>2025-12 首个 GA 的 CLM MCP server，让 Claude/ChatGPT 查活合同数据</td></tr>
+<tr><td></td><td>DocuSign</td><td>2026-02 MCP beta，协议基础设施向 AI 开放</td></tr>
+<tr><td></td><td>SpotDraft</td><td>2026-04 MCP alpha，第三家进入 MCP 的 CLM 厂商</td></tr>
+<tr><td></td><td>Ironclad / Gatekeeper</td><td>Ironclad Jurist GA 红线 Agent；Gatekeeper MCP 集成 coming soon</td></tr>
+<tr><td><strong>建筑 / BIM</strong></td><td>Procore</td><td>无官方 server，但社区 server 已覆盖 2482+ REST 工具（OAuth）</td></tr>
+<tr><td></td><td>Revit / Rhino / ArchiCAD / Tekla / SketchUp / CAD</td><td>Rhino MCP 400+ star、ArchiCAD v0.4.0、Tekla 高频迭代，设计软件集体 MCP 化</td></tr>
+<tr><td></td><td>Open Design Alliance</td><td>2026 Q3 预发布 MCP，支持 DWG/DXF/STEP/IFC，工程模型按需查询</td></tr>
+<tr><td><strong>HR / 招聘</strong></td><td>Moka HR</td><td>10 工具 MCP（create candidate/list jobs/get interview 等），由 Vinkius 托管</td></tr>
+<tr><td><strong>财税 / 合规</strong></td><td>EU AI Act 文档生成器</td><td>中小厂商切入：针对单一高风险类别输出合规文档（新兴 micro-SaaS）</td></tr>
+</tbody>
+</table>
+<p><strong>关键信号</strong>：垂直 SaaS 不是"等大厂带飞"，而是<strong>自己出 MCP 或被社区/第三方托管平台包装成 MCP</strong>。第三方 MCP 托管平台（Vinkius 索引 5700+ 托管 MCP、Smithery、Pipedream/Socket/Zapier 网关）成为中小 SaaS 低成本接入的主路径。</p>
+
+<div class="callout">
+<p><strong>SaaSpocalypse 模式</strong>：当 Claude Cowork 等通用 Agent 能直接完成"文本搬运型"工作流，核心价值仅是工作流编排（非专有数据）的中小 SaaS 首当其冲被替代——法律 CLM、文档审查、提案生成、HR 绩效评估是第一批。<strong>聪明的应对不是对抗，而是把自己变成带"专有数据 + 审计留痕"的 MCP server</strong>：通用 Agent 能调你的工具，但离不开你的行业数据与合规记录。</p>
+</div>
+
+<h3>9.2 国内垂直中小 SaaS 的 MCP 进展</h3>
+<p>国内垂直中小 SaaS 已大面积接入 MCP，主要通过<strong>三条路径</strong>：① 大厂平台市场（百炼/千帆/扣子/MCP Hub）；② WorkBuddy 等客户端连接器生态；③ 自建官方远程 MCP。代表性案例：</p>
+<table>
+<thead><tr><th>行业</th><th>代表公司</th><th>MCP 形态与能力</th></tr></thead>
+<tbody>
+<tr><td><strong>知识产权 / 专利</strong></td><td>智慧芽 (PatSnap)</td><td>原生远程 MCP（connect.zhihuiya.com），2.1 亿+全球专利数据、140+ 原子工具，REST API + MCP + UI Widget + Agent Skills 四种集成；按量计费</td></tr>
+<tr><td><strong>HR / 招聘</strong></td><td>Moka HR</td><td>10 工具 MCP（候选人/职位/面试），由 Vinkius 托管；国内 HR SaaS 走 MCP 化较早</td></tr>
+<tr><td><strong>企业征信</strong></td><td>企查查 / 天眼查 / 启信慧眼 / 水滴征信</td><td>企查查 5 server/151 原子工具远程 MCP；天眼查、启信慧眼、水滴征信均已接入</td></tr>
+<tr><td><strong>商标 / 法律</strong></td><td>摩知轮（商标）/ 北大法宝 / 华宇元典 / 法研</td><td>商标查询、法律检索、法规检索 MCP</td></tr>
+<tr><td><strong>财税 / 开票</strong></td><td>云帐房 / 中兴新云 / 福帮手</td><td>AI 开票、智报、财税助手 MCP</td></tr>
+<tr><td><strong>客服 / SCRM</strong></td><td>腾讯企点客服 / 微盛企微管家 SCRM</td><td>客服会话、客户运营 MCP</td></tr>
+<tr><td><strong>知识付费 / 社区</strong></td><td>小鹅通 / 知识星球 / 乐享</td><td>课程/内容/社区运营 MCP</td></tr>
+<tr><td><strong>电商 / 选品</strong></td><td>极睿电商/视频 / Linkfox 选品 / 八爪鱼</td><td>电商生图、视频、选品、数据采集 MCP</td></tr>
+<tr><td><strong>供应链 / 出海</strong></td><td>铱云 AI 供应链 / 出海匠</td><td>供应链协同、出海合规 MCP</td></tr>
+<tr><td><strong>广告 / 增长</strong></td><td>Tec-Do</td><td>广告与增长情报 MCP</td></tr>
+<tr><td><strong>低代码 / 搭建</strong></td><td>妙哒</td><td>应用搭建 MCP</td></tr>
+</tbody>
+</table>
+<p>根据 WorkBuddy 连接器状态面板，国内已有 <strong>70+ 家垂直 SaaS</strong> 提供 MCP connector，覆盖供应链、HR、营销、财税、电商、法务、专利、商标、征信、客服等十余个垂直场景。<strong>知识产权领域的智慧芽是国内垂直 SaaS MCP 化最彻底的样本</strong>——四种集成方式并存、按量计费、数据 + AI 能力同时对外暴露。</p>
+
+<h3>9.3 垂直中小 SaaS 的三条路径选择</h3>
+<ol>
+<li><strong>上大厂市场</strong>（最快、流量大）：接入百炼/千帆/扣子/MCP Hub，借平台分发，但受平台规则约束、数据可能过平台。</li>
+<li><strong>自建官方远程 MCP</strong>（可控、体现数据资产价值）：像智慧芽/企查查那样自托管远程 MCP + API Key/OAuth，直接面向 Claude/Cursor，但需自维护工程与鉴权。</li>
+<li><strong>第三方 MCP 托管</strong>（折中、省工程）：通过 Vinkius/Smithery/Pipedream 等托管平台把已有 API 包装成 MCP，适合没有专职 MCP 工程团队的小厂，但治理层依赖第三方。</li>
+</ol>
+
+<h3>9.4 机遇与挑战</h3>
+<p><strong>机遇</strong>：垂直行业是 MCP 生态最大蓝海（遗留 SAP ERP、医疗 FHIR、受监管金融仍严重缺口）；垂直 SaaS 手握<strong>专有行业数据 + 行业 know-how</strong>，这是通用 Agent 无法替代的护城河；按量计费/按任务计费的新模式让中小 SaaS 不再依赖账号订阅。</p>
+<p><strong>挑战</strong>：① 工程能力不足——多数中小 SaaS 没有专职 MCP 团队；② 数据合规与审计要求高（医疗/金融/法律）；③ "SaaSpocalypse" 风险——纯工作流编排型 SaaS 若不绑定专有数据会被通用 Agent 直接替代；④ 平台依赖——上大厂市场可能失去直连用户。</p>
+
+<h2>十、核心结论</h2>
 <p>MCP 已从 2024 年的开源协议演变为 <strong>2026 年 SaaS AI 接入的事实标准</strong>。</p>
 <ul>
 <li><strong>国外</strong>：SaaS 偏"直发远程 server + OAuth"，治理与审计跟进，企业级硬化是当前阶段焦点。</li>
