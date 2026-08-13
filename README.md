@@ -21,6 +21,12 @@ AI 技术选型与研究报告合集。
 |------|------|------|
 | [Agent 框架选型报告](https://netguo.github.io/aiwork/agent-framework/agent-framework-selection-report.html) | 对比 LangChain / Dify / deer-flow，推荐 LangChain + LangGraph 作为团队 Agent 开发基座 | 2026-07-28 |
 
+### Agent Infra 基础设施
+
+| 报告 | 说明 | 日期 |
+|------|------|------|
+| [Agent Infra 深度调研报告](https://netguo.github.io/aiwork/agent-infra/agent-infra-deep-research.html) | Agent 基础设施全景：商业化市场产品（可观测/网关/MCP/安全）、开源生态（GitHub 实时 star）、企业本地建设分层架构与行业实践、2026 行业趋势与选型决策框架 | 2026-08-13 |
+
 ### RAG 框架选型
 
 | 报告 | 说明 | 日期 |
@@ -65,6 +71,7 @@ AI 技术选型与研究报告合集。
 | AI 记忆层 | Mem0 (62K Star) | 通用记忆层，插件式集成，1-2 天可落地 |
 | 风控数据层 | 基础设施层切入 | API+MCP 暴露，按量计费引流 + 效果分润变现 |
 | SaaS AI 接入 | MCP 协议优先 | 2026 事实标准，不接入 = 站在 Agent 分发之外 |
+| Agent 基础设施 | vLLM + LiteLLM/Higress + LangGraph + Qdrant/Milvus + Langfuse + MCP/FastMCP | 标准主线组合，治理/评估/安全是落地瓶颈 |
 
 ## 仓库结构
 
@@ -72,6 +79,7 @@ AI 技术选型与研究报告合集。
 aiwork/
 ├── github-analysis/    # GitHub Star 排名与分类
 ├── agent-framework/    # Agent 框架选型
+├── agent-infra/        # Agent 基础设施调研（市场产品/开源生态/企业本地建设）
 ├── rag-framework/      # RAG 框架选型
 ├── ai-knowledge/       # AI 知识沉淀工具
 ├── risk-control/       # 风控 AI 项目调研
