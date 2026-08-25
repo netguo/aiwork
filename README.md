@@ -53,6 +53,7 @@ AI 技术选型与研究报告合集。
 | [风控 AI 项目搜索与分类报告](https://netguo.github.io/aiwork/risk-control/risk-control-ai-projects.html) | 16 组关键词搜索 GitHub，筛选 59 个风控相关 AI 项目，分 10 大类 | 2026-07-28 |
 | [大模型风控项目深度对比](https://netguo.github.io/aiwork/risk-control/fraud-credit-risk-llm-projects.html) | 14 组 LLM 关键词搜索，筛选 15 个 LLM/Agent 相关风控项目，6 个关键项目深度调研 | 2026-07-28 |
 | [信贷风控建模范式对比](https://netguo.github.io/aiwork/risk-control/credit-risk-modeling-traditional-vs-timeseries-llm.html) | 传统建模 vs 时序大模型：数据/特征/模型/解释/部署五阶段对比，六大核心差异、适用场景与行业混合架构实践 | 2026-08-25 |
+| [多头数据厂商时序大模型落地与成本分析](https://netguo.github.io/aiwork/risk-control/multihead-data-vendor-timeseries-llm-landing.html) | 三方多头数据商（时间×场景×合作方）事件序列建模方案：序列编码、自研轻量 Transformer、3000 万日调用量四层推理架构，含 TCO/单次成本/保本点测算 | 2026-08-25 |
 
 ### SaaS MCP 调研
 

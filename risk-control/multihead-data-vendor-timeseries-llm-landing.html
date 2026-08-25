@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多头数据厂商 × 时序大模型：落地路径与成本分析</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #1a1d21;
+    --muted: #5f6b7a;
+    --line: #e3e8ee;
+    --blue-50: #E6F1FB; --blue-600: #185FA5; --blue-800: #0C447C;
+    --purple-50: #EEEDFE; --purple-600: #534AB7; --purple-800: #3C3489;
+    --teal-50: #E1F5EE; --teal-600: #0F6E56; --teal-800: #085041;
+    --amber-50: #FAEEDA; --amber-600: #854F0B;
+    --red-50: #FCEBEB; --red-600: #A32D2D;
+    --green-50: #EAF3DE; --green-600: #3B6D11;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    color: var(--ink); background: var(--bg); line-height: 1.7; font-size: 15px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 28px 80px; }
+  .meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 16px; line-height: 1.35; }
+  .lead {
+    font-size: 16.5px; color: #333; background: #f6f8fa;
+    border-left: 4px solid var(--blue-600); border-radius: 0 8px 8px 0;
+    padding: 16px 20px; margin: 24px 0;
+  }
+  h2 {
+    font-size: 20px; font-weight: 600; margin: 44px 0 16px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  }
+  h3 { font-size: 16px; font-weight: 600; margin: 26px 0 10px; }
+  h4 { font-size: 14.5px; font-weight: 600; margin: 18px 0 8px; }
+  p { margin: 12px 0; }
+  strong { font-weight: 600; }
+  ul, ol { margin: 12px 0 12px 22px; }
+  li { margin: 7px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: #f6f8fa; font-weight: 600; white-space: nowrap; }
+  td { background: #fff; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 500; padding: 2px 10px; border-radius: 20px; margin-right: 6px; }
+  .tag.blue { background: var(--blue-50); color: var(--blue-600); }
+  .tag.purple { background: var(--purple-50); color: var(--purple-600); }
+  .tag.teal { background: var(--teal-50); color: var(--teal-600); }
+  .tag.amber { background: var(--amber-50); color: var(--amber-600); }
+  .tag.red { background: var(--red-50); color: var(--red-600); }
+  .tag.green { background: var(--green-50); color: var(--green-600); }
+  .highlight { background: #fffbe8; border: 1px solid #f0e5a8; border-radius: 8px; padding: 14px 18px; margin: 18px 0; font-size: 15px; }
+  .highlight strong { color: #7a5b00; }
+  .cost-box {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 20px; margin: 14px 0; background: #fff;
+  }
+  .cost-box.teal { border-left: 4px solid var(--teal-600); }
+  .cost-box.blue { border-left: 4px solid var(--blue-600); }
+  .cost-box.purple { border-left: 4px solid var(--purple-600); }
+  .cost-box.amber { border-left: 4px solid var(--amber-600); }
+  .cost-box h4 { margin-top: 0; }
+  .footnote { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .stage-label { display: inline-block; min-width: 22px; text-align: center; background: #eef0f3; border-radius: 50%; font-size: 12px; font-weight: 600; color: #444; margin-right: 6px; }
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="meta">AI 调研 · 风控 AI 项目 · 2026-08-25</div>
+  <h1>多头数据厂商 × 时序大模型：落地路径与成本分析</h1>
+
+  <div class="lead">
+    三方多头数据厂商的数据形态——<strong>时间 × 场景（借款、放款等）× 合作方（银行等）</strong>——本质是
+    <strong>多源标记事件序列（marked point process）</strong>，这正是传统多头聚合特征丢信息最多、
+    时序大模型最能产出增量价值的地方。本报告给出从数据编码、模型选型、分层推理架构到<strong>成本测算</strong>的完整落地方案。
+  </div>
+
+  <p><span class="tag blue">多头数据厂商</span><span class="tag purple">时序大模型</span><span class="tag teal">事件序列建模</span><span class="tag amber">成本分析</span></p>
+
+  <h2>一、数据本质：不是"时序"，是"事件序列"</h2>
+  <p>三要素（时间、场景、合作方）构成的是<strong>多源标记事件序列</strong>——事件间隔不等、每个事件带属性（谁借的、什么场景、金额多少、结果如何）。这与股票 K 线、传感器数据那种等间隔连续时序完全不同，因此：</p>
+  <ul>
+    <li><strong>现成的时序基础模型（Chronos / TimesFM 等，面向数值预测）并不直接适用</strong>；</li>
+    <li>需要的是"事件序列 Transformer"，这反而是多头数据商可以自建的护城河——银行没有跨机构数据，无法训练这类模型。</li>
+  </ul>
+  <p>传统做法是聚合——"近 3 月查询 7 次、在贷 5 笔"，<strong>顺序信息全丢</strong>。"先银行后网贷"与"先网贷后银行"聚合出来一模一样，但风险含义完全不同。两天内连申 5 家、申请间隔越来越短，就是资金链断裂的强信号，传统特征只能看到"次数多"。</p>
+
+  <h2>二、序列编码：把三要素变成模型输入</h2>
+  <table>
+    <thead>
+      <tr><th>要素</th><th>编码方式</th><th>示例</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>场景</td><td>离散 token</td><td>借款申请=1、放款=2、拒贷=3、还款=4、展期=5…</td></tr>
+      <tr><td>合作方</td><td>按机构层级分箱（不暴露具体机构名）</td><td>国有行=1、股份行=2、消金=3、互金=4、小贷=5、网贷=6…</td></tr>
+      <tr><td>金额</td><td>对数分箱</td><td>0-1 万=0、1-10 万=1…</td></tr>
+      <tr><td>时间</td><td>相邻事件间隔分箱做相对位置编码</td><td>1 天=0、3 天=1、1 周=2、1 月=3…</td></tr>
+      <tr><td>事件结果</td><td>场景自带</td><td>申请成功 / 被拒</td></tr>
+    </tbody>
+  </table>
+  <p>一条借款人记录变成一串 token：<code>[借-消金-3万-3天前] → [拒-网贷-5千-1天后] → [放-互金-2万-1天前]</code>。<strong>节奏本身就是特征</strong>。</p>
+
+  <h2>三、模型选型：自研轻量 Transformer，不要硬套时序基础模型</h2>
+  <ul>
+    <li><strong>主路径</strong>：自建 Transformer encoder（参数百万级~亿级），先用跨机构海量序列做<strong>自监督预训练</strong>（掩码事件预测 + 下一事件预测），再用合作方回传的违约标签微调二分类。预训练语料就是壁垒。</li>
+    <li><strong>对比基线</strong>：传统多头特征 + XGBoost 先跑通（KS/AUC 基线），时序模型必须证明增量（欺诈识别、短期违约预测增益通常最明显）。</li>
+    <li><strong>不要用</strong>：Chronos/TimesFM（数值预测导向）、通用 LLM（词表语义不对齐；Time-LLM 式"语义提示+重参数化"工程复杂度高，初期不划算）。</li>
+  </ul>
+
+  <h2>四、3000 万日调用量的分层推理架构</h2>
+  <p>日调用量 3000 万（≈110 亿事件/年）既是训练语料壁垒，也带来实时推理约束：平均 QPS ~350，但工作日白天峰值约 1500-2500 QPS。全量跑 Transformer 既不经济也不稳定，必须<strong>分层漏斗</strong>，把 GPU 算力只花在能产生增量价值的请求上。</p>
+  <table>
+    <thead>
+      <tr><th>层</th><th>流量占比</th><th>延迟</th><th>算力</th><th>解决什么</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>L0 缓存层</strong></td><td>命中 40-60%</td><td>毫秒内</td><td>零 GPU</td><td>同一借款人 T+7 内重复查询直接返回（多头行业天然高命中）</td></tr>
+      <tr><td><strong>L1 轻量路径</strong></td><td>20-35%</td><td>毫秒</td><td>CPU</td><td>新客、低频借款人，多头特征 + XGBoost 足够</td></tr>
+      <tr><td><strong>L2 时序 Transformer</strong></td><td>10-20%</td><td>百毫秒</td><td>GPU</td><td>有丰富历史行为的借款人，卖"时序深度分 + 可解释片段"</td></tr>
+      <tr><td><strong>L3 离线批处理</strong></td><td>异步</td><td>—</td><td>批处理</td><td>团伙识别、全量重评、增量训练语料回流</td></tr>
+    </tbody>
+  </table>
+  <p><strong>L2 只承接 300-600 万次/天、峰值几百 QPS</strong>——中小尺寸 encoder（1-3 亿参数、序列截断到 64-128 事件）用 1-2 张 H20/A100 即可扛住批推理，成本可控。缓存键建议 <code>(借款人标识 + 序列版本 + 模型版本)</code>，命中即返回时序分与可解释片段。</p>
+
+  <h2>五、成本分析（核心）</h2>
+  <p class="highlight"><strong>结论先行：首年总投入约 350-630 万元，稳态年运营 260-470 万元；按单次 0.2-0.5 元定价，仅需 L2 流量的 0.5%-1.3% 付费即可覆盖全部成本。</strong>下述均为量级估算，供立项与定价参考，实际以报价与自身基础设施为准。</p>
+
+  <h3>5.1 成本结构总览（TCO）</h3>
+  <table>
+    <thead>
+      <tr><th>成本项</th><th>首年</th><th>稳态年化</th><th>说明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>GPU 推理（L2）</td><td>40-80 万</td><td>30-60 万</td><td>2 张 H20/A100 含冗余；缓存命中率越高越低</td></tr>
+      <tr><td>训练</td><td>40-70 万</td><td>25-40 万</td><td>首年含 1-2 次全量预训练 + 周级微调；稳态季度重训</td></tr>
+      <tr><td>存储与中间件</td><td>15-30 万</td><td>10-20 万</td><td>事件湖（110 亿条/年 ≈ 2-4TB/年）+ 序列缓存（Redis/向量库）</td></tr>
+      <tr><td>人力（MLE/工程/数据/合规）</td><td>200-350 万</td><td>200-350 万</td><td>MLE 2 人 + 工程 1-2 人 + 数据/合规 1 人 —— 真正的成本大头</td></tr>
+      <tr><td>首年一次性（搭建/实验）</td><td>50-100 万</td><td>—</td><td>数据管道、评测基线、POC 实验</td></tr>
+      <tr><td><strong>合计</strong></td><td><strong>~350-630 万</strong></td><td><strong>~260-470 万</strong></td><td>复用现有 CPU 集群/存储可显著下探</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.2 单次推理边际成本</h3>
+  <table>
+    <thead>
+      <tr><th>路径</th><th>日流量（按占比）</th><th>单次边际成本</th><th>年算力成本</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>L0 缓存</td><td>1200-1800 万</td><td>≈ 0</td><td>缓存集群摊销可忽略</td></tr>
+      <tr><td>L1 轻量 CPU</td><td>600-1050 万</td><td>&lt; 0.001 元</td><td>复用现有服务器，增量极小</td></tr>
+      <tr><td>L2 Transformer</td><td>300-600 万</td><td><strong>~0.002-0.005 元</strong></td><td>GPU 年 30-60 万（2 卡）</td></tr>
+      <tr><td>L3 离线</td><td>异步</td><td>摊销在训练成本</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.3 缓存命中率的杠杆效应（敏感性）</h3>
+  <table>
+    <thead>
+      <tr><th>缓存命中率</th><th>L2 日流量</th><th>需 GPU 卡数</th><th>年 GPU 成本</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>40%</td><td>540 万</td><td>3 卡</td><td>45-75 万</td></tr>
+      <tr><td>50%</td><td>450 万</td><td>2 卡</td><td>30-60 万</td></tr>
+      <tr><td>60%</td><td>360 万</td><td>1-2 卡</td><td>20-50 万</td></tr>
+    </tbody>
+  </table>
+  <p><strong>命中率每提升 10 个百分点 ≈ 每年省 10-20 万 GPU 成本</strong>。这是 ROI 的第一杠杆：T+7 缓存窗口、版本化缓存键、高频借款人预热，都是低成本高回报动作。</p>
+
+  <h3>5.4 训练成本</h3>
+  <ul>
+    <li><strong>预训练</strong>：110 亿事件/年语料 → 中小 encoder（1-3 亿参数）一轮全量预训练 8×H20 × 1-2 周 ≈ <strong>8-20 万一次性</strong>。</li>
+    <li><strong>微调</strong>：周增量微调（4 卡 × 数小时，摊销低）；季度全量重训（8 卡 × 3-5 天 ≈ 3-6 万/次）→ <strong>年 12-24 万</strong>。</li>
+    <li>数据工程（清洗/去重/标签回流 join）成本计入人力。</li>
+  </ul>
+
+  <h3>5.5 收入模型与保本点</h3>
+  <div class="cost-box teal">
+    <h4>定价假设与保本计算</h4>
+    <ul>
+      <li>基础分（L0/L1）：单次 0.01-0.03 元，走量保规模；</li>
+      <li><strong>时序深度分（L2）：单次 0.2-0.5 元</strong>，含可解释片段，对高价值/高风险客群单独收费；</li>
+      <li>单次毛利 ≈ 售价 − 0.005 元边际成本 ≈ <strong>95%+ 毛利率</strong>；</li>
+      <li>保本点：稳态年成本 ~400 万（含人力）÷ 单次毛利 0.19-0.47 元 ≈ 850-2100 万次/年 ≈ <strong>2.3-5.8 万次/天</strong>；</li>
+      <li>占 L2 流量（450 万/天）的比例：<strong>仅 0.5%-1.3%</strong> —— 极少数高价值客群付费即回本。</li>
+    </ul>
+  </div>
+  <p>若定价 0.5 元且 5% 的 L2 流量付费：450 万 × 5% × 0.5 × 365 ≈ <strong>4100 万/年收入</strong>，扣除成本后为数千万元级增量利润。该模型成立的前提是：时序深度分确实比基础分有可验证的区分度增量（用 KS/AUC 增量向客户证明）。</p>
+
+  <h3>5.6 成本优化要点</h3>
+  <ol>
+    <li><strong>缓存命中率是第一杠杆</strong>（T+7 窗口 + 版本化缓存键 + 高频借款人预热）；</li>
+    <li>序列截断到 128 事件 + 动态 batch，吞吐可翻倍；</li>
+    <li>FP16/INT8 量化部署，再获 2-3 倍吞吐；</li>
+    <li>削峰填谷：离线/异步任务挪到夜间低谷执行；</li>
+    <li>复用现有存储与 CPU 集群，避免新基础设施；</li>
+    <li>用开源推理栈（vLLM / TensorRT 等），不自研框架。</li>
+  </ol>
+
+  <h2>六、产品化：怎么卖出去</h2>
+  <ol>
+    <li><strong>时序多头风险分 API</strong>：输入借款人历史事件序列 → 输出 0-100 分档。对银行按调用量/分档计费，主力产品。</li>
+    <li><strong>行为演化标签</strong>：资金紧张度（近期申请节奏）、借款下沉轨迹（从银行滑向网贷）、循环借贷特征——作为结构化字段卖给客户，门槛最低。</li>
+    <li><strong>可解释性随包卖</strong>：返回高注意力的事件片段（"近 7 天 3 家网贷申请 + 2 次被拒"），银行既要解释也要审计，这是时序模型过合规的关键卖点。</li>
+  </ol>
+
+  <h2>七、客户侧接入：别指望替换，做"替代变量"</h2>
+  <ul>
+    <li>银行有自己的评分卡体系，正确姿势是<strong>时序分作为替代变量/补充变量做融合打分</strong>（Stacking 或分数加权）；</li>
+    <li>新客无历史序列 → 级联兜底用传统特征模型，别让时序模型直接拒绝；</li>
+    <li>上线后按机构做 PSI 监控，注意<strong>合作方口径漂移</strong>（某家银行停合作会使序列分布变化，需重训或剔除敏感合作方特征）；</li>
+    <li>合作方特征必须按类别泛化，<strong>绝不能透传具体机构名</strong>（合规红线）。</li>
+  </ul>
+
+  <h2>八、合规提醒</h2>
+  <p>多头数据本身敏感，时序化后更甚：序列隐含借款人完整借贷轨迹，涉及个人信息处理需逐一确认授权范围；场景/合作方分箱要保证<strong>不可反推具体机构</strong>；训练数据脱敏。建议法务提前介入——很多数据厂商死在数据合规上而不是技术上。</p>
+
+  <h2>九、落地路线图（含阶段投入）</h2>
+  <table>
+    <thead>
+      <tr><th>阶段</th><th>内容</th><th>周期</th><th>投入量级</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>P0 基线</td><td>传统多头特征 + XGBoost 跑通，建立 KS/AUC 基线</td><td>2-4 周</td><td>人力为主，可忽略</td></tr>
+      <tr><td>P1 序列特征</td><td>先不加深度模型，加统计序列特征（申请间隔均值/方差、场景转移熵、连续申请天数）验证时序信息增量</td><td>2-3 周</td><td>人力为主，可忽略</td></tr>
+      <tr><td>P2 轻量 Transformer</td><td>预训练 + 微调上线，与传统模型融合，输出时序风险分 API</td><td>2-3 月</td><td>首年 200-400 万（含 GPU+训练+部分人力）</td></tr>
+      <tr><td>P3 演进</td><td>实时流式序列评分、行为演化标签产品化、Time-LLM 探索</td><td>持续</td><td>稳态年 260-470 万</td></tr>
+    </tbody>
+  </table>
+  <p><strong>关键提醒</strong>：P1 一定要做——先用低成本序列特征验证"时序信息到底值多少钱"，拿到增益数据再投入 Transformer，内部立项和对外讲故事都有依据。</p>
+
+  <div class="footnote">
+    数据与成本为量级估算：事件量按 3000 万调用/天 × 365 ≈ 110 亿条/年，去重后按 50% 计；GPU 按 H20/A100 公开租赁价量级；人力按一线城市 MLE 市场薪酬估算。实际以供应商报价与自身基础设施为准。
+  </div>
+
+</div>
+</body>
+</html>
