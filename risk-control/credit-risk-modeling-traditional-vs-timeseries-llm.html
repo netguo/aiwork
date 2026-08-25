@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>信贷风控：传统建模 vs 时序大模型建模</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #1a1d21;
+    --muted: #5f6b7a;
+    --line: #e3e8ee;
+    --blue-50: #E6F1FB; --blue-600: #185FA5; --blue-800: #0C447C;
+    --purple-50: #EEEDFE; --purple-600: #534AB7; --purple-800: #3C3489;
+    --teal-50: #E1F5EE; --teal-600: #0F6E56;
+    --amber-50: #FAEEDA; --amber-600: #854F0B;
+    --red-50: #FCEBEB; --red-600: #A32D2D;
+    --green-50: #EAF3DE; --green-600: #3B6D11;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    color: var(--ink); background: var(--bg); line-height: 1.7; font-size: 15px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 28px 80px; }
+  .meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 16px; line-height: 1.35; }
+  .lead {
+    font-size: 16.5px; color: #333; background: #f6f8fa;
+    border-left: 4px solid var(--blue-600); border-radius: 0 8px 8px 0;
+    padding: 16px 20px; margin: 24px 0;
+  }
+  h2 { font-size: 20px; font-weight: 600; margin: 44px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 16px; font-weight: 600; margin: 26px 0 10px; }
+  p { margin: 12px 0; }
+  strong { font-weight: 600; }
+  ul, ol { margin: 12px 0 12px 22px; }
+  li { margin: 7px 0; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; background: #fff; }
+  .card.blue { border-top: 3px solid var(--blue-600); }
+  .card.purple { border-top: 3px solid var(--purple-600); }
+  .card h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .card.blue h4 { color: var(--blue-800); }
+  .card.purple h4 { color: var(--purple-800); }
+  .card ul { margin: 8px 0 0 18px; }
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: #f6f8fa; font-weight: 600; white-space: nowrap; }
+  td { background: #fff; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 500; padding: 2px 10px; border-radius: 20px; margin-right: 6px; }
+  .tag.blue { background: var(--blue-50); color: var(--blue-600); }
+  .tag.purple { background: var(--purple-50); color: var(--purple-600); }
+  .tag.teal { background: var(--teal-50); color: var(--teal-600); }
+  .tag.amber { background: var(--amber-50); color: var(--amber-600); }
+  .tag.red { background: var(--red-50); color: var(--red-600); }
+  .tag.green { background: var(--green-50); color: var(--green-600); }
+  .highlight { background: #fffbe8; border: 1px solid #f0e5a8; border-radius: 8px; padding: 14px 18px; margin: 18px 0; font-size: 15px; }
+  .highlight strong { color: #7a5b00; }
+  .footnote { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .stage-label { display: inline-block; min-width: 22px; text-align: center; background: #eef0f3; border-radius: 50%; font-size: 12px; font-weight: 600; color: #444; margin-right: 6px; }
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="meta">AI 调研 · 风控 AI 项目 · 2026-08-25</div>
+  <h1>信贷风控：传统建模 vs 时序大模型建模</h1>
+
+  <div class="lead">
+    传统建模把"借款人"压缩成一行静态特征去做分类；时序大模型把"借款人的行为过程"当成一段连续序列去建模。
+    <strong>前者回答"这个人现在像不像坏人"，后者回答"这个人的行为轨迹正在走向哪里"。</strong>
+  </div>
+
+  <p><span class="tag blue">传统信贷风控建模</span><span class="tag purple">时序大模型建模</span><span class="tag teal">混合架构</span></p>
+
+  <h2>一、五阶段流程对比</h2>
+  <table>
+    <thead>
+      <tr><th>阶段</th><th>传统信贷风控建模</th><th>时序大模型建模</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="stage-label">1</span>数据范式</td><td>结构化表格 · 每客户一行快照，时间信息被手工压缩为聚合统计量</td><td>序列数据 · 行为轨迹 + 交易流水，保留"先做什么、后做什么、间隔多久"的原始结构</td></tr>
+      <tr><td><span class="stage-label">2</span>特征工程</td><td>WOE 分箱 + IV 筛选等手工特征工程，专家经验决定模型上限</td><td>端到端自动表征学习，从原始序列中自动发现规律</td></tr>
+      <tr><td><span class="stage-label">3</span>模型架构</td><td>评分卡 · LR · XGBoost，隐含样本独立同分布假设</td><td>Transformer · 时序基础大模型，显式建模时间依赖与长期关系</td></tr>
+      <tr><td><span class="stage-label">4</span>可解释性</td><td>强 — 系数透明、评分可溯源，监管友好</td><td>弱 — 黑箱注意力难审计，强监管场景难直接上生产</td></tr>
+      <tr><td><span class="stage-label">5</span>部署运维</td><td>轻量 · PSI 监控性能衰减，迭代快、成本低</td><td>重型 · 需 GPU 集群与持续微调防漂移，推理成本高一个数量级</td></tr>
+    </tbody>
+  </table>
+
+  <h2>二、六大核心差异</h2>
+
+  <h3>1. 数据范式：横截面 vs 序列</h3>
+  <ul>
+    <li><strong>传统</strong>：宽表结构，每客户一行，本质是"快照"——申请时点的特征、近 N 个月聚合统计（如近 3 月消费金额均值）。时间信息被手工压缩成统计量，天然丢掉顺序与节奏。</li>
+    <li><strong>时序大模型</strong>：输入是变长的行为序列（交易流水、App 操作轨迹、还款时序、额度使用曲线），时间本身就是信息。</li>
+  </ul>
+
+  <h3>2. 特征工程：专家经验 vs 自动学习</h3>
+  <ul>
+    <li><strong>传统</strong>：强依赖人工特征工程——WOE 分箱、IV 筛选、衍生指标（如"最近 7 天提现次数 / 消费次数比"）。特征好坏决定模型上限，迭代周期以周/月计。</li>
+    <li><strong>时序大模型</strong>：端到端表征学习，模型自己发现规律（如自动学到"深夜高频小额转账 + 立刻提现"这类组合模式），大幅降低人力依赖。</li>
+  </ul>
+
+  <h3>3. 模型假设：独立同分布 vs 时间依赖</h3>
+  <ul>
+    <li><strong>传统（LR/GBDT/评分卡）</strong>：隐含样本 i.i.d. 假设，只能刻画特征与违约的静态相关。</li>
+    <li><strong>时序模型</strong>：显式建模时间依赖。同样是逾期，"一直正常突然断供"与"长期挣扎后逾期"是两种完全不同的风险演化路径，传统模型很难区分。</li>
+  </ul>
+
+  <h3>4. 可解释性与监管合规（最大分歧点）</h3>
+  <ul>
+    <li><strong>传统评分卡/LR</strong>：系数透明、可溯源，符合银行报送、审计、客户拒贷解释要求，这是其至今仍为主力的根本原因。</li>
+    <li><strong>时序大模型</strong>：注意力权重 ≠ 业务解释，属于黑箱。在强监管场景（银行核心授信、监管报送模型）通常只做辅助决策或模型融合。</li>
+  </ul>
+
+  <h3>5. 数据与算力门槛</h3>
+  <ul>
+    <li><strong>传统</strong>：几千到几万样本即可训练，单机跑完，成本低。</li>
+    <li><strong>时序大模型</strong>：需要海量、高频、长历史行为数据（上亿条流水级），GPU 集群训练，样本稀疏的中小机构基本玩不动。</li>
+  </ul>
+
+  <h3>6. 稳定性与部署</h3>
+  <ul>
+    <li><strong>传统</strong>：模型轻量，PSI/KS 监控成熟，性能衰减可控。</li>
+    <li><strong>时序大模型</strong>：对数据分布漂移更敏感，行为模式一变（App 改版、场景切换）性能可能骤降，需要持续微调/重训；线上推理需要专用基础设施。</li>
+  </ul>
+
+  <h2>三、各自的用武之地</h2>
+  <table>
+    <thead>
+      <tr><th></th><th>传统建模</th><th>时序大模型</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>强项场景</strong></td><td>申请评分 A 卡、存量 B 卡、催收 C 卡，任何需要"稳定 + 可解释"的标准化场景</td><td>交易反欺诈、团伙识别、资金异常流动检测、动态额度调整</td></tr>
+      <tr><td><strong>关键优势</strong></td><td>合规、透明、便宜、成熟</td><td>抓复杂时序模式，欺诈/共债识别往往有明显增益</td></tr>
+      <tr><td><strong>致命短板</strong></td><td>特征工程天花板，静态快照看不见演化</td><td>黑箱难过审、成本高、数据要求苛刻</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cards">
+    <div class="card blue">
+      <h4>传统建模 · 核心画像</h4>
+      <ul>
+        <li>A/B/C 卡全生命周期标准化</li>
+        <li>WOE 分箱 + IV 筛选 + 评分卡</li>
+        <li>监管报送与审计的"安全区"</li>
+        <li>PSI/KS 成熟监控体系</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <h4>时序大模型 · 核心画像</h4>
+      <ul>
+        <li>变长行为序列输入</li>
+        <li>Transformer / 时序基础模型</li>
+        <li>欺诈、共债、动态额度增益明显</li>
+        <li>需持续微调防漂移</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>四、行业实际做法：混合架构</h2>
+  <p>目前没有任何一家主流机构用时序大模型完全替代传统模型，普遍采用<strong>混合架构</strong>：</p>
+  <ol>
+    <li><strong>主决策层</strong>：评分卡 / XGBoost 保合规与稳定性；</li>
+    <li><strong>辅助信号层</strong>：时序模型输出行为异常分、欺诈风险分，与传统模型做融合打分（Stacking / 分数加权）；</li>
+    <li><strong>非强监管场景</strong>：消费金融额度调整、支付反欺诈等流量大、解释性容忍度高的场景，可让时序模型直接上生产。</li>
+  </ol>
+
+  <div class="highlight">
+    <strong>一句话判断标准：</strong>要进监管报送、要解释给客户听、数据量不够大 —— 用传统；数据量大、要抓动态行为模式、对解释性容忍度高 —— 时序大模型能带来增量。两者是互补关系，不是替代关系。
+  </div>
+
+  <div class="footnote">
+    本文档由 AI 调研生成，基于 2026-08-25 的行业公开认知整理。后续延伸方向：时序大模型技术原理与主流开源模型对比（详见"时序大模型调研"任务）。
+  </div>
+
+</div>
+</body>
+</html>
