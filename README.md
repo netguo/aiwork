@@ -27,6 +27,12 @@ AI 技术选型与研究报告合集。
 |------|------|------|
 | [Agent Infra 深度调研报告](https://netguo.github.io/aiwork/agent-infra/agent-infra-deep-research.html) | Agent 基础设施全景：商业化市场产品（可观测/网关/MCP/安全）、开源生态（GitHub 实时 star）、企业本地建设分层架构与行业实践、2026 行业趋势与选型决策框架 | 2026-08-13 |
 
+### Agent 评测设计
+
+| 报告 | 说明 | 日期 |
+|------|------|------|
+| [Agent 评测设计研究报告](https://netguo.github.io/aiwork/agent-eval/agent-eval-design-research.html) | 多平台调研（GitHub/互联网/公众号/HN）：三类评分器组合、五维指标体系、终态校验 vs 轨迹评测 vs LLM-as-Judge、pass@k/pass^k、Anthropic 8 步任务设计路线图、开源基准与工具对比、工业界实践、13 个常见陷阱、从零到一落地路线 | 2026-08-27 |
+
 ### 数字机器人
 
 | 报告 | 说明 | 日期 |
@@ -80,6 +86,7 @@ AI 技术选型与研究报告合集。
 | 风控数据层 | 基础设施层切入 | API+MCP 暴露，按量计费引流 + 效果分润变现 |
 | SaaS AI 接入 | MCP 协议优先 | 2026 事实标准，不接入 = 站在 Agent 分发之外 |
 | Agent 基础设施 | vLLM + LiteLLM/Higress + LangGraph + Qdrant/Milvus + Langfuse + MCP/FastMCP | 标准主线组合，治理/评估/安全是落地瓶颈 |
+| Agent 评测 | 确定性评分器（P0 门禁）+ LLM-Rubric（软指标）+ 人工校准；终态校验为主、轨迹评测诊断、pass^k 衡量稳定性 | 评测可信度 > 系统复杂度，评估集需 train/val/test 三分并定期刷新防饱和 |
 | 数字机器人 | 确定性编排骨架 + 受控 Agent 决策 + 人工闸门（HITL） | 生产主流是半确定性混合编排；AI 决策 + RPA 执行双引擎；凭证管理是头号风险 |
 
 ## 仓库结构
@@ -89,6 +96,7 @@ aiwork/
 ├── github-analysis/    # GitHub Star 排名与分类
 ├── agent-framework/    # Agent 框架选型
 ├── agent-infra/        # Agent 基础设施调研（市场产品/开源生态/企业本地建设）
+├── agent-eval/         # Agent 评测设计方法论
 ├── digital-robot/      # 数字机器人调研（AI Coworker/Agentic 业务自动化/RPA 数字员工）
 ├── rag-framework/      # RAG 框架选型
 ├── ai-knowledge/       # AI 知识沉淀工具

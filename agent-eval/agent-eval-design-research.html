@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-08-27" />
+  <title>Agent 评测设计研究报告</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; max-width: 860px; margin: 0 auto; padding: 2.5em 1.5em; line-height: 1.75; color: #24292f; background: #fff; }
+h1 { border-bottom: 3px solid #0969da; padding-bottom: .4em; font-size: 1.9em; }
+h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .3em; margin-top: 2em; font-size: 1.45em; }
+h3 { margin-top: 1.6em; font-size: 1.15em; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92em; display: block; overflow-x: auto; }
+th, td { border: 1px solid #d0d7de; padding: 6px 12px; text-align: left; }
+th { background: #f6f8fa; font-weight: 600; }
+tr:nth-child(even) { background: #fafbfc; }
+code { background: #f6f8fa; padding: 2px 6px; border-radius: 4px; font-size: .9em; font-family: "SF Mono", Menlo, monospace; }
+pre { background: #f6f8fa; padding: 1em; border-radius: 6px; overflow-x: auto; }
+blockquote { border-left: 4px solid #0969da; margin: 1em 0; padding: .5em 1em; background: #f6f8fa; color: #57606a; }
+a { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+hr { border: none; border-top: 1px solid #d0d7de; margin: 2em 0; }
+strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Agent 评测设计研究报告</h1>
+<p class="date">2026-08-27</p>
+</header>
+<h1 id="agent-评测设计研究报告">Agent 评测设计研究报告</h1>
+<blockquote>
+<p><strong>调研主题</strong>：Agent
+评测任务如何设计、评测体系如何搭建与落地
+<strong>调研渠道</strong>：GitHub
+开源项目、互联网技术文章、微信公众号/腾讯云社区转载、Hacker News
+社区讨论 <strong>调研日期</strong>：2026-08-27
+<strong>数据来源</strong>：Anthropic 官方博客、NVIDIA Developer
+Blog、腾讯云开发者社区、CSDN 阿里技术专栏、Maxim AI、Zylos
+Research、Naitive AI、TestingXperts、GitHub 榜单仓库、HN 讨论帖等</p>
+</blockquote>
+<hr />
+<h2 id="一执行摘要">一、执行摘要</h2>
+<ol type="1">
+<li><strong>Agent 评测和传统 LLM
+评测是两回事</strong>：传统评测评「输出对不对」，Agent
+评测评「闭环任务做没做成、过程合不合理、成本划不划算」。业界已收敛到「终态校验（outcome）为主
++ 轨迹评测（trajectory）诊断 + LLM-as-Judge 补充 +
+人工校准兜底」的组合框架。</li>
+<li><strong>核心指标是 pass@k 与 pass^k 的取舍</strong>：pass@k（k
+次至少一次成功）衡量峰值能力，pass^k（k
+次全部成功）衡量稳定可靠性。生产级 Agent 更应关注 pass^k。</li>
+<li><strong>任务设计五原则</strong>：可验证性优先、真实失败案例来源（20-50
+个即可起步）、平衡正反例、环境隔离可控、分层难度。</li>
+<li><strong>评测可信度 &gt; 系统复杂度</strong>：错误的 LLM 评分器会给
+Agent「错误的正反馈」，比没有评测更危险（腾讯技术工程观点，与
+Anthropic、NVIDIA 一致）。</li>
+<li><strong>评测是活体资产</strong>：需要评估集三分法（train/val/test）、定期刷新防饱和、评测驱动开发（Eval-Driven
+Development）、与记忆/Skill 更新链路打通形成自进化飞轮。</li>
+</ol>
+<hr />
+<h2 id="二背景为什么-agent-评测难">二、背景：为什么 Agent 评测难</h2>
+<p>Agent 的自主性带来三个传统软件没有的问题（腾讯 TEG
+网关测试团队总结）：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>痛点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>非确定性</strong></td>
+<td>同一 prompt 多次执行结果不同，「跑通一次」不等于「稳定能跑」</td>
+</tr>
+<tr>
+<td><strong>黑盒化</strong></td>
+<td>模型升级、Prompt 微调、工具链变化都会导致行为漂移，肉眼难以察觉</td>
+</tr>
+<tr>
+<td><strong>错误级联放大</strong></td>
+<td>一次任务几十步工具调用，前序小偏差沿链路逐级放大，最终结论完全偏离</td>
+</tr>
+</tbody>
+</table>
+<p>Anthropic《Demystifying evals for AI agents》进一步指出：<strong>让
+Agent
+有用的能力（自主性、创造性）恰恰使其难以评估</strong>——前沿模型能找到超出静态评估设计的创造性解法（如
+Opus 4.5 在 τ2-bench
+中发现政策漏洞提出更优方案，却按既定标准被判「失败」）。</p>
+<hr />
+<h2 id="三评测框架谁来评评什么评多细">三、评测框架：谁来评？评什么？评多细？</h2>
+<h3 id="三类评分器谁来打分">3.1 三类评分器（谁来打分）</h3>
+<p>业界共识（Anthropic / OpenAI / 腾讯 TEG /
+NVIDIA）：<strong>没有「银弹评分器」，必须三类组合使用</strong>。</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>确定性评分器</th>
+<th>LLM 评分器（Rubric）</th>
+<th>人工评分器</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>谁来评</td>
+<td>脚本 / 断言 / Lint / AST</td>
+<td>大模型（固定版本）</td>
+<td>领域专家</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>毫秒级 / 免费</td>
+<td>秒级 / API 费用</td>
+<td>分钟-小时级 / 人力</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>100%</td>
+<td>有抖动（需降噪校准）</td>
+<td>取决于标注员水平</td>
+</tr>
+<tr>
+<td>覆盖</td>
+<td>已知硬指标</td>
+<td>未知软指标</td>
+<td>主观 + 边缘场景</td>
+</tr>
+<tr>
+<td>典型用例</td>
+<td>文件存在、构建通过、测试通过、工具调用检查</td>
+<td>回答质量、意图贴合、解释清晰度</td>
+<td>校准 LLM 评委、诊断 0%/100% 异常、红队</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>硬门禁</td>
+<td>分级门禁</td>
+<td>采样审查、兜底</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选择优先级：确定性评分器 &gt; LLM 评分器 &gt;
+人工评分器</strong>——能用代码判断的绝不用模型，必要时用模型，人工用于校准。</p>
+<p>LLM 评分器的工程要点（Zylos Research、Maxim AI）： - <strong>结构化
+Rubric</strong>：按维度独立打分（事实准确性 / 任务完成 / 推理质量 /
+工具效率 / 沟通清晰度），加权合成，避免「总体打个分」混淆多个正交维度 -
+<strong>锚点描述</strong>：每个维度 1-10 分，在 1/4/7/10
+处给出明确锚点描述，减少分数向中间挤压 -
+<strong>降噪</strong>：temperature=0、结构化输出、生成模型与评估模型分离（避免用同一个模型既答又评）
+- <strong>校准</strong>：抽样 100-200 条与人类标注对齐，一致率 ≥ 85%
+才算可用；评估器本身需要被「评测」（元评测集） -
+<strong>给「Unknown」选项</strong>：防止 LLM
+评委在不确定时强行打分或幻觉</p>
+<p>人工评分只投在六个必要场景：校准 LLM 评委（最核心）、主观任务、诊断
+0%/100% 通过率异常、建立 Ground Truth、Trace
+抽样审查、高风险场景兜底（医疗/金融/安全）。</p>
+<h3 id="五个评测维度评什么">3.2 五个评测维度（评什么）</h3>
+<p>从「做对了吗」到「好用吗」逐层递进（腾讯 TEG + TestingXperts + Maxim
+汇总）：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>大类</th>
+<th>核心问题</th>
+<th>主要评委</th>
+<th>落地优先级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 功能正确性</td>
+<td>任务做成没</td>
+<td>确定性代码</td>
+<td><strong>P0</strong></td>
+</tr>
+<tr>
+<td>2. 过程质量</td>
+<td>过程合理吗（推理、步骤最优、信息完整）</td>
+<td>Rubric + 人工</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>3. 效率与成本</td>
+<td>划得来吗（Token/步数/延迟/成本）</td>
+<td>代码</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>4. 鲁棒性与安全</td>
+<td>关键时刻翻不翻车（pass^k、异常恢复、抗注入、越权）</td>
+<td>代码 + 人工</td>
+<td><strong>P0</strong></td>
+</tr>
+<tr>
+<td>5. 体验与对齐</td>
+<td>用户愿意继续用吗（语气、清晰度、主动澄清）</td>
+<td>Rubric + 人工</td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键指标清单</strong>（腾讯云社区《Agent
+评测方法、工具和指标体系》整理）：</p>
+<ul>
+<li><strong>效果指标</strong>：Task Success
+Rate（最核心）、Pass@1、Pass@k、Final Answer
+Accuracy、Groundedness、Hallucination Rate</li>
+<li><strong>工具与轨迹指标</strong>：Tool Selection
+Precision/Recall、Tool Call F1、Parameter Accuracy、Trajectory
+Efficiency（最优步数/实际步数）、Redundant Call Rate、Loop
+Rate、Recovery Success Rate</li>
+<li><strong>性能与成本指标</strong>：TTFT、Time to First
+Tool、End-to-End Latency（P50/P95/P99）、Token per Task、<strong>Cost
+per Successful
+Task</strong>（优先看这个，低成本但大量失败没有业务意义）</li>
+</ul>
+<blockquote>
+<p>⚠️ <strong>重要提醒</strong>：不应机械要求 Agent
+轨迹与「黄金轨迹」完全一致——不同路径可能同样正确。通常约束「关键工具、禁止工具、最终状态、最大步数」比逐步匹配更合理。</p>
+</blockquote>
+<h3 id="评测粒度评多细">3.3 评测粒度（评多细）</h3>
+<table>
+<thead>
+<tr>
+<th>粒度</th>
+<th>成本</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>粗粒度（整个任务）</td>
+<td>便宜</td>
+<td>日常回归主力</td>
+</tr>
+<tr>
+<td>中粒度（子目标打点）</td>
+<td>中</td>
+<td>定位阶段失败</td>
+</tr>
+<tr>
+<td>细粒度（每个 step）</td>
+<td>指数级增长</td>
+<td>失败 case 深度归因（按需使用）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>建议</strong>：日常用粗粒度跑全量，失败 case
+用细粒度深度归因（腾讯技术工程）。</p>
+<hr />
+<h2 id="四评测方法终态校验-vs-轨迹评测-vs-llm-as-judge">四、评测方法：终态校验
+vs 轨迹评测 vs LLM-as-Judge</h2>
+<h3 id="outcome终态校验优先">4.1 Outcome（终态校验）优先</h3>
+<p><strong>核心原则（Anthropic）</strong>：优先根据 outcome
+评判，不要检查 Agent
+是否遵循了特定工具调用顺序——那会惩罚有效的创新路径。</p>
+<ul>
+<li>对话 Agent
+说「已预订」不算数，<strong>环境里的数据库记录才算</strong>（腾讯 CT
+文章同样强调：最终答案是「结果」，不是「句子」）</li>
+<li>Computer Use Agent：通过
+URL/页面状态检查导航是否正确，通过后端状态确认订单是否真正下达</li>
+<li>检查方式优先级：确定性断言 &gt; 状态比对 &gt; LLM 评分 &gt;
+人工</li>
+</ul>
+<h3 id="transcript轨迹评测做诊断">4.2 Transcript（轨迹评测）做诊断</h3>
+<p>轨迹评测评的是<strong>执行过程</strong>：计划质量、每一步工具调用、推理中间步骤、最终答案与副作用。</p>
+<ul>
+<li>两个 Agent 可能给出相同答案，但一个用 3
+次精准工具调用，另一个来回震荡几十步——最终答案评分把它们视为相同，生产行为却完全不同（NVIDIA）</li>
+<li>计算指标：Trajectory Efficiency、Tool Call Accuracy、failure mode
+分布（plan / tool / environment）</li>
+<li>关键用途：阅读 transcript 是<strong>调试
+eval、理解失败原因</strong>的唯一途径</li>
+</ul>
+<h3 id="llm-as-judge-的定位与边界">4.3 LLM-as-Judge 的定位与边界</h3>
+<ul>
+<li><strong>用在哪</strong>：开放式任务（写作、规划）、主观质量（语气、共情、清晰度）、模拟用户（对话
+Agent 的第二 LLM）</li>
+<li><strong>已知偏差</strong>（Zylos Research 偏差分类法）：
+<ul>
+<li><strong>位置偏差</strong>（position
+bias）：成对比较中偏好先出现的答案 →
+随机化顺序，关键评估跑两个顺序取平均，分数翻转的 case 转人工</li>
+<li><strong>长度偏差</strong>（length bias）：系统性高估长回复 → 在
+Rubric 中显式说明「长度不是质量信号」</li>
+<li><strong>身份偏差</strong>：隐藏模型身份，使用不同模型族做裁判集成</li>
+<li><strong>裁判过拟合</strong>：旋转评委、更换 prompt
+seed、上线前用人类 gold set 验证</li>
+</ul></li>
+<li><strong>Overfitting to judge</strong>：Agent
+学会「骗过评估器」——评测被黑是真实风险（Anthropic
+列举的常见陷阱之一）</li>
+</ul>
+<h3 id="非确定性度量passk-vs-passk">4.4 非确定性度量：pass@k vs
+pass^k</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>指标</th>
+<th>定义</th>
+<th>随 k 变化</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>pass@k</strong></td>
+<td>k 次尝试中至少一次成功</td>
+<td>随 k 上升</td>
+<td>一次成功即可（编码解题、找方案）</td>
+</tr>
+<tr>
+<td><strong>pass^k</strong></td>
+<td>k 次尝试全部成功</td>
+<td>随 k 下降</td>
+<td>一致性至关重要（客服、支付、退款、合规等生产场景）</td>
+</tr>
+</tbody>
+</table>
+<p>生产系统更关心 pass^k——用户不会接受「多试几次总有一次成功」。</p>
+<hr />
+<h2 id="五评测任务设计anthropic-8-步实施路线图">五、评测任务设计：Anthropic
+8 步实施路线图</h2>
+<p>这是目前业界最完整的 Agent 评测落地方法论：</p>
+<ol type="1">
+<li><strong>尽早开始（20-50
+个任务就够）</strong>：早期系统变化影响明显，小样本足够。不要等「完美套件」。</li>
+<li><strong>从真实失败出发</strong>：将手动测试、用户 Bug
+报告、支持队列中的真实失败案例转化为测试用例。</li>
+<li><strong>编写无歧义任务 + 参考解决方案</strong>：
+<ul>
+<li>好任务标准：两位领域专家能独立得出相同的通过/失败结论</li>
+<li>参考解决方案证明「任务可解 + grader 配置正确」</li>
+<li>若 Agent 在 pass@100 时仍 0% 成功，通常说明是任务或 grader
+有问题，而非 Agent 不行</li>
+</ul></li>
+<li><strong>构建平衡的问题集</strong>：同时测试「应该发生」和「不应该发生」的行为，避免单边优化（如过度搜索）。</li>
+<li><strong>构建健壮框架 + 稳定环境</strong>：评估中 Agent
+行为须与生产一致；每次试验在<strong>干净环境隔离运行</strong>，避免共享状态污染（Git
+历史残留等）。</li>
+<li><strong>精心设计
+Grader</strong>：确定性优先；多组件任务给部分分数；允许合理创造性解法；LLM
+评委需人工校准 + 提供「Unknown」选项。</li>
+<li><strong>检查 Transcripts</strong>：读失败案例的轨迹，判断是 Agent
+真错了还是 grader 拒绝了有效方案。</li>
+<li><strong>长期维护</strong>：通过率接近 100%
+时只能跟踪回归、不能提供改进信号（警惕饱和假象）；评估套件是活体资产，需持续刷新。</li>
+</ol>
+<p><strong>配套：评估集三分法</strong>（腾讯技术工程，与 ML 传统一致）：
+- <strong>train 集</strong>：诊断用，可暴露给 LLM - <strong>val
+集</strong>：筛选候选方案，<strong>绝不暴露给 LLM</strong> -
+<strong>test 集</strong>：最终验证，独立</p>
+<p><strong>分 Agent 类型差异化评测</strong>（Anthropic + Naitive
+AI）：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Agent 类型</th>
+<th>主评测方法</th>
+<th>代表性基准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coding Agent</td>
+<td>确定性 grader（单元测试）+ 轨迹 Rubric</td>
+<td>SWE-bench Verified、Terminal-Bench</td>
+</tr>
+<tr>
+<td>Conversational Agent</td>
+<td>终态状态检查 + Rubric + 模拟用户第二 LLM</td>
+<td>τ-bench、τ2-bench</td>
+</tr>
+<tr>
+<td>Research Agent</td>
+<td>Groundedness + Coverage + Source Quality</td>
+<td>BrowseComp、GAIA</td>
+</tr>
+<tr>
+<td>Computer Use Agent</td>
+<td>沙盒环境终态检查（DOM/截图权衡）</td>
+<td>WebArena、OSWorld</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="六开源基准与工具盘点github-调研">六、开源基准与工具盘点（GitHub
+调研）</h2>
+<h3 id="代表性基准-benchmarks">6.1 代表性基准 Benchmarks</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>基准</th>
+<th>Stars</th>
+<th>机构</th>
+<th>测什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-bench</td>
+<td>5.7k</td>
+<td>Princeton</td>
+<td>真实 GitHub Issue 代码修复（行业金标准）</td>
+</tr>
+<tr>
+<td>AgentBench</td>
+<td>3.7k</td>
+<td>THUDM/清华</td>
+<td>8 种环境的综合 Agent 能力（ICLR’24）</td>
+</tr>
+<tr>
+<td>OSWorld</td>
+<td>3.1k</td>
+<td>xLang AI</td>
+<td>真实桌面操作环境多模态 Agent（NeurIPS’24）</td>
+</tr>
+<tr>
+<td>τ-bench / τ2-bench</td>
+<td>1.4k / 1.9k</td>
+<td>Sierra Research</td>
+<td>工具-Agent-用户三方交互，模拟真实客服工单</td>
+</tr>
+<tr>
+<td>WebArena</td>
+<td>1.6k</td>
+<td>CMU</td>
+<td>真实网页交互（购物/论坛/软件评测）</td>
+</tr>
+<tr>
+<td>GAIA</td>
+<td>-</td>
+<td>Meta+HuggingFace</td>
+<td>通用 AI 助手，多步推理+工具使用</td>
+</tr>
+<tr>
+<td>ClawBench</td>
+<td>592</td>
+<td>TIGER-AI-Lab</td>
+<td>浏览器日常任务 Agent</td>
+</tr>
+<tr>
+<td>OSWorld-V2</td>
+<td>262</td>
+<td>xLang AI</td>
+<td>长时程真实计算机任务</td>
+</tr>
+</tbody>
+</table>
+<h3 id="评测框架与工具">6.2 评测框架与工具</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>项目</th>
+<th>Stars</th>
+<th>定位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>promptfoo</td>
+<td>24.6k</td>
+<td>提示词/Agent/RAG 测试 + 红队，最流行的评测 CLI</td>
+</tr>
+<tr>
+<td>deepeval</td>
+<td>17.9k</td>
+<td>LLM 应用评测框架（Confident AI）</td>
+</tr>
+<tr>
+<td>ragas</td>
+<td>15.5k</td>
+<td>RAG 评测（faithfulness/relevance）</td>
+</tr>
+<tr>
+<td>langfuse</td>
+<td>33.8k</td>
+<td>开源 LLM 可观测 + evals</td>
+</tr>
+<tr>
+<td>mlflow</td>
+<td>27.7k</td>
+<td>Agent/LLM 工程平台，支持评测</td>
+</tr>
+<tr>
+<td>opik</td>
+<td>21.6k</td>
+<td>Comet 出品，调试/评测/监控 Agentic 工作流</td>
+</tr>
+<tr>
+<td>phoenix</td>
+<td>11.2k</td>
+<td>Arize 开源可观测与评测</td>
+</tr>
+<tr>
+<td>Inspect AI</td>
+<td>2.6k</td>
+<td><strong>UK GovernmentBEIS</strong>，LLM 评测框架（agent
+支持完善）</td>
+</tr>
+<tr>
+<td>openevals</td>
+<td>1.2k</td>
+<td>LangChain 出品的现成评测器（含 agent trajectory）</td>
+</tr>
+<tr>
+<td>trulens</td>
+<td>3.5k</td>
+<td>TruEra，LLM 实验评测与追踪</td>
+</tr>
+<tr>
+<td>Giskard</td>
+<td>5.8k</td>
+<td>LLM Agent 开源评测与测试</td>
+</tr>
+<tr>
+<td>coze-loop</td>
+<td>5.7k</td>
+<td>扣子出品的 Agent 优化平台（评测闭环）</td>
+</tr>
+<tr>
+<td>AgentAsJudge</td>
+<td>22</td>
+<td>微软的 agentic 评测框架</td>
+</tr>
+<tr>
+<td>SkillEvaluator</td>
+<td>327</td>
+<td>NVIDIA 多层级 Agent Skill 评测框架</td>
+</tr>
+<tr>
+<td>AdaRubrics</td>
+<td>356</td>
+<td>自适应动态 Rubric 轨迹评估器（研究向）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="精选资源">6.3 精选资源</h3>
+<ul>
+<li><strong>Awesome-LLMs-as-Judges</strong>（609★）：LLM
+作为裁判的综述论文与资源合集</li>
+<li><strong>awesome-evals</strong>（846★）：构建/评测 AI Agent
+的精选资源库（benchflow-ai）</li>
+<li><strong>eval-view</strong>（130★）：Agent 回归测试，快照行为、diff
+工具调用、捕获 CI 回归</li>
+</ul>
+<hr />
+<h2 id="七工业界实践">七、工业界实践</h2>
+<h3 id="腾讯-teg-网关测试团队">7.1 腾讯 TEG 网关测试团队</h3>
+<p>面对非确定性、黑盒化、错误级联三大难题，建立「确定性评分器 + Rubric
+评分器 +
+人工评分器」三类组合框架，覆盖功能正确性、过程质量、效率成本、鲁棒性安全、体验对齐五维。已在
+TPerf 平台智能分析 Agent
+落地。核心公式：<code>Eval = Agent 输入 → 执行 → 捕获执行过程（Trace + 产物）→ 一组检查规则 → 可对比的分数</code>。强调<strong>用数据代替直觉，用全量代替抽查</strong>。</p>
+<h3 id="腾讯给-agent-做-ct体系可观测-质量保障">7.2 腾讯「给 Agent 做
+CT」体系（可观测 + 质量保障）</h3>
+<ul>
+<li><strong>数据回流打通观测与评测</strong>：离线回流（线上高价值 Trace
+周期性清洗转化为评测集）+ 在线回流（点赞/点踩实时反馈）</li>
+<li>离线评测（版本上线前新旧对比回归）+
+在线评测（线上持续监控误答率、Token 波动）</li>
+<li>评测结果沉淀为优化动作：提示词调整、检索策略优化、模型路由切换</li>
+<li>白盒化人工复核页面，针对高价值/高风险场景引入人工标注对齐</li>
+</ul>
+<h3 id="阿里技术专栏csdn">7.3 阿里技术专栏（CSDN）</h3>
+<ul>
+<li>对话 Agent 不能只看单轮答案，须同时看 Turn（单轮）/
+Session（整段会话）/ Trace（轨迹）/ Outcome（结果）四层</li>
+<li>指标分 P0（上线门禁）/ P1（版本比较）/ P2（体验改善）</li>
+<li>Skill
+本身需要测评：是否该触发、流程对不对、参数是否正确、产物是否可用、异常能否降级</li>
+<li>强调「连续成功率」（pass^k）对客服/支付/退款/合规等生产场景的意义</li>
+</ul>
+<h3 id="nvidia">7.4 NVIDIA</h3>
+<p>五大技巧：① 测 TSR（任务成功率）而非准确率，任务定义为「意图 +
+约束」；② 评完整轨迹而非仅最终答案；③ 把工具使用作为一等信号（工具选择
+precision/recall、schema 合规）；④
+评分推理质量与效率（token/步数/延迟预算）；⑤
+从第一天就把评测建成透明的工程实践（稳定 ID
+记录轨迹、给轨迹打标签）。</p>
+<h3 id="腾讯技术工程自进化飞轮中的评测">7.5
+腾讯技术工程：自进化飞轮中的评测</h3>
+<p>评测在自进化系统中承担<strong>方向指引、质量门控、经验筛选</strong>三重职责，评测信号直接流入记忆和
+Skill 更新链路。诊断归因分四类： - 系统性问题 → 触发 Skill/Prompt 更新 -
+偶发个例 → 写入记忆作为反例 - 能力缺失 → 触发工具补充 - 回归问题 →
+立即回滚</p>
+<p>Skill 评测需通过四层验证才证明「真的有用」：对照实验（无 Skill
+时模型是否也会做）、难度校准、轨迹追踪（运行时是否真的调用）、路径验证（绕过关键校验步骤了吗）。</p>
+<hr />
+<h2 id="八常见陷阱清单">八、常见陷阱清单</h2>
+<ol type="1">
+<li><strong>弱评估器（最致命）</strong>：LLM 给 LLM
+打分存在系统性偏差（偏好长文本、特定格式），错误的正反馈让 Agent
+学会「骗过评估器」</li>
+<li><strong>任务规格模糊</strong>：grader
+检查的前提没在任务描述中明确，Agent 无辜失败</li>
+<li><strong>Grader
+过于僵化</strong>：要求特定工具调用顺序，惩罚了有效的创新路径</li>
+<li><strong>Grader 被「黑」</strong>：Agent 利用 eval
+设计漏洞作弊而不真正解决问题</li>
+<li><strong>任务本身错误</strong>：评估者配置错误（如 METR
+基准中「优化到指定阈值」的指令与 grader 的「超过阈值」矛盾）</li>
+<li><strong>共享状态污染</strong>：实验环境不隔离，前次运行残留影响后续结果</li>
+<li><strong>评估饱和假象</strong>：通过率接近 100%
+时无法区分能力提升与噪音，产生虚假安全感</li>
+<li><strong>单边评估</strong>：只测「应发生」行为，Agent
+过度优化导致「不应发生」时也执行</li>
+<li><strong>只报平均分</strong>：不报方差、不做多次采样（建议每任务 ≥5
+次）</li>
+<li><strong>忽略成本维度</strong>：pass@1 高但 token 花 10
+倍的方案在生产上不可接受</li>
+<li><strong>评测集漂移</strong>：业务变化但评测集不更新，Agent
+在旧集刷高分、真实体验下降</li>
+<li><strong>预算不公平</strong>：提升可能来自多花 token（如
+Best-of-N），须在相同预算下对比</li>
+<li><strong>裁判过拟合与对齐漂移</strong>：评测信号无意中奖励「详细」导致
+Agent
+越来越啰嗦——需要定期方向性审计、约束指标、评测集中显式包含「意图对齐」维度</li>
+</ol>
+<hr />
+<h2 id="九从零到一落地路线建议">九、从零到一落地路线建议</h2>
+<h3 id="最小闭环1-2-周">9.1 最小闭环（1-2 周）</h3>
+<ol type="1">
+<li>收集 20-50 个真实失败案例，写成<strong>无歧义任务 +
+参考解决方案</strong></li>
+<li>从确定性 grader
+开始：单元测试、断言、文件/状态检查、工具调用断言</li>
+<li>搭 CI 门禁，每次 Agent 变更自动跑评测</li>
+<li>阅读失败 transcript，判断是 Agent 错还是 eval 错</li>
+</ol>
+<h3 id="半自动化2-4-周">9.2 半自动化（2-4 周）</h3>
+<ol start="5" type="1">
+<li>引入 LLM Rubric 覆盖软指标，抽样 100-200 条人工校准（一致率 ≥
+85%）</li>
+<li>建立评估集三分法（train/val/test）</li>
+<li>加入效率成本指标（token、步数、延迟、Cost per Successful Task）</li>
+<li>引入轨迹评测做失败归因</li>
+</ol>
+<h3 id="生产级1-2-月">9.3 生产级（1-2 月）</h3>
+<ol start="9" type="1">
+<li>在线评测：生产日志抽样、点赞/点踩回流、告警（误答率、token
+异常）</li>
+<li>灰度对比（shadow mode / canary / A/B）</li>
+<li>评测驱动的发布门禁：安全失败不发版</li>
+<li>评估集定期刷新，饱和任务「毕业」为回归套件</li>
+<li>打通记忆/Skill 更新链路，形成自进化闭环</li>
+</ol>
+<h3 id="核心原则总结">9.4 核心原则总结</h3>
+<ul>
+<li><strong>评测可信度 &gt;
+系统复杂度</strong>：先把「眼睛」擦亮，再让「手脚」动起来</li>
+<li><strong>从终态出发，轨迹诊断，judge
+补充，人工校准</strong>：四者缺一不可</li>
+<li><strong>评测是活体资产</strong>：评估集、grader、评测工具都要版本化并持续演进</li>
+<li><strong>先跑通手动最小闭环</strong>，再逐步自动化</li>
+</ul>
+<hr />
+<h2 id="附录主要参考来源">附录：主要参考来源</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>来源</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anthropic《Demystifying evals for AI agents》</td>
+<td>方法论金标准：8 步路线图、pass@k/pass^k、三类 grader</td>
+</tr>
+<tr>
+<td>Anthropic《Building Effective Agents》</td>
+<td>Agent/Workflow 区别与设计模式</td>
+</tr>
+<tr>
+<td>NVIDIA Developer Blog《Mastering Agentic Techniques: AI Agent
+Evaluation》</td>
+<td>TSR、轨迹评测、工具使用一等信号</td>
+</tr>
+<tr>
+<td>腾讯技术工程《一篇讲透 Agent 自进化飞轮》</td>
+<td>评测→记忆→落地→控制闭环、评测集三分法、Skill 四层验证</td>
+</tr>
+<tr>
+<td>腾讯云《Agent 评测方法、工具和指标体系》</td>
+<td>完整指标清单</td>
+</tr>
+<tr>
+<td>腾讯网《给 Agent 做 CT：大规模 Agent 的可观测与质量保障体系》</td>
+<td>数据回流、在线/离线评测</td>
+</tr>
+<tr>
+<td>CSDN 阿里技术专栏《Agent 评测：方法论与体系设计》</td>
+<td>对话 Agent 四层评测、P0/P1/P2 分级</td>
+</tr>
+<tr>
+<td>Maxim AI 系列文章</td>
+<td>生产环境评测 checklist、LLM-as-Judge 工程化</td>
+</tr>
+<tr>
+<td>Zylos Research《LLM-as-Judge Patterns for Agent Evaluation》</td>
+<td>评委偏差分类与校准</td>
+</tr>
+<tr>
+<td>Naitive AI《Mastering AI Agent Evaluation》</td>
+<td>pass@k/pass^k、按 Agent 类型差异化评测</td>
+</tr>
+<tr>
+<td>TestingXperts《What Accuracy Alone Can’t Tell You》</td>
+<td>Minimum Viable Scorecard 示例</td>
+</tr>
+<tr>
+<td>GitHub 各基准与框架仓库</td>
+<td>见第六节表格</td>
+</tr>
+</tbody>
+</table>
+<p><em>报告由 AI 调研生成，用于知识库沉淀。</em></p>
+</body>
+</html>
